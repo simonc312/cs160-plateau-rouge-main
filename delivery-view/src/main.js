@@ -8,6 +8,8 @@ var KEYBOARD = require('mobile/keyboard');
 var SCREEN = require('mobile/screen');
 var SCROLLER = require('mobile/scroller');
 var TRANSITIONS = require('transitions');
+var UPSELLING = require('upselling.js');
+trace("upselling: " + UPSELLING.scan==false);
 
 //GLOBALS
 var mainColor = "#FF4136"
@@ -84,7 +86,8 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-
+			application.remove(main);
+			application.add(UPSELLING.mainContainer);
 		}},
 		onComplete: { value: function(content, message, json){
 
