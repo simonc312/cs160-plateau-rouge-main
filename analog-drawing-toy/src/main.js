@@ -9,15 +9,23 @@ var tileFourXY = [0,0];
 
 //quantity will eventually need to be separated
 var tileProperties = [
-	{name: "New Era Snapback", quantity: 5, price: 40, image: "assets/hat-thumbnail.jpg", dateTime: "", timeDifference: ""},
-	{name: "Sperry Navy Shorts", quantity: 15, price: 35, image: "assets/shorts-thumbnail.jpg", dateTime: "", timeDifference: ""},
-	{name: "Zara Men's White Tee", quantity: 25, price: 15, image: "assets/white-tee-thumbnail.jpg", dateTime: "", timeDifference: ""},
-	{name: "J Crew Blazer", quantity: 3, price: 75, image: "assets/blazer-thumbnail.jpg", dateTime: "", timeDifference: ""}
+	{name: "New Era Snapback", quantity: 5, price: 40, image: "assets/hat-thumbnail.jpg"},
+	{name: "Sperry Navy Shorts", quantity: 15, price: 35, image: "assets/shorts-thumbnail.jpg"},
+	{name: "Zara Men's White Tee", quantity: 25, price: 15, image: "assets/white-tee-thumbnail.jpg"},
+	{name: "J Crew Blazer", quantity: 3, price: 75, image: "assets/blazer-thumbnail.jpg"}
 	
 ]
 
 var deliveredTiles = [];
 var soldTiles = [];
+
+copyTileProperty = function(origTile){
+	newTile = {};
+	Object.keys(origTile).forEach(function(key) {
+     newTile[ key ] = origTile[ key ];
+}); 
+	return newTile;
+}
 
 addDelivery = function(index){
 	
@@ -26,7 +34,7 @@ addDelivery = function(index){
 		for(var i=0; i<deliveredTiles.length;i++){
 			deliveredTiles[i] = updateTime(deliveredTiles[i]);
 		}
-		var newItem = tileProperties[index]; //don't update tileProperty from array only separate copy
+		var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
 		deliveredTiles.unshift(updateTime(newItem)); //initialize time prop of new item
 	}
 	else
@@ -34,7 +42,7 @@ addDelivery = function(index){
 }
 
 updateTime = function(itemProperty){
-	if(itemProperty.dateTime == ""){
+	if(itemProperty.dateTime == undefined){
 		itemProperty.dateTime = new Date();
 		itemProperty.timeDifference = "New Delivery!";
 	}

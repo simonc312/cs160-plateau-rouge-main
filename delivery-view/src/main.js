@@ -167,7 +167,7 @@ var ListItemLine = Line.template(function($) { return { left: 0, right: 0, activ
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemPropertyStyle, string: "price: "+$.price }	
+					{ style: itemPropertyStyle, string: "price/unit: "+$.price }	
 				], }),
 			]})
 			
@@ -259,7 +259,10 @@ ListPane.behaviors = new Array(1);
 ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 
 	addItemLine: function(list, item) {
-						list.add(new HistoryListItemLine(item));
+						if(item.timeDifference == undefined)
+							list.add(new ListItemLine(item));
+						else
+							list.add(new HistoryListItemLine(item));
 					},
 	createMessage: function(list,data){
 		var tagPath = "";
