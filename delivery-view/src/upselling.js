@@ -24,7 +24,7 @@ var whiteTextStyle = new Style( { font:"17px", color:"white" } );
 /**
  * Miscel Variables, Constants, and Functions
  */
-var backArrowPic = "assets/backarrow.jpg";
+var backArrowPic = "assets/backarrow.png";
 var scanPic = "assets/scan.png";
 var storePic = "assets/store.jpg";
 var arrowPic = "assets/redarrow.png";
@@ -297,13 +297,13 @@ var scanColumn = new Column({
         new Line({left:0, right:0, top:0,
             contents: [new Container({ left: 10, top: 10, active:true, skin: STYLES.searchButtonSkin,
 	contents: [
-		new Picture({height: 50, width: 50, right: 0, left: 40, top: 0, name: "backarrow", url: backArrowPic})],
+		new Picture({height: 50, width: 50, right: 0, left: 0, top: 0, name: "backarrow", url: backArrowPic})],
 		behavior: Object.create(Container.prototype, {
 			onTouchEnded: { value: function(container) {
 				application.remove(mainContainer);
 				application.add(main);
 			}}}) }) , 
-		new Label({left: 0, top:20, height:25, string:"Scan Your Item Here", style:titleStyle})]
+		new Label({left: 10, top:20, height:25, string:"Scan Your Item Here", style:titleStyle})]
         }),
         new Container({ left: 10, right: 10, top: 40, active:true,
 	contents: [
