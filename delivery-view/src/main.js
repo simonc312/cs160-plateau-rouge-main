@@ -9,7 +9,7 @@ var SCREEN = require('mobile/screen');
 var SCROLLER = require('mobile/scroller');
 var TRANSITIONS = require('transitions');
 var UPSELLING = require('upselling.js');
-trace("upselling: " + UPSELLING.scan==false);
+var THEFT = require('theft.js');
 
 //GLOBALS
 var mainColor = "#FF4136"

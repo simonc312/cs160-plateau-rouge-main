@@ -8,9 +8,6 @@ var whiteSkin = new Skin( { fill:"white" } );
 var whiteGrayBorderSkin = new Skin( { fill:"white", borders:{top:1}, stroke:"#D6D6D6" } );
 var graySkin = new Skin( { fill:"#2B2B2B", borders:{top:1}, stroke:"#D6D6D6" } );
 var redSkin = new Skin( { fill:"#FF4136" } );
-
-var scanTexture = new Texture("./scan.png");
-var scanSkin = new Skin( {texture: scanTexture, width: 150, height: 150, top: 0, bottom: 0, left: 0, right: 0});
  
 /**
  * Styles
