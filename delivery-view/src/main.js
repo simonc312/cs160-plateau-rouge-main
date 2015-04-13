@@ -20,8 +20,10 @@ var thumbnailHeight = 80;
 var itemImageWidth = 100;
 var itemImageHeight = 100;
 
-//STYLES						   
-var itemNameStyle = new Style({  font: 'bold', horizontal: 'null', vertical: 'null', lines: 1, });
+//STYLES
+var historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
+var itemNameStyle = new Style({  color: "black", font: 'bold 20px', horizontal: 'null', vertical: 'null', lines: 1, });						   
+var itemPropertyStyle = new Style({  color: "grey", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
 var headerTitleStyle = new Style({  font: 'bold 24px', horizontal: 'center', vertical: 'middle', lines: 1, });
 var testPicture = new Picture({left:0,right:0,top:0,bottom:0,scale:{x:0.1,y:0.1},url:'assets/blazer-large.jpg'});
 var nameInputSkin = new Skin({ borders: { left:2, right:2, top:2, bottom:2 }, stroke: 'gray',});
@@ -86,8 +88,10 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			application.remove(main);
-			application.add(UPSELLING.mainContainer);
+			if(content == scanButton){
+				application.remove(main);
+				application.add(UPSELLING.mainContainer);
+			}
 		}},
 		onComplete: { value: function(content, message, json){
 
@@ -159,11 +163,11 @@ var ListItemLine = Line.template(function($) { return { left: 0, right: 0, activ
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemNameStyle, string: "quantity: "+$.quantity }	
+					{ style: itemPropertyStyle, string: "quantity: "+$.quantity }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemNameStyle, string: "price: "+$.price }	
+					{ style: itemPropertyStyle, string: "price: "+$.price }	
 				], }),
 			]})
 			
@@ -173,6 +177,41 @@ var ListItemLine = Line.template(function($) { return { left: 0, right: 0, activ
 			
 	], }),
 ], }});
+
+var HistoryListItemLine = Line.template(function($) { return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
+
+	Column($, { left: 0, right: 0, contents: [
+
+		Line($, { left: 0, right: 0, height: 1, skin: separatorSkin, }),
+
+		Line($, { left: 2, right: 2, height: 82, contents: [
+
+			ItemThumbnail({width: thumbnailWidth, height: thumbnailHeight, url: $.image}),
+
+			Column($, { left: 20,right: 10, contents: [
+				Text($, { left: 4, right: 0, 
+				blocks: [
+					{ style: itemNameStyle, string: $.name }	
+				], }),
+				Text($, { left: 4, right: 0, 
+				blocks: [
+					{ style: historyItemNameStyle, string: "added: "+$.timeDifference }	
+				], }),
+				Text($, { left: 4, right: 0, 
+				blocks: [
+					{ style: itemPropertyStyle, string: "quantity: "+$.quantity }	
+				], }),
+				
+			]})
+			
+		], }),
+		
+		
+			
+	], }),
+], }});
+
+
 ListItemLine.behaviors = new Array(1);
 ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
 	onTouchEnded: function(line, id, x, y, ticks) {
@@ -191,11 +230,11 @@ var ItemView = Body.template(function($) { return { contents: [
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemNameStyle, string: "quantity: "+$.quantity }	
+					{ style: itemPropertyStyle, string: "quantity: "+$.quantity }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemNameStyle, string: "price: "+$.price }	
+					{ style: itemPropertyStyle, string: "price: "+$.price }	
 				], })
 		]})
 	]}),
@@ -220,7 +259,7 @@ ListPane.behaviors = new Array(1);
 ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 
 	addItemLine: function(list, item) {
-						list.add(new ListItemLine(item));
+						list.add(new HistoryListItemLine(item));
 					},
 	createMessage: function(list,data){
 		var tagPath = "";
@@ -310,10 +349,15 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 		case "History":
 			historyPane = new ListPane({items:null,more:false, action: buttonString});
 			newContent = historyPane;
+			direction = "right";
 		break;
 		case "Inventory":
 			inventoryPane =  new ListPane({items:null,more:false, action: buttonString});
 			newContent = inventoryPane;
+			if(formerContent == historyPane)
+				direction = "left";
+			else
+				direction = "right";
 		break;
 		case "Sold":
 			soldPane = new ListPane({items:null,more:false, action: buttonString});
@@ -323,7 +367,7 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 		}
 		if(formerContent == newContent)
 			return;
-		contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{removeFormerContent: true, easetype:"linear", addCurrentBehind:true,duration:500,direction: direction});
+		contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{easetype:"sineEaseIn",duration:300,direction: direction});
 		contentRow.behavior.currentContent = newContent;
 		titleLabel.string = "Plateau Rouge " + buttonString;
 		}},
