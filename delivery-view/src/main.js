@@ -320,7 +320,7 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 		}
 		if(formerContent == newContent)
 			return;
-		contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{removeFormerContent: false, easetype:"linear", addCurrentBehind:true,duration:500,direction: direction});
+		contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{removeFormerContent: true, easetype:"linear", addCurrentBehind:true,duration:500,direction: direction});
 		contentRow.behavior.currentContent = newContent;
 		titleLabel.string = "Plateau Rouge " + buttonString;
 		}},
