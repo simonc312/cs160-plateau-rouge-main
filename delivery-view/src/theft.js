@@ -1,6 +1,7 @@
 /**
  * Skins
  */
+var X = 30, Y = 50;
 var whiteSkin = new Skin( { fill:"white" } );
 var whiteGrayTopSkin = new Skin( { fill:"white", borders:{top:1}, stroke:"#D6D6D6" } );
 var whiteGrayBottomSkin = new Skin( { fill:"white", borders:{bottom:1}, stroke:"#D6D6D6" } );
@@ -97,6 +98,50 @@ Handler.bind("/scan", {
     }
 });
 
+Handler.bind("/mapStolenOne", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileOneCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            mapContainer.tileone.coordinates = { left: mapX(json.validTiles[0]), bottom: mapY(json.validTiles[1]) };
+        }
+    }
+});
+
+Handler.bind("/mapStolenTwo", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileTwoCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            mapContainer.tiletwo.coordinates = { left: mapX(json.validTiles[0]), bottom: mapY(json.validTiles[1]) };
+        }
+    }
+});
+
+Handler.bind("/mapStolenThree", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileThreeCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            mapContainer.tilethree.coordinates = { left: mapX(json.validTiles[0]), bottom: mapY(json.validTiles[1]) };
+        }
+    }
+});
+
+Handler.bind("/mapStolenFour", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileFourCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            mapContainer.tilefour.coordinates = { left: mapX(json.validTiles[0]), bottom: mapY(json.validTiles[1]) };
+        }
+    }
+});
+
 /**
  * Main container
  */
@@ -188,6 +233,65 @@ var theftAlertContainer = new Container({
 /**
  * Map Screen
  */
+function mapX(x) {
+    //maps 0-100 to 0-290
+    return x*290/100;
+}
+
+function mapY(y) {
+    //maps 0-100 to 10-260
+    return 10 + y*250/100;
+}
+
+function displayLocationMarkers(content) {
+    if(stolenItems[0]) {
+        mapContainer.tileone.visible = true;
+        content.invoke(new Message("/mapStolenOne"));
+    } else {
+        mapContainer.tileone.visible = false;
+    }
+    if(stolenItems[1]) {
+        mapContainer.tiletwo.visible = true;
+        content.invoke(new Message("/mapStolenTwo"));
+    } else {
+        mapContainer.tiletwo.visible = false;
+    }
+    if(stolenItems[2]) {
+        mapContainer.tilethree.visible = true;
+        content.invoke(new Message("/mapStolenThree"));
+    } else {
+        mapContainer.tilethree.visible = false;
+    }
+    if(stolenItems[3]) {
+        mapContainer.tilefour.visible = true;
+        content.invoke(new Message("/mapStolenFour"));
+    } else {
+        mapContainer.tilefour.visible = false;
+    }
+}
+ 
+var mapContainer = new Container({
+    left:0, right:0, top:0, bottom:0, skin: whiteSkin,
+    contents: [
+        new Picture({left:0, right:0, top:0, height:300, url:"assets/streetmap.png"}),
+        new Picture({left:mapX(X), bottom:mapY(Y), width:30, height:30, url:"assets/location-blue.png"}),
+        new Picture({name:"tileone", left:mapX(0), bottom:mapY(0), width:30, height:30, url:"assets/location-red.png"}),
+        new Picture({name:"tiletwo", left:mapX(0), bottom:mapY(0), width:30, height:30, url:"assets/location-red.png"}),
+        new Picture({name:"tilethree", left:mapX(0), bottom:mapY(0), width:30, height:30, url:"assets/location-red.png"}),
+        new Picture({name:"tilefour", left:mapX(0), bottom:mapY(0), width:30, height:30, url:"assets/location-red.png"}),    
+    ]
+});
+
+mapContainer.behavior = Object.create(Behavior.prototype, {
+    onDisplaying: { value: function(content) {
+        displayLocationMarkers(content);
+        content.start();
+    }},
+    onTimeChanged: { value: function(content) {
+        displayLocationMarkers(content);
+    }}
+});
+ 
 var theftMapColumn = new Column({
 	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: whiteSkin,
 	contents: [
@@ -196,17 +300,32 @@ var theftMapColumn = new Column({
 	            new Label({left:5, top:5, height:40, string:"Thief Map", style:buttonStyle}),
 	        ]
 	    }),
-	    new Line({left:0, right:0, top:0, bottom:0, skin: whiteGrayTopSkin, active:true,
+	    new Line({left:0, right:0, top:0,
+	        contents: [mapContainer]
+	    }),
+	    new Line({left:0, right:0, top:0, bottom:0, skin: whiteGrayBottomSkin,
 	        contents: [
-	            new Label({left:10, top:0, height:40, string:"Proceed to Detect Stolen Items on Thief", style:textStyle}),
+	            new Picture({left:10, top:0, bottom:10, width:50, height:50, url:"assets/location-red.png"}),
+	            new Label({left:20, top:0, bottom:0, string:"Stolen Item", style:biggerTextStyle}),
+	        ]
+	    }),
+	    new Line({left:0, right:0, top:0, bottom:0, skin: whiteGrayBottomSkin,
+	        contents: [
+	            new Picture({left:10, top:10, bottom:10, width:50, height:50, url:"assets/location-blue.png"}),
+	            new Label({left:20, top:0, bottom:0, string:"Current Location", style:biggerTextStyle}),
+	        ]
+	    }),
+	    new Line({left:3, right:3, bottom:3, skin: graySkin, active:true,
+	        contents: [
+	            new Label({left:10, top:0, height:45, string:"Detect Stolen Items on Thief", style:buttonStyle}),
 	        ],
 	        behavior: Object.create(Behavior.prototype, { 
 	            onTouchBegan: { value: function(content, id, x, y, ticks){
 	                if(deviceURL != "") content.invoke(new Message("/scan"));
-		            content.first.style = darkerTextStyle;
+		            content.first.style = textStyle;
 	            }},
 	            onTouchEnded: { value: function(content, id, x, y, ticks){
-			        content.first.style = textStyle;
+			        content.first.style = buttonStyle;
 			        mainContainer.run( new TRANSITIONS.Push(), theftMapColumn, theftDetectionColumn, { direction : "left", duration : 400 } );
 				}},
 			})
@@ -470,10 +589,6 @@ function addNamesAndQuantities() {
         }
     }
     for(var override in quantityOverride) {
-        for(var stuff in quantityOverride[override]) {
-            trace(stuff);
-            trace(quantityOverride[override][stuff]);
-        }
         if("recovered" in quantityOverride[override]) {
             recoveredItems[override] = { quantity: quantityOverride[override]["recovered"] }; 
         }
@@ -604,7 +719,14 @@ theftDetailsColumn.behavior = Object.create(Behavior.prototype, {
 	        for(var i = 0; i < stolenItems.length; i++) {
 	            if(stolenItems[i]) {
 	                var name = NAMES[i];
-	                if(detectedItems[i]) {
+	                if(name in quantityOverride) {
+	                    var recovered = ("recovered" in quantityOverride[name]) ? quantityOverride[name]["recovered"] : 0;
+	                    var lost = ("lost" in quantityOverride[name]) ? quantityOverride[name]["lost"] : 0;
+	                    items[name] = {
+	                        thumbnail: THUMBNAILS[i], recoveredAmt: PRICES[i]*recovered, recoveredQuantity: recovered,
+	                        lostAmt: PRICES[i]*lost, lostQuantity: lost
+	                    };
+	                } else if(detectedItems[i]) {
 	                    if(name in items) {
 	                        items[name].recoveredQuantity++;
 	                        items[name].recoveredAmt += PRICES[i];
