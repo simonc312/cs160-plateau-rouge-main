@@ -126,8 +126,9 @@ var recommendedButton = BUTTONS.Button.template(function($){ return{ //when pres
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			mainContainer.remove(upsellingColumn);
-			mainContainer.add(recommendedColumn);
+			mainContainer.run( new TRANSITIONS.Push(), upsellingColumn, recommendedColumn, { direction : "left", duration : 400 } );
+			//mainContainer.remove(upsellingColumn);
+			//mainContainer.add(recommendedColumn);
 		}}
 	})
 	
@@ -142,9 +143,10 @@ var upsellingButton = BUTTONS.Button.template(function($){ return{ //when presse
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
+			mainContainer.run( new TRANSITIONS.Push(), recommendedColumn, upsellingColumn, { direction : "right", duration : 400 } );
 			
-			mainContainer.remove(recommendedColumn);
-			mainContainer.add(upsellingColumn);
+			//mainContainer.remove(recommendedColumn);
+			//mainContainer.add(upsellingColumn);
 		}}
 	})
 }});
@@ -156,23 +158,9 @@ var location_to_upsellingButton1 = BUTTONS.Button.template(function($){ return{ 
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			
-			mainContainer.remove(locationColumn);
-			mainContainer.add(upsellingColumn);
-		}}
-	})
-}});
-
-var location_to_upsellingButton2 = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the main Upselling view
-	top: 390, left: 10, right: 10, height:40, skin: graySkin,
-	contents: [
-		new Label({left:0, right:0, height:40, skin: graySkin, string:"< Back to My Item", style: whiteTextStyle})
-	],
-	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
-		onTap: { value: function(content){
-			
-			mainContainer.remove(locationColumn2);
-			mainContainer.add(upsellingColumn);
+			mainContainer.run( new TRANSITIONS.Push(), locationColumn, upsellingColumn, { direction : "right", duration : 400 } );
+			//mainContainer.remove(locationColumn);
+			//mainContainer.add(upsellingColumn);
 		}}
 	})
 }});
@@ -184,9 +172,9 @@ var upselling_to_rescanButton = BUTTONS.Button.template(function($){ return{ //w
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			
-			mainContainer.remove(upsellingColumn);
-			mainContainer.add(scanColumn);
+			mainContainer.run( new TRANSITIONS.Push(), upsellingColumn, scanColumn, { direction : "right", duration : 400 } );			
+			//mainContainer.remove(upsellingColumn);
+			//mainContainer.add(scanColumn);
 		}}
 	})
 }});
@@ -198,9 +186,9 @@ var recommended_to_rescanButton = BUTTONS.Button.template(function($){ return{ /
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			
-			mainContainer.remove(recommendedColumn);
-			mainContainer.add(scanColumn);
+			mainContainer.run( new TRANSITIONS.TimeTravel(), recommendedColumn, scanColumn, { direction : "forward", duration : 400 } );
+			//mainContainer.remove(recommendedColumn);
+			//mainContainer.add(scanColumn);
 		}}
 	})
 }});
@@ -212,9 +200,10 @@ var location_to_rescanButton = BUTTONS.Button.template(function($){ return{ //wh
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
+		    mainContainer.run( new TRANSITIONS.TimeTravel(), locationColumn, scanColumn, { direction : "forward", duration : 400 } );
 			
-			mainContainer.remove(locationColumn);
-			mainContainer.add(scanColumn);
+			//mainContainer.remove(locationColumn);
+			//mainContainer.add(scanColumn);
 		}}
 	})
 }});
@@ -226,21 +215,9 @@ var recommended_to_locationButton = BUTTONS.Button.template(function($){ return{
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			mainContainer.remove(recommendedColumn);
-			mainContainer.add(locationColumn);
-		}}
-	})
-}});
-
-var recommended_to_locationButton2 = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the store layout view
-	left: 100, right: 70, height:10, width: 20, top: 100,
-	contents: [
-		new Label({left:0, right:0, height:20, skin: graySkin, string:"Find item", style: buttonStyle})
-	],
-	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
-		onTap: { value: function(content){
-			mainContainer.remove(recommendedColumn);
-			mainContainer.add(locationColumn2);
+		    mainContainer.run( new TRANSITIONS.Push(), recommendedColumn, locationColumn, { direction : "left", duration : 400 } );
+			//mainContainer.remove(recommendedColumn);
+			//mainContainer.add(locationColumn);
 		}}
 	})
 }});
@@ -252,8 +229,9 @@ var upselling_to_locationButton = BUTTONS.Button.template(function($){ return{ /
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			mainContainer.remove(upsellingColumn);
-			mainContainer.add(locationColumn);
+		    mainContainer.run( new TRANSITIONS.Push(), upsellingColumn, locationColumn, { direction : "left", duration : 400 } );
+			//mainContainer.remove(upsellingColumn);
+			//mainContainer.add(locationColumn);
 		}}
 	})
 }});       
@@ -379,7 +357,7 @@ var upsellingColumn = new Column({
 		new Label({name: "price", top: 0, left:100, height:40, string:"Price: " + PRICES[1], style: textStyle}),
 		new Label({name: "itemName", top: 30, left: 100, height:40, string:NAMES[1], style: textStyle}),
 		new Label({top: 60, left:100, height:40, string:"Bestselling item!", style: altTextStyle}),
-		new recommended_to_locationButton2()
+		new recommended_to_locationButton()
     ]
     }),
     	new Container({ name:"imgTwo", left: 10, right: 10, top:10, active:true, skin: whiteSkin,
@@ -433,23 +411,6 @@ var upsellingColumn = new Column({
 		    
 		}},
     })*/
-});
-
- var locationColumn2 = new Column({
-    left:0, right:0, top:0, bottom:0, skin: whiteSkin,
-    contents: [
-        new Line({left:0, right:0, top:0,
-            contents: [new Label({left: 90, top:20, height:25, string:"Store Layout", style:titleStyle})]
-        }),
-        new Container({ left: 10, right: 10, top: 10, active:true,
-	contents: [
-		new Picture({height: 400, width: 200, right: 0, left: 0, top: 0, name: "store", url: storePic}),
-		new Picture({height: 50, width: 50, right: 0, left: 150, top: 120, name: "arrow", url: arrowPic}),
-		new location_to_rescanButton(),
-		new location_to_upsellingButton2({top: 50})
-    ]
-    })
-    ]
 });
 
 //application.behavior = new ApplicationBehavior();
