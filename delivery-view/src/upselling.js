@@ -287,11 +287,6 @@ var scanColumn = new Column({
                 mainContainer.run(new TRANSITIONS.TimeTravel(), scanColumn, upsellingColumn, { direction : "forward", easeType : "sineEaseIn", duration: 100 });
 	        }
 	    }},
-		/*onTouchEnded: { value: function(container) {
-			//application.invoke(new Message("/scanCheck"));
-			mainContainer.remove(scanColumn);
-			mainContainer.add(upsellingColumn);
-			}}*/
 	})
 	
     }),
@@ -351,23 +346,33 @@ var upsellingColumn = new Column({
         new Line({left:0, right:0, top:0,
             contents: [new Label({left:50, top:20, height:25, string:"Recommended Items", style:titleStyle})]
         }),
-        new Container({ name:"imgOne", left: 10, right: 10, top: 20, active:true, skin: whiteSkin,
+        new Container({ name:"imgOne", left: 10, right: 10, top: 20, active:true, backgroundTouch:true, skin: whiteSkin,
 	contents: [ 
 		new Picture({height: 150, width: 180, right: 200, left: 0, top: 0, name: "displayRecommendedItem1", url: IMGS[1]}), //need to create a function that will generate a list of items excluding the one that is scanned
 		new Label({name: "price", top: 0, left:100, height:40, string:"Price: " + PRICES[1], style: textStyle}),
 		new Label({name: "itemName", top: 30, left: 100, height:40, string:NAMES[1], style: textStyle}),
 		new Label({top: 60, left:100, height:40, string:"Bestselling item!", style: altTextStyle}),
-		new recommended_to_locationButton()
-    ]
+		new recommended_to_locationButton(),
+    ],
+        behavior: Object.create(Behavior.prototype, {
+            onTouchBegan: { value: function(content) {
+                locationColumn.behavior = new MapBehavior(mapItem);
+            }},
+        })
     }),
-    	new Container({ name:"imgTwo", left: 10, right: 10, top:10, active:true, skin: whiteSkin,
+    	new Container({ name:"imgTwo", left: 10, right: 10, top:10, active:true, backgroundTouch:true, skin: whiteSkin,
 	contents: [ 
 		new Picture({height: 150, width: 180, right: 200, left: 0, top: 0, name: "displayRecommendedItem2", url: IMGS[2]}), //need to create a function that will generate a list of items excluding the one that is scanned
 		new Label({name: "price", top: 0, left:100, height:40, string:"Price: " + PRICES[2], style: textStyle}),
 		new Label({name: "itemName", top: 30, left:100, height:40, string:NAMES[2], style: textStyle}),
 		new recommended_to_locationButton(),
-		new upsellingButton
-    ]
+		new upsellingButton,
+    ],
+        behavior: Object.create(Behavior.prototype, {
+            onTouchBegan: { value: function(content) {
+                locationColumn.behavior = new MapBehavior(mapItemTwo);
+            }},
+        })
     })
     	
     	
@@ -390,27 +395,122 @@ var upsellingColumn = new Column({
 /**
  * Store Layout View
  */
+Handler.bind("/mapOne", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileOneCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            locationColumn.imgs.arrow.coordinates = { left: x(json.validTiles[0]), top: y(json.validTiles[1]) };
+        }
+    }
+});
+
+Handler.bind("/mapTwo", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileTwoCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            locationColumn.imgs.arrow.coordinates = { left: x(json.validTiles[0]), top: y(json.validTiles[1]) };
+        }
+    }
+});
+
+Handler.bind("/mapThree", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileThreeCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            locationColumn.imgs.arrow.coordinates = { left: x(json.validTiles[0]), top: y(json.validTiles[1]) };
+        }
+    }
+});
+
+Handler.bind("/mapFour", {
+    onInvoke: function(handler, message) {
+        if(deviceURL != "") handler.invoke(new Message(deviceURL + "tileFourCord"), Message.JSON);
+    },
+    onComplete: function(handler, message, json) {
+        if(json) {
+            locationColumn.imgs.arrow.coordinates = { left: x(json.validTiles[0]), top: y(json.validTiles[1]) };
+        }
+    }
+});
+
+function x(x) {
+    // width 50 to 240
+    return 50 + x*190/100;
+}
+
+function y(y) {
+    // height 20 to 330
+    return 20 + y*310/100;
+} 
+
+function mapItem(content) {
+     if(deviceURL != "") {
+		if (scannedItems[0] == 1 && scannedItems[1] != 1 && scannedItems[2] != 1 && scannedItems[3] != 1) {
+			content.invoke(new Message("/mapTwo"));
+		} else if (scannedItems[0] != 1 && scannedItems[1] == 1 && scannedItems[2] != 1 && scannedItems[3] != 1) {
+			content.invoke(new Message("/mapThree"));
+		} else if (scannedItems[0] != 1 && scannedItems[1] != 1 && scannedItems[2] == 1 && scannedItems[3] != 1) {
+			content.invoke(new Message("/mapFour"));
+		} else if (scannedItems[0] != 1 && scannedItems[1] != 1 && scannedItems[2] != 1 && scannedItems[3] == 1) {
+			content.invoke(new Message("/mapOne"));
+		} else {
+			content.invoke(new Message("/mapTwo")); 
+		}
+	}
+}
+
+function mapItemTwo(content) {
+     if(deviceURL != "") {
+		if (scannedItems[0] == 1 && scannedItems[1] != 1 && scannedItems[2] != 1 && scannedItems[3] != 1) {
+			content.invoke(new Message("/mapThree"));
+		} else if (scannedItems[0] != 1 && scannedItems[1] == 1 && scannedItems[2] != 1 && scannedItems[3] != 1) {
+			content.invoke(new Message("/mapFour"));
+		} else if (scannedItems[0] != 1 && scannedItems[1] != 1 && scannedItems[2] == 1 && scannedItems[3] != 1) {
+			content.invoke(new Message("/mapOne"));
+		} else if (scannedItems[0] != 1 && scannedItems[1] != 1 && scannedItems[2] != 1 && scannedItems[3] == 1) {
+			content.invoke(new Message("/mapTwo"));
+		} else {
+			content.invoke(new Message("/mapThree")); 
+		}
+	}
+}
+
+var MapBehavior = function(func) {
+    this.func = func;
+}
+
+MapBehavior.prototype = Object.create(Container.prototype, {
+    func: { value: mapItem, writable: true },
+	onDisplaying: { value: function(content) {
+	    this.func(content);
+	    content.start();
+	}},
+	onTimeChanged: { value: function(content) {
+	    this.func(content);
+	}},
+});
  
- var locationColumn = new Column({
+var locationColumn = new Column({
     left:0, right:0, top:0, bottom:0, skin: whiteSkin,
     contents: [
         new Line({left:0, right:0, top:0,
             contents: [new Label({left: 90, top:20, height:25, string:"Store Layout", style:titleStyle})]
         }),
-        new Container({ left: 10, right: 10, top: 10, active:true,
+        new Container({ name:"imgs", left: 10, right: 10, top: 10, active:true,
 	contents: [
 		new Picture({height: 400, width: 200, right: 0, left: 0, top: 0, name: "store", url: storePic}),
-		new Picture({height: 50, width: 50, right: 0, left: 150, top: 160, name: "arrow", url: arrowPic}),
+		new Picture({height: 50, width: 50, left: 200, top: 250, name: "arrow", url: arrowPic}),
 		new location_to_rescanButton(),
 		new location_to_upsellingButton1({top: 50})
     ]
     })
     ],
-    /*behavior: Object.create(Container.prototype, {
-		onDisplaying: { value: function(content) {
-		    
-		}},
-    })*/
 });
 
 //application.behavior = new ApplicationBehavior();
