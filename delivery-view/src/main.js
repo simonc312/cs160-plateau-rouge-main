@@ -55,10 +55,10 @@ var scanSkin = new Skin({width: 48,
 //HANDLERS
 Handler.bind("/discover", Behavior({
 	onInvoke: function(handler, message){
-		trace('inside discover\n');
+		//trace('inside discover\n');
 		deviceURL = JSON.parse(message.requestText).url;
 		if (hasFoundDevice()){
-			 trace('found device\n');
+			 //trace('found device\n');
 			 //handler.invoke(new Message("/foundServerDialog"));
 			 //handler.invoke(new Message("/getStatus"));
 		 	 //resourceChart.invoke(new Message("/getResources"));
@@ -272,12 +272,12 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 			tagPath = "getNewTags";
 		else if(data.action == "Inventory")
 			tagPath = "getActiveTags";
-		trace("inside createMessage \n");
-		trace(deviceURL + '\n');
+		//trace("inside createMessage \n");
+		//trace(deviceURL + '\n');
 		return new Message(deviceURL + tagPath);
 	},
 	getItems: function(list,message,result){
-		trace('inside getItems \n');
+		//trace('inside getItems \n');
 		
 		return ( result && ( "items" in result ) ) ? result.items : null;
 	}
