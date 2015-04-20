@@ -13,6 +13,7 @@ var redSkin = new Skin( { fill:"#FF4136" } );
  * Styles
  */
 var titleStyle = new Style( { font:"25px", color:"black" } );
+var scanTextStyle = new Style( { font:"25px", color:"black", lines: 2 } );
 var altTextStyle = new Style( { font:"17px", color:"#FF4136" } );
 var textStyle = new Style( { font:"17px", color:"gray" } );
 var buttonStyle = new Style( { font:"25px", color:"white" } );
@@ -23,6 +24,7 @@ var whiteTextStyle = new Style( { font:"17px", color:"white" } );
  */
 var backArrowPic = "assets/backarrow.png";
 var scanPic = "assets/scan.png";
+var scanHelperPic = "assets/scan-helper.png";
 var storePic = "assets/store.jpg";
 var arrowPic = "assets/redarrow.png";
 var IMGS = ["assets/white-tee-large.jpg", "assets/hat-large.jpg", "assets/shorts-large.jpg", "assets/blazer-large.jpg"];
@@ -300,9 +302,10 @@ var scanColumn = new Column({
 				application.remove(mainContainer);
 				application.add(main);
 			}}}) }) , 
-		new Label({left: 10, top:20, height:25, string:"Scan Your Item Here", style:titleStyle})]
+			
+		new Text({left: 10,right:0, top:10, height:40, string:"Upselling Recomendations", style: scanTextStyle})]
         }),
-        new Container({ left: 10, right: 10, top: 40, active:true,
+        new Container({ left: 10, right: 10, top: 30, active:true,
 	contents: [
 		new Picture({height: 300, width: 200, right: 0, left: 0, top: 10, name: "scanner", url: scanPic}),
 		
@@ -319,6 +322,8 @@ var scanColumn = new Column({
 	})
 	
     }),
+    new Text({left: 10,right:0, top:10, height:30, string:"Place Phone Near SmartTag", style: scanTextStyle}),
+    new Picture({height: 64, width: 128, right: 0, left: 0, top: 0, name: "scan-helper", url: scanHelperPic}),
    ] 	
    
 });

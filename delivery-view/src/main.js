@@ -313,15 +313,15 @@ var main = new MainContainerTemplate();
 var headerColumn = new Column({left:0,top:0,bottom:0,top:10, clip: true});
 var titleScanRow = new Line({left:0, right: 0, top:0,bottom:0,top:0, clip: true});
 var historyItems = [
-								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg"},
-								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg"}
+								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg", quantity: 3, price: 30},
+								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg", quantity: 5, price: 35}
 								
 							];
 var inventoryItems = [
-								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg"},
-								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg"},
-								{name: "Zara Men's White Tee", image: "assets/white-tee-thumbnail.jpg"},
-								{name: "J Crew Blazer", image: "assets/blazer-thumbnail.jpg"}
+								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg",quantity: 3, price: 30},
+								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg",quantity: 3, price: 30},
+								{name: "Zara Men's White Tee", image: "assets/white-tee-thumbnail.jpg",quantity: 20, price: 15},
+								{name: "J Crew Blazer", image: "assets/blazer-thumbnail.jpg",quantity: 1, price: 70}
 								
 							];
 var soldItems = [];
