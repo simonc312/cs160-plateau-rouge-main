@@ -21,6 +21,7 @@ var itemImageWidth = 100;
 var itemImageHeight = 100;
 
 //STYLES
+var notificationNumberStyle = new Style({ color: "black", font: '18px', horizontal: 'center', vertical:'middle' });
 var historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
 var itemNameStyle = new Style({  color: "black", font: 'bold 20px', horizontal: 'null', vertical: 'null', lines: 1, });						   
 var itemPropertyStyle = new Style({  color: "grey", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
@@ -35,6 +36,7 @@ var buttonStyle = new Style( { font: "bold 20px", color:"white", horizontal: 'ce
 //SKINS
 var whiteS = new Skin( { fill:"white" } );
 var searchButtonSkin = new Skin({ fill:mainColor});
+var notificationNumberSkin = new Skin({width:20,height:20,texture: new Texture('assets/circle-mask.png')});
 var tabButtonSkin = new Skin({width: 50, height: 50, borders:{left:0,right:0,top:0,bottom:0}, fill:mainColor});
 var tabSkin = new CONTROL.Skin(new Texture('assets/search-white.png'),THEME.tabDisabledEffect, THEME.tabEnabledEffect, THEME.tabSelectedEffect);
 var separatorSkin = new Skin({ fill: 'silver',});
@@ -60,7 +62,7 @@ Handler.bind("/discover", Behavior({
 		if (hasFoundDevice()){
 			 //trace('found device\n');
 			 //handler.invoke(new Message("/foundServerDialog"));
-			 //handler.invoke(new Message("/getStatus"));
+			 handler.invoke(new Message("/getNotifications"));
 		 	 //resourceChart.invoke(new Message("/getResources"));
 	    }
 		//else
@@ -74,10 +76,39 @@ Handler.bind("/forget", Behavior({
 	}
 }));
 
+Handler.bind("/getNotifications", {
+    onInvoke: function(handler, message){
+        if (hasFoundDevice()) handler.invoke(new Message(deviceURL + "getNotifications"), Message.JSON);
+    },
+    onComplete: function(handler, message, json){
+    	if(json){
+    		var numNewSold = json.sold;
+    		var numNewDelivered = json.delivered;
+			 tabsRow.behavior.update(historyLabel,numNewDelivered);
+			 tabsRow.behavior.update(soldLabel,numNewSold);
+	         handler.invoke( new Message("/delay"));
+         }
+    }
+});
+
+Handler.bind("/delay", {
+    onInvoke: function(handler, message){
+        handler.wait(1000); //will call onComplete after 1 seconds
+    },
+    onComplete: function(handler, message){
+        handler.invoke(new Message("/getNotifications"));
+    }
+});
+
 
 var MyLabel = Label.template(function($) { return {
   left:0, right:0, height: 40, string:$.text, style:$.style 
 }});
+
+var MyNotificationBubble = Container.template(function($) { return {top: 2, right:5, height: 20, skin: notificationNumberSkin, name: $.name, contents: [ 
+  	new Label({width: 20, height: 20, string:$.text, style: notificationNumberStyle})] 
+}});
+
 
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	 right: 0, width:50, height:50, skin: searchButtonSkin,
@@ -291,7 +322,21 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 var headerRow = new Line({left:10, right:0, top:0});
 
 
-var tabsRow = new Line({left:0, right:0, bottom:0});
+var tabsRow = new Line({left:0, right:0, bottom:0, behavior: Object.create(Container.prototype,{
+	onCreate: { value: function(content,data){
+		trace('inside tabsRow onCreate \n');
+		this.data = data;
+		this.update = function(tabSection,numNotifications){
+			if(numNotifications != 0){
+				if(tabSection.notificationBubble != null && tabSection.notificationBubble != undefined)
+					tabSection.notificationBubble.first.string = numNotifications;
+				else
+					tabSection.add(new MyNotificationBubble({name:"notificationBubble",text:numNotifications}));
+			}
+		}
+		}
+	}
+}) });
 
 var titleLabel = new MyLabel ( { text: "Plateau Rouge History", style: headerTitleStyle } );
 
@@ -340,10 +385,17 @@ var contentRow = new Line({left:0, right:0, top:60,bottom:60, height: 450, behav
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 	left:$.left, right: $.right, height:50, skin: tabButtonSkin,
 	contents: [
-		new MyLabel({text:$.text, style: buttonStyle})
+		new MyLabel({text:$.text, style: buttonStyle}),
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
+			if(content.notificationBubble != null || content.notificationBubble != undefined){
+				if(content.first.string == "History")
+					content.invoke(new Message(deviceURL + "resetDeliveryNotifications"));
+				else
+					content.invoke(new Message(deviceURL + "resetSoldNotifications"));
+				content.remove(content.notificationBubble);
+			}
 		var formerContent = contentRow.behavior.currentContent;
 		var newContent = inventoryPane;
 		var direction = "left";

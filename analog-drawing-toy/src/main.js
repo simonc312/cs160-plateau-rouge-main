@@ -18,6 +18,8 @@ var tileProperties = [
 
 var deliveredTiles = [];
 var soldTiles = [];
+var newDeliveryCount = 0;
+var newSoldCount = 0;
 
 copyTileProperty = function(origTile){
 	newTile = {};
@@ -36,9 +38,12 @@ addDelivery = function(index){
 		}
 		var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
 		deliveredTiles.unshift(updateTime(newItem)); //initialize time prop of new item
+		newDeliveryCount++;
 	}
-	else
+	else{
 		soldTiles.unshift(tileProperties[index]);
+		newSoldCount++;
+		}
 }
 
 updateTime = function(itemProperty){
@@ -87,6 +92,27 @@ Handler.bind("/getActiveTags", Behavior({
 		message.status = 200;
 	}
 }));
+
+Handler.bind("/getNotifications", Behavior({
+	onInvoke: function(handler, message){
+		message.responseText = JSON.stringify({delivered: newDeliveryCount, sold: newSoldCount })
+		message.status= 200;
+	}
+}));
+
+Handler.bind("/resetDeliveryNotifications", Behavior({
+	onInvoke: function(handler, message){
+		newDeliveryCount = 0;
+	}
+}));
+Handler.bind("/resetSoldNotifications", Behavior({
+	onInvoke: function(handler, message){
+		
+		newSoldCount = 0;
+	}
+}));
+
+
 
 Handler.bind("/potResult", Object.create(Behavior.prototype, {
 
