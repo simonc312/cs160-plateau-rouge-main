@@ -10,48 +10,11 @@ var SCROLLER = require('mobile/scroller');
 var TRANSITIONS = require('transitions');
 var UPSELLING = require('upselling.js');
 var THEFT = require('theft.js');
+var STYLE = require('styles.js');
 
 //GLOBALS
-var mainColor = "#FF4136"
 var deviceURL = "";
 hasFoundDevice = function(){return deviceURL != "";}
-var thumbnailWidth = 80;
-var thumbnailHeight = 80;
-var itemImageWidth = 100;
-var itemImageHeight = 100;
-
-//STYLES
-var notificationNumberStyle = new Style({ color: "black", font: '18px', horizontal: 'center', vertical:'middle' });
-var historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
-var itemNameStyle = new Style({  color: "black", font: 'bold 20px', horizontal: 'null', vertical: 'null', lines: 1, });						   
-var itemPropertyStyle = new Style({  color: "grey", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
-var headerTitleStyle = new Style({  font: 'bold 24px', horizontal: 'center', vertical: 'middle', lines: 1, });
-var testPicture = new Picture({left:0,right:0,top:0,bottom:0,scale:{x:0.1,y:0.1},url:'assets/blazer-large.jpg'});
-var nameInputSkin = new Skin({ borders: { left:2, right:2, top:2, bottom:2 }, stroke: 'gray',});
-var fieldStyle = new Style({ color: 'black', font: 'bold 24px', horizontal: 'left', vertical: 'middle', left: 5, right: 5, top: 5, bottom: 5, });
-var fieldHintStyle = new Style({ color: '#aaa', font: '24px', horizontal: 'left', vertical: 'middle', left: 5, right: 5, top: 5, bottom: 5, });
-var labelStyle = new Style( { font: "bold 30px", color:"black" } );
-var buttonStyle = new Style( { font: "bold 20px", color:"white", horizontal: 'center', vertical: 'middle' } );
-
-//SKINS
-var whiteS = new Skin( { fill:"white" } );
-var searchButtonSkin = new Skin({ fill:mainColor});
-var notificationNumberSkin = new Skin({width:20,height:20,texture: new Texture('assets/circle-mask.png')});
-var tabButtonSkin = new Skin({width: 50, height: 50, borders:{left:0,right:0,top:0,bottom:0}, fill:mainColor});
-var tabSkin = new CONTROL.Skin(new Texture('assets/search-white.png'),THEME.tabDisabledEffect, THEME.tabEnabledEffect, THEME.tabSelectedEffect);
-var separatorSkin = new Skin({ fill: 'silver',});
-var searchSkin = new Skin({width: 48,
-						   height: 48,
-						   texture: new Texture('assets/search-white.png')
-						   });
-						   
-var scanSkin = new Skin({width: 48,
-						   height: 48,
-						   texture: new Texture('assets/scan-icon.png')
-						   });
-
-
-
 
 
 //HANDLERS
@@ -105,13 +68,13 @@ var MyLabel = Label.template(function($) { return {
   left:0, right:0, height: 40, string:$.text, style:$.style 
 }});
 
-var MyNotificationBubble = Container.template(function($) { return {top: 2, right:5, height: 20, skin: notificationNumberSkin, name: $.name, contents: [ 
-  	new Label({width: 20, height: 20, string:$.text, style: notificationNumberStyle})] 
+var MyNotificationBubble = Container.template(function($) { return {top: 2, right:5, height: 20, skin: STYLE.notificationNumberSkin, name: $.name, contents: [ 
+  	new Label({width: 20, height: 20, string:$.text, style: STYLE.notificationNumberStyle})] 
 }});
 
 
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
-	 right: 0, width:50, height:50, skin: searchButtonSkin,
+	 right: 0, width:50, height:50, skin: STYLE.searchButtonSkin,
 	contents: [
 		 Label($, {
 	   			 	left:4, right:4, top:4, bottom:4, width: 48, skin: $.skin, string:"", name:$.name
@@ -133,17 +96,17 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-var searchButton = new buttonTemplate({skin: searchSkin, name: "search-button"});
-var scanButton = new buttonTemplate({ skin: scanSkin, name: "scan-button"});
+var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button"});
+var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button"});
 var MySearchField = Container.template(function($) { return { 
   width: 315, height: 50, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
   		searchButton,
 	    Scroller($, { 
-	      left: 4, top: 4, bottom: 4, width: 240, skin: nameInputSkin, active: true, 
+	      left: 4, top: 4, bottom: 4, width: 240, skin: STYLE.nameInputSkin, active: true, 
 	      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
 	        Label($, { 
-	          left: 0, top: 0, bottom: 0, skin: THEME.fieldLabelSkin, style: fieldStyle, anchor: 'NAME',
+	          left: 0, top: 0, bottom: 0, skin: THEME.fieldLabelSkin, style: STYLE.fieldStyle, anchor: 'NAME',
 	          editable: true, string: $.name,
 	         	behavior: Object.create( CONTROL.FieldLabelBehavior.prototype, {
 	         		onEdited: { value: function(label){
@@ -154,7 +117,7 @@ var MySearchField = Container.template(function($) { return {
 	         	}),
 	         }),
 	         Label($, {
-	   			 	left:4, right:4, top:4, bottom:4, style:fieldHintStyle, string:"Search By Name", name:"hint"
+	   			 	left:4, right:4, top:4, bottom:4, style:STYLE.fieldHintStyle, string:"Search By Name", name:"hint"
 	         })
 	      ]
 	    }),
@@ -172,33 +135,33 @@ var ItemThumbnail = Container.template(function($) { return { left: 0, width: $.
 
 var Header = SCREEN.EmptyHeader.template(function($) { return { contents: [
 
-	Label($, { left: 0, right: 0, top: 0, bottom: 0, style: headerTitleStyle, anchor: 'TITLE', string: $.title, }),
+	Label($, { left: 0, right: 0, top: 0, bottom: 0, style: STYLE.headerTitleStyle, anchor: 'TITLE', string: $.title, }),
 ], }});
 
-var Body = SCREEN.EmptyBody.template(function($) { return { skin: whiteS, }});
+var Body = SCREEN.EmptyBody.template(function($) { return { skin: STYLE.whiteS, }});
 
 var ListItemLine = Line.template(function($) { return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
 
 	Column($, { left: 0, right: 0, contents: [
 
-		Line($, { left: 0, right: 0, height: 1, skin: separatorSkin, }),
+		Line($, { left: 0, right: 0, height: 1, skin: STYLE.separatorSkin, }),
 
 		Line($, { left: 2, right: 2, height: 82, contents: [
 
-			ItemThumbnail({width: thumbnailWidth, height: thumbnailHeight, url: $.image}),
+			ItemThumbnail({width: STYLE.thumbnailWidth, height: STYLE.thumbnailHeight, url: $.image}),
 
 			Column($, { left: 20,right: 10, contents: [
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemNameStyle, string: $.name }	
+					{ style: STYLE.itemNameStyle, string: $.name }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemPropertyStyle, string: "quantity: "+$.quantity }	
+					{ style: STYLE.itemPropertyStyle, string: "quantity: "+$.quantity }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemPropertyStyle, string: "price/unit: "+$.price }	
+					{ style: STYLE.itemPropertyStyle, string: "price/unit: "+$.price }	
 				], }),
 			]})
 			
@@ -213,24 +176,24 @@ var HistoryListItemLine = Line.template(function($) { return { left: 0, right: 0
 
 	Column($, { left: 0, right: 0, contents: [
 
-		Line($, { left: 0, right: 0, height: 1, skin: separatorSkin, }),
+		Line($, { left: 0, right: 0, height: 1, skin: STYLE.separatorSkin, }),
 
 		Line($, { left: 2, right: 2, height: 82, contents: [
 
-			ItemThumbnail({width: thumbnailWidth, height: thumbnailHeight, url: $.image}),
+			ItemThumbnail({width: STYLE.thumbnailWidth, height: STYLE.thumbnailHeight, url: $.image}),
 
 			Column($, { left: 20,right: 10, contents: [
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemNameStyle, string: $.name }	
+					{ style: STYLE.itemNameStyle, string: $.name }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: historyItemNameStyle, string: "added: "+$.timeDifference }	
+					{ style: STYLE.historyItemNameStyle, string: "added: "+$.timeDifference }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemPropertyStyle, string: "quantity: "+$.quantity }	
+					{ style: STYLE.itemPropertyStyle, string: "quantity: "+$.quantity }	
 				], }),
 				
 			]})
@@ -253,19 +216,19 @@ ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
 
 var ItemView = Body.template(function($) { return { contents: [
 	Row($, { left: 0, right: 0, top: 0, contents: [
-		ItemThumbnail({width: itemImageWidth, height: itemImageWidth, url: $.image}),
+		ItemThumbnail({width: STYLE.itemImageWidth, height: STYLE.itemImageHeight, url: $.image}),
 		Column($, { left: 20,right: 10, contents: [
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemNameStyle, string: $.name }	
+					{ style: STYLE.itemNameStyle, string: $.name }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemPropertyStyle, string: "quantity: "+$.quantity }	
+					{ style: STYLE.itemPropertyStyle, string: "quantity: "+$.quantity }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: itemPropertyStyle, string: "price: "+$.price }	
+					{ style: STYLE.itemPropertyStyle, string: "price: "+$.price }	
 				], })
 		]})
 	]}),
@@ -338,12 +301,12 @@ var tabsRow = new Line({left:0, right:0, bottom:0, behavior: Object.create(Conta
 	}
 }) });
 
-var titleLabel = new MyLabel ( { text: "Plateau Rouge History", style: headerTitleStyle } );
+var titleLabel = new MyLabel ( { text: "Plateau Rouge History", style: STYLE.headerTitleStyle } );
 
 	
 
 var MainContainerTemplate = Container.template(function($) { return {
-  left: 0, right: 0, top: 0, bottom: 0, skin: whiteS, active: true,
+  left: 0, right: 0, top: 0, bottom: 0, skin: STYLE.whiteS, active: true,
   behavior: Object.create(Container.prototype, {
     onTouchEnded: { value: function(content){
       KEYBOARD.hide();
@@ -383,9 +346,9 @@ var contentRow = new Line({left:0, right:0, top:60,bottom:60, height: 450, behav
 		},}});
 
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
-	left:$.left, right: $.right, height:50, skin: tabButtonSkin,
+	left:$.left, right: $.right, height:50, skin: STYLE.tabButtonSkin,
 	contents: [
-		new MyLabel({text:$.text, style: buttonStyle}),
+		new MyLabel({text:$.text, style: STYLE.buttonStyle}),
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
