@@ -422,7 +422,7 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 		}
 		if(formerContent == newContent)
 			return;
-		contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{easetype:"sineEaseIn",duration:300,direction: direction});
+		contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{duration:300,direction: direction});
 		contentRow.behavior.currentContent = newContent;
 		titleLabel.string = "Plateau Rouge " + buttonString;
 		}},

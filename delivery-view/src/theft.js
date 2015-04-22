@@ -59,7 +59,7 @@ function sumItems(items) {
 Handler.bind("/theftCheck", {
     onInvoke: function(handler, message) {
         if(deviceURL != "") handler.invoke(new Message(deviceURL + "stolenTiles"), Message.JSON);
-        else handler.invoke(new Message("/delay"));
+        else handler.invoke(new Message("/delay2"));
     },
     onComplete: function(handler, message, json) {
         if(json && json.validTiles.indexOf(1) != -1 && !theft) {
@@ -76,11 +76,11 @@ Handler.bind("/theftCheck", {
         } else if(json && (numItems(stolenItems) != numItems(json.validTiles))) {
             stolenItems = json.validTiles;
         }
-        handler.invoke(new Message("/delay"));
+        handler.invoke(new Message("/delay2"));
     }
 });
 
-Handler.bind("/delay", {
+Handler.bind("/delay2", {
     onInvoke: function(handler, message) {
         handler.wait(500);
     },
