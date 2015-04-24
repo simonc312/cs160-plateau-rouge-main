@@ -481,8 +481,11 @@ var QuantityField = Container.template(function($) { return {
          		}}
          	}),
          }),
+         Picture($, {
+             right:0, height:30, url:"assets/edit.png"
+         }),
          Label($, {
-   			 left:5, style:hintStyle, string:"Tap to add quantity...", name:"hint"
+   			 left:5, style:hintStyle, string:"Tap to edit", name:"hint"
          }),
       ]
     })
