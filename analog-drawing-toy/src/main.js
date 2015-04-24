@@ -39,6 +39,7 @@ addDelivery = function(index){
 		var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
 		deliveredTiles.unshift(updateTime(newItem)); //initialize time prop of new item
 		newDeliveryCount++;
+		//trigger update view for history tab if that is current tab. 
 	}
 	else{
 		soldTiles.unshift(tileProperties[index]);

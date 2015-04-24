@@ -10,7 +10,8 @@ exports.itemImageHeight = 100;
 
 //DELIVERY VIEW STYLES
 exports.notificationNumberStyle = new Style({ color: "black", font: '18px', horizontal: 'center', vertical:'middle' });
-exports.historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });						   
+exports.historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
+exports.itemPropertyStyle = new Style({font: '18px', lines: 1});						   
 exports.itemNameStyle = new Style({  font: 'bold', horizontal: 'null', vertical: 'null', lines: 1, });
 exports.headerTitleStyle = new Style({  font: 'bold 24px', horizontal: 'center', vertical: 'middle', lines: 1, });
 exports.testPicture = new Picture({left:0,right:0,top:0,bottom:0,scale:{x:0.1,y:0.1},url:'assets/blazer-large.jpg'});
