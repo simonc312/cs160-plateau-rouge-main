@@ -51,7 +51,8 @@ Handler.bind("/getNotifications", {
 			var newSoldItem = json.soldItem;
 			tabsRow.behavior.update(historyLabel,numNewDelivered);
 			tabsRow.behavior.update(soldLabel,numNewSold);
-			contentRow.behavior.addItem(newDeliveredItem);
+			contentRow.behavior.addDeliveryItem(newDeliveredItem);
+			contentRow.behavior.addSoldItem(newSoldItem);
 			handler.invoke( new Message("/delay"));
          }
     }
@@ -269,15 +270,11 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 			tagPath = "getNewTags";
 		else if(data.action == "Inventory")
 			tagPath = "getActiveTags";
-		//trace("inside createMessage \n");
-		//trace(deviceURL + '\n');
 		return new Message(deviceURL + tagPath);
 	},
 	getItems: function(list,message,result){
-		//trace('inside getItems \n');
-		
 		return ( result && ( "items" in result ) ) ? result.items : null;
-	}
+	},
 })
 
 
@@ -346,10 +343,22 @@ var contentRow = new Line({left:0, right:0, top:60,bottom:60, height: 450, behav
 		onCreate:  function(container, data){
 			this.data = data;
 			this.currentContent = historyPane;
-			this.addItem = function(newItem){
-				trace('inside addItem \n');
-				if(newItem)
-					historyPane.behavior.addItemLine({},newItem);
+			this.switchLists = function(listType, direction){
+					var newContent = new ListPane({items: null, more:false, action: listType});
+					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100,});
+					contentRow.behavior.currentContent = newContent;
+			}
+			this.addDeliveryItem = function(newItem){
+				if(newItem && this.currentContent == historyPane){
+					this.switchLists("History","up");
+					historyPane = this.currentContent;
+				}
+			}
+			this.addSoldItem = function(newItem){
+				if(newItem && this.currentContent == soldPane){
+					this.switchLists("Sold","up");
+					soldPane = this.currentContent;
+				}
 			}
 		},}});
 
