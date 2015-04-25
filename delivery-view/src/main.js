@@ -45,11 +45,14 @@ Handler.bind("/getNotifications", {
     },
     onComplete: function(handler, message, json){
     	if(json){
-    		var numNewSold = json.sold;
-    		var numNewDelivered = json.delivered;
-			 tabsRow.behavior.update(historyLabel,numNewDelivered);
-			 tabsRow.behavior.update(soldLabel,numNewSold);
-	         handler.invoke( new Message("/delay"));
+			var numNewSold = json.sold;
+			var numNewDelivered = json.delivered;
+			var newDeliveredItem = json.deliveredItem;
+			var newSoldItem = json.soldItem;
+			tabsRow.behavior.update(historyLabel,numNewDelivered);
+			tabsRow.behavior.update(soldLabel,numNewSold);
+			contentRow.behavior.addItem(newDeliveredItem);
+			handler.invoke( new Message("/delay"));
          }
     }
 });
@@ -343,6 +346,11 @@ var contentRow = new Line({left:0, right:0, top:60,bottom:60, height: 450, behav
 		onCreate:  function(container, data){
 			this.data = data;
 			this.currentContent = historyPane;
+			this.addItem = function(newItem){
+				trace('inside addItem \n');
+				if(newItem)
+					historyPane.behavior.addItemLine({},newItem);
+			}
 		},}});
 
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{

@@ -20,6 +20,8 @@ var deliveredTiles = [];
 var soldTiles = [];
 var newDeliveryCount = 0;
 var newSoldCount = 0;
+var newDeliveryItem;
+var newSoldItem;
 
 copyTileProperty = function(origTile){
 	newTile = {};
@@ -39,11 +41,13 @@ addDelivery = function(index){
 		var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
 		deliveredTiles.unshift(updateTime(newItem)); //initialize time prop of new item
 		newDeliveryCount++;
+		newDeliveryItem = deliveredTiles[0];
 		//trigger update view for history tab if that is current tab. 
 	}
 	else{
 		soldTiles.unshift(tileProperties[index]);
 		newSoldCount++;
+		newSoldItem = soldTiles[0];
 		}
 }
 
@@ -96,8 +100,10 @@ Handler.bind("/getActiveTags", Behavior({
 
 Handler.bind("/getNotifications", Behavior({
 	onInvoke: function(handler, message){
-		message.responseText = JSON.stringify({delivered: newDeliveryCount, sold: newSoldCount })
+		message.responseText = JSON.stringify({delivered: newDeliveryCount, deliveredItem: newDeliveryItem, sold: newSoldCount, soldItem: newSoldItem})
 		message.status= 200;
+		newDeliveryItem = null;
+		newSoldItem = null;
 	}
 }));
 
