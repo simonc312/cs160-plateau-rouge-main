@@ -1,6 +1,6 @@
 // KPR Script file //PLATEAU ROUGE PHONE 
 //UPSELLING//
-var STYLES = require('styles.js');
+//var STYLES = require('styles.js');
 /**
  * Skins
  */
@@ -260,7 +260,7 @@ var scanColumn = new Column({
 				//application.add(main);
 			}}},*/
         new Line({left:0, right:0, top:0,
-            contents: [new Container({ left: 10, top: 10, active:true, skin: STYLES.searchButtonSkin,
+            contents: [new Container({ left: 10, top: 10, active:true, skin: STYLE.searchButtonSkin,
 	contents: [
 		new Picture({height: 50, width: 50, right: 0, left: 0, top: 0, name: "backarrow", url: backArrowPic})],
 		behavior: Object.create(Container.prototype, {

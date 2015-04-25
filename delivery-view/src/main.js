@@ -8,9 +8,9 @@ var KEYBOARD = require('mobile/keyboard');
 var SCREEN = require('mobile/screen');
 var SCROLLER = require('mobile/scroller');
 var TRANSITIONS = require('transitions');
+var STYLE = require('styles.js');
 var UPSELLING = require('upselling.js');
 var THEFT = require('theft.js');
-var STYLE = require('styles.js');
 
 //GLOBALS
 var deviceURL = "";

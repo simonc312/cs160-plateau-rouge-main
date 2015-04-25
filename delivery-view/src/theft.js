@@ -21,7 +21,7 @@ var textStyle = new Style( { font:"17px", color:"gray" } );
 var biggerTextStyle = new Style( { font:"25px", color:"gray" } );
 var darkerTextStyle = new Style( { font:"17px", color:"#595959" } );
 var hintStyle = new Style( { font:"17px", color:"#D6D6D6" } );
-var buttonStyle = new Style( { font:"20px", color:"white" } );
+var buttonStyle = new Style( { font:"bold 20px", color:"white" } );
  
 /**
  * Miscel Variables, Constants, and Functions
@@ -97,6 +97,33 @@ Handler.bind("/scan", {
         if(json) detectedItems = json.validTiles;
     }
 });
+
+var detected = false;
+function placeDetectItemsButton() {
+    if(!detected) {
+	    if(Math.abs(mapX(X) - mapContainer.tileone.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tileone.coordinates.bottom) <= 5) {
+	        detected = true;
+	        theftMapColumn.add(detectItemsButton);
+	    } else if(Math.abs(mapX(X) - mapContainer.tiletwo.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tiletwo.coordinates.bottom) <= 5) {
+	        detected = true;
+	        theftMapColumn.add(detectItemsButton);
+	    } else if(Math.abs(mapX(X) - mapContainer.tilethree.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tilethree.coordinates.bottom) <= 5) {
+	        detected = true;
+	        theftMapColumn.add(detectItemsButton);
+	    } else if(Math.abs(mapX(X) - mapContainer.tilefour.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tilefour.coordinates.bottom) <= 5) {
+	        detected = true;
+	        theftMapColumn.add(detectItemsButton);
+	    }
+	} else {
+	    if((Math.abs(mapX(X) - mapContainer.tileone.coordinates.left) > 5 || Math.abs(mapY(Y) - mapContainer.tileone.coordinates.bottom) > 5) &&
+	        (Math.abs(mapX(X) - mapContainer.tiletwo.coordinates.left) > 5 || Math.abs(mapY(Y) - mapContainer.tiletwo.coordinates.bottom) > 5) &&
+	        (Math.abs(mapX(X) - mapContainer.tilethree.coordinates.left) > 5 || Math.abs(mapY(Y) - mapContainer.tilethree.coordinates.bottom) > 5) &&
+	        (Math.abs(mapX(X) - mapContainer.tilefour.coordinates.left) > 5 || Math.abs(mapY(Y) - mapContainer.tilefour.coordinates.bottom) > 5)) {
+            detected = false;
+            theftMapColumn.remove(detectItemsButton);
+        }
+	}
+}
 
 Handler.bind("/mapStolenOne", {
     onInvoke: function(handler, message) {
@@ -268,6 +295,7 @@ function displayLocationMarkers(content) {
     } else {
         mapContainer.tilefour.visible = false;
     }
+    placeDetectItemsButton();
 }
  
 var mapContainer = new Container({
@@ -291,6 +319,22 @@ mapContainer.behavior = Object.create(Behavior.prototype, {
         displayLocationMarkers(content);
     }}
 });
+
+var detectItemsButton = new Line({left:3, right:3, top:50, bottom:3, skin: graySkin, active:true,
+    contents: [
+        new Label({left:10, top:0, height:45, string:"Detect Stolen Items on Thief", style:buttonStyle}),
+    ],
+    behavior: Object.create(Behavior.prototype, { 
+        onTouchBegan: { value: function(content, id, x, y, ticks){
+            if(deviceURL != "") content.invoke(new Message("/scan"));
+            content.first.style = textStyle;
+        }},
+        onTouchEnded: { value: function(content, id, x, y, ticks){
+	        content.first.style = buttonStyle;
+	        mainContainer.run( new TRANSITIONS.Push(), theftMapColumn, theftDetectionColumn, { direction : "left", duration : 400 } );
+		}},
+	})
+});
  
 var theftMapColumn = new Column({
 	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: whiteSkin,
@@ -303,32 +347,17 @@ var theftMapColumn = new Column({
 	    new Line({left:0, right:0, top:0,
 	        contents: [mapContainer]
 	    }),
-	    new Line({left:0, right:0, top:0, bottom:0, skin: whiteGrayBottomSkin,
+	    new Line({left:0, right:0, top:0, skin: whiteGrayBottomSkin,
 	        contents: [
-	            new Picture({left:10, top:0, bottom:10, width:50, height:50, url:"assets/location-red.png"}),
-	            new Label({left:20, top:0, bottom:0, string:"Stolen Item", style:biggerTextStyle}),
+	            new Picture({left:10, top:0, bottom:10, width:30, height:30, url:"assets/location-red.png"}),
+	            new Label({left:20, top:0, bottom:0, string:"Stolen Item", style:textStyle}),
 	        ]
 	    }),
-	    new Line({left:0, right:0, top:0, bottom:0, skin: whiteGrayBottomSkin,
+	    new Line({left:0, right:0, top:0, skin: whiteGrayBottomSkin,
 	        contents: [
-	            new Picture({left:10, top:10, bottom:10, width:50, height:50, url:"assets/location-blue.png"}),
-	            new Label({left:20, top:0, bottom:0, string:"Current Location", style:biggerTextStyle}),
+	            new Picture({left:10, top:10, bottom:10, width:30, height:30, url:"assets/location-blue.png"}),
+	            new Label({left:20, top:0, bottom:0, string:"Current Location", style:textStyle}),
 	        ]
-	    }),
-	    new Line({left:3, right:3, bottom:3, skin: graySkin, active:true,
-	        contents: [
-	            new Label({left:10, top:0, height:45, string:"Detect Stolen Items on Thief", style:buttonStyle}),
-	        ],
-	        behavior: Object.create(Behavior.prototype, { 
-	            onTouchBegan: { value: function(content, id, x, y, ticks){
-	                if(deviceURL != "") content.invoke(new Message("/scan"));
-		            content.first.style = textStyle;
-	            }},
-	            onTouchEnded: { value: function(content, id, x, y, ticks){
-			        content.first.style = buttonStyle;
-			        mainContainer.run( new TRANSITIONS.Push(), theftMapColumn, theftDetectionColumn, { direction : "left", duration : 400 } );
-				}},
-			})
 	    }),
 	],
 });
@@ -452,8 +481,11 @@ var QuantityField = Container.template(function($) { return {
          		}}
          	}),
          }),
+         Picture($, {
+             right:0, height:30, url:"assets/edit.png"
+         }),
          Label($, {
-   			 left:5, style:hintStyle, string:"Tap to add quantity...", name:"hint"
+   			 left:5, style:hintStyle, string:"Tap to edit", name:"hint"
          }),
       ]
     })
@@ -760,36 +792,6 @@ theftDetailsColumn.behavior = Object.create(Behavior.prototype, {
     }}
 });
  
-/**
- * Discover and forget device
- */
-/*var deviceURL = "";
-
-Handler.bind("/discover", Behavior({
-	onInvoke: function(handler, message) {
-		deviceURL = JSON.parse(message.requestText).url;
-	}
-}));
-
-Handler.bind("/forget", Behavior({
-	onInvoke: function(handler, message) {
-		deviceURL = "";
-	}
-}));*/
 
 mainContainer.add(theftAlertContainer);
 application.invoke(new Message("/theftCheck"));
-/*var ApplicationBehavior = Behavior.template({
-    onLaunch: function(application, data) {
-        application.add(mainContainer);
-        application.invoke(new Message("/theftCheck"));
-    },
-	onDisplayed: function(application) {
-		application.discover("rougeplat");
-	},	
-	onQuit: function(application) {
-		application.forget("rougeplat");
-	},
-});
-
-application.behavior = new ApplicationBehavior();*/
