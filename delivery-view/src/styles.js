@@ -43,5 +43,22 @@ exports.scanSkin = new Skin({width: 48,
 						   height: 48,
 						   texture: new Texture('assets/scan-icon.png')
 						   });
-						   
-
+						
+// TEMPLATE STYLES
+exports.graySkin = new Skin({ fill:"#F0E7CE" });
+exports.grayButtonStyle = new Style( { font:"bold 15px", color:"#F0E7CE", horizontal:"center" } );
+exports.darkerGrayButtonStyle = new Style( { font:"bold 20px", color:"#96827E", horizontal:"center" } );
+exports.redBottomSkin = new Skin({ fill:"#F5F0E1", borders:{bottom:3}, stroke:"#881212" });
+exports.redSkin = new Skin( { fill:"#881212" } );
+exports.redNotificationSkin = new Skin({ width:20, height:20, texture: new Texture('assets/red-circle-mask.png') });
+exports.whiteSkin = new Skin( { fill:"white" } );
+exports.whiteGrayBottomSkin = new Skin( { fill:"white", borders:{bottom:1}, stroke:"#D6D6D6" } );
+exports.whiteGrayTopSkin = new Skin( { fill:"white", borders:{top:1}, stroke:"#D6D6D6" } );
+exports.redWhiteRightSkin = new Skin( { fill:"#881212", borders:{right:1}, stroke:"white" } );
+exports.redBorderSkin = new Skin( { fill:"white", borders:{left:2, right:2, top:2, bottom:2}, stroke:"#881212" } );
+exports.darkerRedBorderSkin = new Skin( { fill:"#F0E7CE", borders:{left:2, right:2, top:2, bottom:2}, stroke:"#631414" } );
+exports.redButtonStyle = new Style( { font:"bold 20px", color:"#881212", horizontal:"center" } );
+exports.whiteButtonStyle = new Style( { font:"bold 20px", color:"white", horizontal:"center" } );
+exports.darkerRedSkin = new Skin( { fill:"#5C0B0B" } );
+exports.textStyle = new Style( { font:"17px", color:"gray" } );
+exports.titleStyle = new Style( { font:"25px", color:"black" } );

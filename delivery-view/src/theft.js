@@ -1,32 +1,22 @@
 /**
  * Skins
  */
-var X = 30, Y = 50;
-var whiteSkin = new Skin( { fill:"white" } );
-var whiteGrayTopSkin = new Skin( { fill:"white", borders:{top:1}, stroke:"#D6D6D6" } );
-var whiteGrayBottomSkin = new Skin( { fill:"white", borders:{bottom:1}, stroke:"#D6D6D6" } );
 var whiteGrayRightSkin = new Skin( { fill:"white", borders:{right:1}, stroke:"#D6D6D6" } );
 var whiteGrayBoxSkin = new Skin( { fill:"white", borders:{left:1, right:1, top:1, bottom:1}, stroke:"#D6D6D6" } );
-var whiteGrayNoTopSkin = new Skin( { fill:"white", borders:{left:1, right:1, bottom:1}, stroke:"#D6D6D6" } );
-var graySkin = new Skin( { fill:"#2B2B2B" } );
 var grayTransparentSkin = new Skin( { fill:"#7f2B2B2B" } );
-var redSkin = new Skin( { fill:"#FF4136" } );
  
 /**
  * Styles
  */
-var titleStyle = new Style( { font:"25px", color:"black" } );
 var altTextStyle = new Style( { font:"17px", color:"#FF4136" } );
-var textStyle = new Style( { font:"17px", color:"gray" } );
-var biggerTextStyle = new Style( { font:"25px", color:"gray" } );
 var darkerTextStyle = new Style( { font:"17px", color:"#595959" } );
 var hintStyle = new Style( { font:"17px", color:"#D6D6D6" } );
-var buttonStyle = new Style( { font:"bold 20px", color:"white" } );
+var redTitleStyle = new Style( { font:"25px", color:"#881212" } );
  
 /**
  * Miscel Variables, Constants, and Functions
  */
-var otherMain;
+var X = 30, Y = 50;
 var THUMBNAILS = ["assets/white-tee-thumbnail.jpg", "assets/hat-thumbnail.jpg", "assets/shorts-thumbnail.jpg", "assets/blazer-thumbnail.jpg"];
 var PRICES = [15, 40, 45, 75];
 var NAMES = ["Zara Men's White Tee", "New Era Snapback", "Sperry Print Shorts", "J. Crew Blazer"];
@@ -68,11 +58,10 @@ Handler.bind("/theftCheck", {
             //is displayed <-- this should be changed later 
             theft = true;
             stolenItems = json.validTiles;
-            otherMain = application.first;
             mainContainer.empty();
-            mainContainer.add(theftAlertContainer);
+            mainContainer.add(templateColumn);
+            //mainContainer.add(theftAlertContainer);
             application.add(mainContainer);
-            //application.run(new TRANSITIONS.TimeTravel(), otherMain, mainContainer, { direction : "forward", easeType : "sineEaseIn", duration : 50 });
         } else if(json && (numItems(stolenItems) != numItems(json.validTiles))) {
             stolenItems = json.validTiles;
         }
@@ -179,10 +168,10 @@ var mainContainer = new Container({
 /**
  * Theft Alert Screen
  */
-var mapButton = new Line({left:0, right:0, top:10, skin:whiteGrayTopSkin, active:true,
+var mapButton = new Line({left:0, right:0, top:10, skin:STYLE.whiteGrayTopSkin, active:true,
     contents: [
         new Picture({name:"pic", left:0, top:10, height:30, width:40, url:"assets/map-light.png"}),
-        new Label({name:"label", left:0, top:15, height:20, string:"LOCATE THIEF", style:textStyle}),
+        new Label({name:"label", left:0, top:15, height:20, string:"LOCATE THIEF", style:STYLE.textStyle}),
     ]
 });
 
@@ -192,7 +181,7 @@ mapButton.behavior = Object.create(Behavior.prototype, {
 		content.pic.url = "assets/map.png";
 	}},
 	onTouchEnded: { value: function(content, id, x, y, ticks){
-        content.label.style = textStyle;
+        content.label.style = STYLE.textStyle;
         content.pic.url = "assets/map-light.png";
         mainContainer.run(new TRANSITIONS.TimeTravel(), theftAlertContainer, theftMapColumn, { direction : "forward", easeType : "sineEaseIn", duration : 300 });
 	}}
@@ -202,13 +191,13 @@ var alertInfoColumn = new Column({
     left:13, right:0, top:0, bottom:0,
     contents: [
         new Line({left:0, right:0, top:0,
-            contents: [new Label({left:0, top:0, height:25, string:"Theft Alert", style:titleStyle}),]
+            contents: [new Label({left:0, top:0, height:25, string:"Theft Alert", style:STYLE.titleStyle}),]
         }),
         new Line({left:0, right:0, top:0, name:"count",
             contents: [new Label({left:0, top:0, height:18, style:altTextStyle}),]
         }),
         new Line({left:0, right:0, top:0, name:"value",
-            contents: [new Label({left:0, top:0, height:18, style:textStyle}),]
+            contents: [new Label({left:0, top:0, height:18, style:STYLE.textStyle}),]
         }),
         mapButton
     ]
@@ -221,7 +210,6 @@ alertInfoColumn.behavior = Object.create(Behavior.prototype, {
         content.interval = 500;
         if(count == 0) {
             application.remove(mainContainer);
-            //application.run(new TRANSITIONS.TimeTravel(), mainContainer, otherMain, { direction : "back", easeType : "sineEaseIn", duration : 50 });
             theft = false;       
         } else if (count == 1) {
             content.count.first.string = count + " Stolen Item";
@@ -234,7 +222,6 @@ alertInfoColumn.behavior = Object.create(Behavior.prototype, {
         var count = numItems(stolenItems);
 		if(count == 0) {
 		    application.remove(mainContainer);
-            //application.run(new TRANSITIONS.TimeTravel(), mainContainer, otherMain, { direction : "back", easeType : "sineEaseIn", duration : 50 });
             theft = false;
         } else if (count == 1) {
             content.count.first.string = count + " Stolen Item";
@@ -246,9 +233,9 @@ alertInfoColumn.behavior = Object.create(Behavior.prototype, {
 });
 
 var theftAlertContainer = new Container({
-	left: 10, right: 10, top: 200, bottom: 200, active:true, skin: whiteSkin,
+	left: 10, right: 10, top: 200, bottom: 200, active:true, skin: STYLE.whiteSkin,
 	contents: [
-	    new Line({left:0, right:0, top:10, skin: whiteSkin,
+	    new Line({left:0, right:0, top:10, skin: STYLE.whiteSkin,
 	        contents: [
 	            new Picture({left:13, top:3, height:50, width:50, url:"assets/exclaim.png"}),
 	            alertInfoColumn
@@ -299,7 +286,7 @@ function displayLocationMarkers(content) {
 }
  
 var mapContainer = new Container({
-    left:0, right:0, top:0, bottom:0, skin: whiteSkin,
+    left:0, right:0, top:0, bottom:0, skin: STYLE.whiteSkin,
     contents: [
         new Picture({left:0, right:0, top:0, height:300, url:"assets/streetmap.png"}),
         new Picture({left:mapX(X), bottom:mapY(Y), width:30, height:30, url:"assets/location-blue.png"}),
@@ -320,43 +307,43 @@ mapContainer.behavior = Object.create(Behavior.prototype, {
     }}
 });
 
-var detectItemsButton = new Line({left:3, right:3, top:50, bottom:3, skin: graySkin, active:true,
+var detectItemsButton = new Line({left:10, right:10, top:45, bottom:10, skin: STYLE.redSkin, active:true,
     contents: [
-        new Label({left:10, top:0, height:45, string:"Detect Stolen Items on Thief", style:buttonStyle}),
+        new Label({left:0, right:0, height:40, string:"Detect Stolen Items on Thief", style:STYLE.whiteButtonStyle}),
     ],
     behavior: Object.create(Behavior.prototype, { 
         onTouchBegan: { value: function(content, id, x, y, ticks){
             if(deviceURL != "") content.invoke(new Message("/scan"));
-            content.first.style = textStyle;
+            content.skin = STYLE.darkerRedSkin;
         }},
         onTouchEnded: { value: function(content, id, x, y, ticks){
-	        content.first.style = buttonStyle;
+	        content.skin = STYLE.redSkin;
 	        mainContainer.run( new TRANSITIONS.Push(), theftMapColumn, theftDetectionColumn, { direction : "left", duration : 400 } );
 		}},
 	})
 });
  
 var theftMapColumn = new Column({
-	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: whiteSkin,
+	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
 	contents: [
-	    new Line({left:0, right:0, top:0, skin:redSkin,
+	    new Line({left:0, right:0, top:0, skin:STYLE.redSkin,
 	        contents: [
-	            new Label({left:5, top:5, height:40, string:"Thief Map", style:buttonStyle}),
+	            new Label({left:10, top:5, height:40, string:"Thief Map", style:STYLE.whiteButtonStyle}),
 	        ]
 	    }),
 	    new Line({left:0, right:0, top:0,
 	        contents: [mapContainer]
 	    }),
-	    new Line({left:0, right:0, top:0, skin: whiteGrayBottomSkin,
+	    new Line({left:0, right:0, top:0, skin: STYLE.whiteGrayBottomSkin,
 	        contents: [
 	            new Picture({left:10, top:0, bottom:10, width:30, height:30, url:"assets/location-red.png"}),
-	            new Label({left:20, top:0, bottom:0, string:"Stolen Item", style:textStyle}),
+	            new Label({left:20, top:0, bottom:0, string:"Stolen Item", style:STYLE.textStyle}),
 	        ]
 	    }),
-	    new Line({left:0, right:0, top:0, skin: whiteGrayBottomSkin,
+	    new Line({left:0, right:0, top:0, skin: STYLE.whiteGrayBottomSkin,
 	        contents: [
 	            new Picture({left:10, top:10, bottom:10, width:30, height:30, url:"assets/location-blue.png"}),
-	            new Label({left:20, top:0, bottom:0, string:"Current Location", style:textStyle}),
+	            new Label({left:20, top:0, bottom:0, string:"Current Location", style:STYLE.textStyle}),
 	        ]
 	    }),
 	],
@@ -366,14 +353,14 @@ var theftMapColumn = new Column({
  * Stolen Item Detecting Screen
  */
 var DetectionLine = Line.template(function($) { return {
-    left:0, right:0, top:0, skin: whiteGrayTopSkin,
+    left:0, right:0, top:0, skin: STYLE.whiteGrayTopSkin,
     contents: [
         Picture($, {left:10, top:10, bottom:10, width:60, height:80, url:$.picURL}),
         Column($, {
             left:20, right:0, top:10, bottom:0,
             contents: [
-                Label($, {left:0, top:0, height:30, string:$.name, style:titleStyle}),
-                Label($, {left:0, top:0, height:20, string:"Quantity: " + $.quantity, style:textStyle}),
+                Label($, {left:0, top:0, height:30, string:$.name, style:STYLE.titleStyle}),
+                Label($, {left:0, top:0, height:20, string:"Quantity: " + $.quantity, style:STYLE.textStyle}),
             ]
         }),
         Picture($, {right:15, bottom:8, width:40, height:40, url:"assets/wifi.png"}),
@@ -381,36 +368,36 @@ var DetectionLine = Line.template(function($) { return {
 }});
 
 var theftDetectionColumn = new Column({
-	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: whiteSkin,
+	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
 	contents: [
-	    new Line({left:0, right:0, top:0, skin:redSkin, active:true,
+	    new Line({
+	        left:0, right:0, top:0, skin:STYLE.redSkin,
 	        contents: [
-	            new Label({left:5, top:5, height:40, string:"< Back To Map", style:buttonStyle}),
-	        ],
-	        behavior: Object.create(Behavior.prototype, { 
-	            onTouchBegan: { value: function(content, id, x, y, ticks){
-	            }},
-	            onTouchEnded: { value: function(content, id, x, y, ticks){
-			        mainContainer.run( new TRANSITIONS.Push(), theftDetectionColumn, theftMapColumn, { direction : "right", duration : 400 } );
-				}}
-			})
-	    }),
-	    new Line({left:0, right:0, top:5, skin: whiteSkin,
-	        contents: [
-	            new Label({left:10, top:0, height:40, string:"Detected Items", style:titleStyle}),
+	            new Picture({left:-5, height:20, url:"assets/back.png", active:true,
+	                behavior: Object.create(Behavior.prototype, { 
+				        onTouchBegan: { value: function(content){
+				           content.url = "assets/back-dark.png";
+				        }},
+				        onTouchEnded: { value: function(content){
+				            content.url = "assets/back.png";
+				            mainContainer.run( new TRANSITIONS.Push(), theftDetectionColumn, theftMapColumn, { direction : "right", duration : 400 } );
+						}}
+					})
+	            }),
+	            new Label({left:-5, top:5, height:40, string:"Detected Items", style:STYLE.whiteButtonStyle}),
 	        ]
 	    }),
-	    new Column({ name:"items", left:0, right:0, top:0, bottom:0, skin: whiteSkin}),
-	    new Line({left:3, right:3, bottom:3, skin: graySkin, active:true,
+	    new Column({ name:"items", left:0, right:0, top:0, skin: STYLE.whiteSkin}),
+	    new Line({left:50, right:50, top:20, skin: STYLE.redSkin, active:true,
 	        contents: [
-	            new Label({left:10, top:0, height:45, string:"Done", style:buttonStyle}),
+	            new Label({left:0, right:0, height:40, string:"Done", style:STYLE.whiteButtonStyle}),
 	        ],
 	        behavior: Object.create(Behavior.prototype, { 
 	            onTouchBegan: { value: function(content, id, x, y, ticks){
-		            content.first.style = textStyle;
+		            content.skin = STYLE.darkerRedSkin;
 	            }},
 	            onTouchEnded: { value: function(content, id, x, y, ticks){
-	                content.first.style = buttonStyle;
+	                content.skin = STYLE.redSkin;
 			        mainContainer.run( new TRANSITIONS.Push(), theftDetectionColumn, theftConfirmationColumn, { direction : "left", duration : 400 } );
 				}},
 			})
@@ -458,12 +445,12 @@ theftDetectionColumn.behavior = Object.create(Behavior.prototype, {
  */
 var quantityOverride = {};
 var QuantityField = Container.template(function($) { return {
-  left:0, right:0, skin: whiteGrayTopSkin, contents: [
+  left:0, right:0, skin: STYLE.whiteGrayTopSkin, contents: [
     Scroller($, { 
       left: 0, right:0, top: 0, bottom:0, active: true, 
       behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
         Label($, { 
-          left: 10, height:40, skin: THEME.fieldLabelSkin, style: textStyle, anchor: 'NAME',
+          left: 10, height:40, skin: THEME.fieldLabelSkin, style: STYLE.textStyle, anchor: 'NAME',
           editable: true, string: $.name,
          	behavior: Object.create( CONTROL.FieldLabelBehavior.prototype, {
          	    onFocused: { value: function(label){
@@ -495,19 +482,19 @@ var QuantityField = Container.template(function($) { return {
 var Header = Line.template(function($) { return {
     left:0, right:0, top:0,
 	contents: [
-	    Label($, {left:10, top:0, height:40, string:$.header, style:textStyle}),
+	    Label($, {left:10, top:0, height:40, string:$.header, style:STYLE.textStyle}),
 	]
 }});
 
 var Name = Line.template(function($) { return {
-    left:1, right:1, top:0, bottom:1, skin: whiteGrayTopSkin,
+    left:1, right:1, top:0, bottom:1, skin: STYLE.whiteGrayTopSkin,
 	contents: [
-	    Label($, {left:10, top:0, height:40, string:$.name, style:textStyle}),
+	    Label($, {left:10, top:0, height:40, string:$.name, style:STYLE.textStyle}),
 	]
 }});
 
 var Quantity = Line.template(function($) { return {
-    left:1, right:1, top:0, bottom:1, skin: whiteGrayTopSkin,
+    left:1, right:1, top:0, bottom:1, skin: STYLE.whiteGrayTopSkin,
 	contents: [
 	    new QuantityField({ name: $.quantity, itemName: $.item, recoverOrLost: $.recoverOrLost }),
 	]
@@ -530,65 +517,66 @@ var lostItemQuantity = new Column({
 });
 
 var theftConfirmationColumn = new Column({
-	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: whiteSkin,
+	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
 	contents: [
-	    new Line({left:0, right:0, top:0, skin:redSkin, active:true,
+	    new Line({
+	        left:0, right:0, top:0, skin:STYLE.redSkin,
 	        contents: [
-	            new Label({left:5, top:5, height:40, string:"< Back To Detection", style:buttonStyle}),
-	        ],
-	        behavior: Object.create(Behavior.prototype, { 
-	            onTouchBegan: { value: function(content, id, x, y, ticks){
-	                if(deviceURL != "") content.invoke(new Message("/scan"));
-	            }},
-	            onTouchEnded: { value: function(content, id, x, y, ticks){
-			        mainContainer.run( new TRANSITIONS.Push(), theftConfirmationColumn, theftDetectionColumn, { direction : "right", duration : 400 } );
-				}}
-			})
-	    }),
-	    new Line({left:0, right:0, top:5, skin: whiteSkin,
-	        contents: [
-	            new Label({left:10, top:0, height:40, string:"Confirmation", style:titleStyle}),
+	            new Picture({left:-5, height:20, url:"assets/back.png", active:true,
+	                behavior: Object.create(Behavior.prototype, { 
+				        onTouchBegan: { value: function(content){
+				           content.url = "assets/back-dark.png";
+				        }},
+				        onTouchEnded: { value: function(content){
+				            content.url = "assets/back.png";
+			                mainContainer.run( new TRANSITIONS.Push(), theftConfirmationColumn, theftDetectionColumn, { direction : "right", duration : 400 } );
+						}}
+					})
+	            }),
+	            new Label({left:-5, top:5, height:40, string:"Confirmation", style:STYLE.whiteButtonStyle}),
 	        ]
 	    }),
 	    new Line({left:0, right:0, top:5,
 	        contents: [
-	            new Label({left:10, top:0, height:18, string:"Items Recovered", style:altTextStyle}),
+	            new Label({left:10, top:0, height:40, string:"Items Recovered", style:redTitleStyle}),
 	        ]
 	    }),
-	    new Line({left:5, right:5, top:0, skin: whiteSkin,
+	    new Line({left:5, right:5, top:0, skin: STYLE.whiteSkin,
 	        contents: [recoveredItemName, recoveredItemQuantity]
 	    }),
 	    new Line({left:0, right:0, top:5,
 	        contents: [
-	            new Label({left:10, top:0, height:18, string:"Items Lost", style:altTextStyle}),
+	            new Label({left:10, top:0, height:40, string:"Items Lost", style:redTitleStyle}),
 	        ]
 	    }),
-	    new Line({left:5, right:5, top:0, bottom:0, skin: whiteSkin,
+	    new Line({left:5, right:5, top:0, bottom:0, skin: STYLE.whiteSkin,
 	        contents: [lostItemName, lostItemQuantity]
 	    }),
-	    new Line({name:"details", left:3, right:3, bottom:5, skin:redSkin, active:true,
+	    new Line({name:"details", left:10, right:10, bottom:5, skin:STYLE.redSkin, active:true,
 	        contents: [
-	            new Label({left:5, top:5, height:45, string:"Item Details", style:buttonStyle}),
+	            new Label({left:0, right:0, height:40, string:"Item Details", style:STYLE.whiteButtonStyle}),
 	        ],
 	        behavior: Object.create(Behavior.prototype, { 
-	            onTouchBegan: { value: function(content, id, x, y, ticks){
-	            }},
-	            onTouchEnded: { value: function(content, id, x, y, ticks){
-			        mainContainer.run( new TRANSITIONS.Push(), theftConfirmationColumn, theftDetailsColumn, { direction : "left", duration : 400 } );
+		        onTouchBegan: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.darkerRedSkin;
+		        }},
+		        onTouchEnded: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.redSkin;
+		            mainContainer.run( new TRANSITIONS.Push(), theftConfirmationColumn, theftDetailsColumn, { direction : "left", duration : 400 } );
 				}}
 			})
 	    }),
-	    new Line({name:"done", left:3, right:3, bottom:3, skin:graySkin, active:true,
+	    new Line({name:"done", left:10, right:10, bottom:10, skin:STYLE.redSkin, active:true,
 	        contents: [
-	            new Label({left:10, height:45, string:"Done", style:buttonStyle}),
+	            new Label({left:0, right:0, height:40, string:"Done", style:STYLE.whiteButtonStyle}),
 	        ],
 	        behavior: Object.create(Behavior.prototype, { 
-	            onTouchBegan: { value: function(content, id, x, y, ticks){
-	                content.first.style = textStyle;
-	            }},
-	            onTouchEnded: { value: function(content, id, x, y, ticks){
-	                content.first.style = buttonStyle;
-	                mainContainer.add(theftConfirmationDialogContainer);
+		        onTouchBegan: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.darkerRedSkin;
+		        }},
+		        onTouchEnded: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.redSkin;
+		            mainContainer.add(theftConfirmationDialogContainer);
 				}}
 			})
 	    }),
@@ -660,17 +648,17 @@ theftConfirmationColumn.behavior = Object.create(Behavior.prototype, {
  * Confirmation Dialog
  */
 var theftConfirmationDialog = new Column({
-    left: 10, right: 10, top: 200, bottom: 200, active:true, skin: whiteSkin,
+    left: 10, right: 10, top: 200, bottom: 200, active:true, skin: STYLE.whiteSkin,
     contents: [
-	    new Line({left:0, right:0, top:0, bottom:0, skin: whiteGrayBottomSkin,
+	    new Line({left:0, right:0, top:0, bottom:0, skin: STYLE.whiteGrayBottomSkin,
 	        contents: [
-	            new Label({left:20, right:0, top:0, bottom:0, height:40, string:"Are you sure?", style:textStyle}),
+	            new Label({left:20, right:0, top:0, bottom:0, height:40, string:"Are you sure?", style:STYLE.textStyle}),
 	        ]
 	    }),
 	    new Line({left:0, right:0, top:0, bottom:0,
 	        contents: [
 	            new Label({left:60, right:0, top:0, bottom:0, height:10, skin: whiteGrayRightSkin, active:true,
-	               string:"No", style:textStyle,
+	               string:"No", style:STYLE.textStyle,
 	                behavior: Object.create(Behavior.prototype, { 
 				        onTouchBegan: { value: function(content, id, x, y, ticks){
 				        }},
@@ -680,7 +668,7 @@ var theftConfirmationDialog = new Column({
 					})
 	            }),
 	            new Label({left:60, right:0, top:0, bottom:0, height:10, active:true,
-	                string:"Yes", style:textStyle,
+	                string:"Yes", style:STYLE.textStyle,
 	                behavior: Object.create(Behavior.prototype, {
 	                    onTouchBegan: { value: function(content, id, x, y, ticks){
 				        }},
@@ -688,7 +676,6 @@ var theftConfirmationDialog = new Column({
 				            mainContainer.remove(theftConfirmationDialogContainer);
 				            theft = false;
 				            application.remove(mainContainer);
-				            //application.run( new TRANSITIONS.TimeTravel(), mainContainer, otherMain, { direction : "forward", duration : 200 } );
 						}}
 					})
 	            }),
@@ -706,38 +693,41 @@ var theftConfirmationDialogContainer = new Container({
  * Item Details Screen
  */
 var DetailLine = Line.template(function($) { return {
-    left:0, right:0, top:0, skin: whiteGrayBottomSkin,
+    left:0, right:0, top:0, skin: STYLE.whiteGrayBottomSkin,
     contents: [
         Picture($, {left:10, top:0, bottom:5, width:60, height:100, url:$.picURL}),
         Column($, {
             left:20, right:0, top:5, bottom:0, name: "details",
             contents: [
-                Label($, {left:0, top:0, height:30, string:$.name, style:titleStyle}),
-                Label($, {name:"recovered", left:0, top:0, height:20, string:$.recovered + " Recovered", style:textStyle}),
-                Label($, {name:"lost", left:0, top:0, height:20, string:$.lost + " Still Lost", style:textStyle}),
-                Label($, {name:"recoveredAmt", left:0, top:0, height:20, string:"$" + $.recoveredAmt + " Recovered", style:textStyle}),
-                Label($, {name:"lostAmt", left:0, top:0, bottom: 10, height:20, string:"$" + $.lostAmt + " Lost", style:textStyle}),
+                Label($, {left:0, top:0, height:30, string:$.name, style:STYLE.titleStyle}),
+                Label($, {left:0, top:0, height:20, string:$.recovered + " Recovered, " + $.lost + " Still Lost", style:STYLE.textStyle}),
+                Label($, {left:0, top:0, height:20, string:"$" + $.recoveredAmt + " Recovered, $" + $.lostAmt + " Lost", style:STYLE.textStyle}),
             ]
         }),
     ],
 }});
 
 var theftDetailsColumn = new Column({
-	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: whiteSkin,
+	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
 	contents: [
-	    new Line({left:0, right:0, top:0, skin:redSkin, active:true,
+	    new Line({
+	        left:0, right:0, top:0, skin:STYLE.redSkin,
 	        contents: [
-	            new Label({left:5, top:5, height:40, string:"< Back To Confirmation", style:buttonStyle}),
-	        ],
-	        behavior: Object.create(Behavior.prototype, { 
-	            onTouchBegan: { value: function(content, id, x, y, ticks){
-	            }},
-	            onTouchEnded: { value: function(content, id, x, y, ticks){
-			        mainContainer.run( new TRANSITIONS.Push(), theftDetailsColumn, theftConfirmationColumn, { direction : "right", duration : 400 } );
-				}}
-			})
+	            new Picture({left:-5, height:20, url:"assets/back.png", active:true,
+	                behavior: Object.create(Behavior.prototype, { 
+				        onTouchBegan: { value: function(content){
+				           content.url = "assets/back-dark.png";
+				        }},
+				        onTouchEnded: { value: function(content){
+				            content.url = "assets/back.png";
+				            mainContainer.run( new TRANSITIONS.Push(), theftDetailsColumn, theftConfirmationColumn, { direction : "right", duration : 400 } );
+						}}
+					})
+	            }),
+	            new Label({left:-5, top:5, height:40, string:"Item Details", style:STYLE.whiteButtonStyle}),
+	        ]
 	    }),
-	    new Column({ name:"items", left:0, right:0, top:0, bottom:0, skin: whiteSkin}),
+	    new Column({ name:"items", left:0, right:0, top:0, bottom:0, skin: STYLE.whiteSkin}),
 	]
 });
 
@@ -791,7 +781,201 @@ theftDetailsColumn.behavior = Object.create(Behavior.prototype, {
 	    } 
     }}
 });
- 
 
-mainContainer.add(theftAlertContainer);
+//TEMPLATES
+var TemplateLine = Line.template(function($) { return {
+    left:0, right:0, top:0, skin: STYLE.whiteGrayBottomSkin,
+    contents: [
+        Picture($, {left:10, top:0, bottom:5, width:60, height:100, url:$.picURL}),
+        Column($, {
+            left:20, right:0, top:5, bottom:0,
+            contents: [
+                Label($, {left:0, top:0, height:30, string:"Some details", style:STYLE.titleStyle}),
+                Label($, {left:0, top:0, height:20, string:"Some other details", style:STYLE.textStyle}),
+            ]
+        }),
+        Container($, { 
+            left:0, right:5, bottom:10, skin:STYLE.redBorderSkin, active:true,
+            contents: [
+                Label($, {height:30, string:"Find", style:STYLE.redButtonStyle}),
+            ],
+            behavior: Object.create(Behavior.prototype, { 
+		        onTouchBegan: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.darkerRedBorderSkin;
+		        }},
+		        onTouchEnded: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.redBorderSkin;
+				}}
+			})
+        }),
+    ],
+}});
+
+var TemplateTwoLine = Line.template(function($) { return {
+    left:0, right:0, top:0, skin: STYLE.whiteGrayTopSkin,
+    contents: [
+        Thumbnail($, {left:5, top:5, bottom:5, width:STYLE.thumbnailWidth, height:STYLE.thumbnailHeight, url:$.picURL}),
+        Column($, {
+            left:20, right:0, top:5, bottom:0,
+            contents: [
+                Label($, {left:0, top:5, height:28, string:$.name, style:STYLE.titleStyle}),
+                Label($, {left:0, top:0, height:18, string:"Price Per Item: $" + $.price, style:STYLE.textStyle}),
+                Label($, {left:0, top:0, height:18, string:"Quantity: " + $.quantity, style:STYLE.textStyle}),
+            ]
+        }),
+        Picture($, {bottom:10, height:30, url:"assets/edit-dark.png"}),
+    ],
+}});
+
+var templateColumn = new Column({
+	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
+	contents: [
+	    new Line({left:0, right:0, top:0, skin:STYLE.redSkin,
+	        contents: [
+	            new Label({left:10, top:5, height:40, string:"Test Header", style:STYLE.whiteButtonStyle}),
+	        ]
+	    }),
+	    // REPLACE WITH YOUR PICS
+	    new TemplateLine({picURL: THUMBNAILS[0]}),
+	    new TemplateLine({picURL: THUMBNAILS[1]}),
+	    new TemplateLine({picURL: THUMBNAILS[2]}),
+	    new Line({left:25, right:25, top:60, bottom:5, skin:STYLE.redSkin, active:true,
+	        contents: [
+	            new Label({left:0, right:0, height:40, string:"Button 1", style:STYLE.whiteButtonStyle}),
+	        ],
+	        behavior: Object.create(Behavior.prototype, { 
+		        onTouchBegan: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.darkerRedSkin;
+		        }},
+		        onTouchEnded: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.redSkin;
+				}}
+			})
+	    }),
+	    new Line({left:25, right:25, bottom:30, skin:STYLE.redSkin, active:true,
+	        contents: [
+	            new Label({left:0, right:0, height:40, string:"Button 2", style:STYLE.whiteButtonStyle}),
+	        ],
+	        behavior: Object.create(Behavior.prototype, { 
+		        onTouchBegan: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.darkerRedSkin;
+		        }},
+		        onTouchEnded: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.redSkin;
+		            // REPLACE MAINCONTAINER WITH WHATEVER YOU USE TO RUN YOUR TRANSITIONS
+		            mainContainer.run( new TRANSITIONS.Push(), templateColumn, templateColumnTwo, { direction : "left", duration : 400 } );
+				}}
+			})
+	    }),
+	],
+});
+
+var SearchField = Container.template(function($) { return {
+  left:0, right:10, skin: STYLE.whiteGrayBottomSkin, contents: [
+    Scroller($, { 
+      left: 0, right:0, top: 0, bottom:0, active: true, 
+      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
+        Label($, { 
+          left: 10, height:40, skin: THEME.fieldLabelSkin, style: STYLE.textStyle, anchor: 'SEARCH',
+          editable: true, string: $.name,
+         	behavior: Object.create( CONTROL.FieldLabelBehavior.prototype, {
+         	    onFocused: { value: function(label){
+         	        KEYBOARD.show();
+         	    }},
+         		onEdited: { value: function(label){
+         			var data = this.data;
+         			data.name = label.string;
+                    label.container.hint.visible = ( data.name.length == 0 );
+         		}}
+         	}),
+         }),
+         Label($, {
+   			 left:5, style:hintStyle, string:"Search for Items", name:"hint"
+         }),
+      ]
+    })
+  ]    
+}});
+
+var templateColumnTwo = new Column({
+	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
+	contents: [
+	    new Line({
+	        left:0, right:0, top:0, skin:STYLE.redSkin,
+	        contents: [
+	            new Picture({left:-5, height:20, url:"assets/back.png", active:true,
+	                behavior: Object.create(Behavior.prototype, { 
+				        onTouchBegan: { value: function(content){
+				           content.url = "assets/back-dark.png";
+				        }},
+				        onTouchEnded: { value: function(content){
+				            content.url = "assets/back.png";
+				            mainContainer.run( new TRANSITIONS.Push(), templateColumnTwo, templateColumn, { direction : "right", duration : 400 } );
+						}}
+					})
+	            }),
+	            new Label({left:-5, top:5, height:40, string:"Test Header Two", style:STYLE.whiteButtonStyle}),
+	        ]
+	    }),
+	    new Line({
+	        left:0, right:0, top:0, skin:STYLE.graySkin,
+	        contents: [
+	            new Container({
+	                left:0, right:0, skin: STYLE.redBottomSkin,
+	                contents: [
+	                    new Label({left:0, right:0, top:0, bottom:0, height:40, string:"History", style:STYLE.redButtonStyle}),
+	                ]
+	            }),
+	            new Container({
+	                left:0, right:0,
+	                contents: [
+	                    new Label({left:0, right:0, top:0, bottom:0, height:40, string:"Inventory", style:STYLE.darkerGrayButtonStyle}),
+	                    new Label({right:3, top:3, width:20, height:20, skin:STYLE.redNotificationSkin, string:"2", style:STYLE.grayButtonStyle}),
+	                    
+	                ]
+	            }),
+	            new Container({
+	                left:0, right:0,
+	                contents: [
+	                    new Label({left:0, right:0, top:0, bottom:0, height:40, string:"Sold", style:STYLE.darkerGrayButtonStyle}),
+	                ]
+	            }),
+	        ]
+	    }),
+	    new Line({
+	        left:0, right:0, top:0,
+	        contents: [
+	            new Picture({ left:0, url:"assets/search.png" }),
+	            new SearchField({name:""}),
+	        ]
+	    }),
+	    new TemplateTwoLine({picURL: THUMBNAILS[0], name: NAMES[0], quantity: 5, price: PRICES[0] }),
+	    new TemplateTwoLine({picURL: THUMBNAILS[1], name: NAMES[1], quantity: 10, price: PRICES[1] }),
+	    new TemplateTwoLine({picURL: THUMBNAILS[2], name: NAMES[2], quantity: 2, price: PRICES[2] }),
+	    new Line({left:210, right:10, top:60, bottom:20, skin:STYLE.redSkin, active:true,
+	        contents: [
+	            new Label({left:5, right:5, height:40, string:"Upselling", style:STYLE.whiteButtonStyle}),
+	        ],
+	        behavior: Object.create(Behavior.prototype, { 
+		        onTouchBegan: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.darkerRedSkin;
+		        }},
+		        onTouchEnded: { value: function(content, id, x, y, ticks){
+		            content.skin = STYLE.redSkin;
+		            mainContainer.run( new TRANSITIONS.Push(), templateColumnTwo, templateColumn, { direction : "right", duration : 400 } );
+				}}
+			})
+	    }),
+	],
+});
+
+templateColumnTwo.behavior = Object.create(Behavior.prototype, {
+    onTouchEnded: { value: function(content) {
+        KEYBOARD.hide();
+        content.focus();
+    }}
+});
+
+// END OF TEMPLATES
+
 application.invoke(new Message("/theftCheck"));
