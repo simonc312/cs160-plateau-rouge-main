@@ -13,7 +13,7 @@ exports.notificationNumberStyle = new Style({ color: "black", font: '18px', hori
 exports.historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
 exports.itemPropertyStyle = new Style({font: '18px', lines: 1});						   
 exports.itemNameStyle = new Style({  font: 'bold', horizontal: 'null', vertical: 'null', lines: 1, });
-exports.headerTitleStyle = new Style({  font: 'bold 24px', horizontal: 'center', vertical: 'middle', lines: 1, });
+exports.headerTitleStyle = new Style({  color: 'white', font: 'bold 24px', horizontal: 'center', vertical: 'middle', lines: 1, });
 exports.testPicture = new Picture({left:0,right:0,top:0,bottom:0,scale:{x:0.1,y:0.1},url:'assets/blazer-large.jpg'});
 exports.nameInputSkin = new Skin({ borders: { left:2, right:2, top:2, bottom:2 }, stroke: 'gray',});
 exports.fieldStyle = new Style({ color: 'black', font: 'bold 24px', horizontal: 'left', vertical: 'middle', left: 5, right: 5, top: 5, bottom: 5, });
@@ -62,3 +62,8 @@ exports.whiteButtonStyle = new Style( { font:"bold 20px", color:"white", horizon
 exports.darkerRedSkin = new Skin( { fill:"#5C0B0B" } );
 exports.textStyle = new Style( { font:"17px", color:"gray" } );
 exports.titleStyle = new Style( { font:"25px", color:"black" } );
+
+exports.contentTopOffset = 120;
+exports.contentBottomOffset = 50;
+exports.button_width_sm = 50;
+exports.button_width_lg = 325;

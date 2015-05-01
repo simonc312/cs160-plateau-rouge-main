@@ -78,15 +78,15 @@ var MyNotificationBubble = Container.template(function($) { return {top: 2, righ
 
 
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
-	 right: 0, width:50, height:50, skin: STYLE.searchButtonSkin,
+	 right: ($.right ? $.right : 0), left: $.left, width: $.width, height:50, skin: STYLE.searchButtonSkin,
 	contents: [
 		 Label($, {
-	   			 	left:4, right:4, top:4, bottom:4, width: 48, skin: $.skin, string:"", name:$.name
+	   			 	left:4, right:4, top:4, bottom:4, width: 48, skin: $.skin, string:($.string ? $.string : ""), name:$.name
 	         })
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			if(content == scanButton){
+			if(content == scanButton || content == upsellButton){
 				application.remove(main);
 				application.add(UPSELLING.mainContainer);
 			}
@@ -100,9 +100,10 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button"});
-var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button"});
-var MySearchField = Container.template(function($) { return { 
+var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button", width: STYLE.smallButtonWidth});
+var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button", width: STYLE.button_width_sm});
+var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button_width_lg, bottom: 10});
+var MySearchField = Container.template(function($) { return { left:10, top: 10, bottom: 10,
   width: 315, height: 50, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
   		searchButton,
@@ -282,7 +283,7 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 
 
 
-var headerRow = new Line({left:10, right:0, top:0});
+var headerRow = new Line({left:0, right:0, top:0});
 
 
 var tabsRow = new Line({left:0, right:0, bottom:0, behavior: Object.create(Container.prototype,{
@@ -301,6 +302,8 @@ var tabsRow = new Line({left:0, right:0, bottom:0, behavior: Object.create(Conta
 	}
 }) });
 
+var footerRow = new Line({left:0, right:0, bottom:0});
+
 var titleLabel = new MyLabel ( { text: "Plateau Rouge History", style: STYLE.headerTitleStyle } );
 
 	
@@ -318,8 +321,8 @@ var MainContainerTemplate = Container.template(function($) { return {
 var searchBarfield = new MySearchField({ name: "" });
 var main = new MainContainerTemplate();
 
-var headerColumn = new Column({left:0,top:0,bottom:0,top:10, clip: true});
-var titleScanRow = new Line({left:0, right: 0, top:0,bottom:0,top:0, clip: true});
+var headerColumn = new Column({left:0,top:0,bottom:0,top:0, clip: true});
+var titleScanRow = new Line({skin: STYLE.darkerRedSkin, left:0, right: 0, top:0,bottom:0,top:0, clip: true});
 var historyItems = [
 								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg", quantity: 3, price: 30},
 								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg", quantity: 5, price: 35}
@@ -339,7 +342,7 @@ var inventoryPane = new ListPane({ items: inventoryItems, more: false});
 
 var soldPane = new ListPane({ items: null, more: false, action: "sold"});
 
-var contentRow = new Line({left:0, right:0, top:60,bottom:60, height: 450, behavior: {
+var contentRow = new Line({left:0, right:0, top: STYLE.contentTopOffset ,bottom: STYLE.contentBottomOffset, height: 450, behavior: {
 		onCreate:  function(container, data){
 			this.data = data;
 			this.currentContent = historyPane;
@@ -422,15 +425,17 @@ application.add(main);
 titleScanRow.add(titleLabel);
 titleScanRow.add(scanButton);
 headerColumn.add(titleScanRow);
+headerColumn.add(tabsRow);
 headerColumn.add(searchBarfield);
 headerRow.add(headerColumn);
 contentRow.add(historyPane);
 tabsRow.add(historyLabel);
 tabsRow.add(inventoryLabel);
 tabsRow.add(soldLabel);
+footerRow.add(upsellButton);
 main.add(contentRow);
 main.add(headerRow);
-main.add(tabsRow);
+main.add(footerRow);
 
 
 //MAIN APPLICATION BEHAVIOR
