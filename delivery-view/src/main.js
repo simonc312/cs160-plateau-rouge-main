@@ -49,8 +49,8 @@ Handler.bind("/getNotifications", {
 			var numNewDelivered = json.delivered;
 			var newDeliveredItem = json.deliveredItem;
 			var newSoldItem = json.soldItem;
-			tabsRow.behavior.update(historyLabel,numNewDelivered);
-			tabsRow.behavior.update(soldLabel,numNewSold);
+			tabsRow.behavior.update(historyTabButton,numNewDelivered);
+			tabsRow.behavior.update(soldTabButton,numNewSold);
 			contentRow.behavior.addDeliveryItem(newDeliveredItem);
 			contentRow.behavior.addSoldItem(newSoldItem);
 			handler.invoke( new Message("/delay"));
@@ -72,7 +72,7 @@ var MyLabel = Label.template(function($) { return {
   left:0, right:0, height: 40, string:$.text, style:$.style 
 }});
 
-var MyNotificationBubble = Container.template(function($) { return {top: 2, right:5, height: 20, skin: STYLE.notificationNumberSkin, name: $.name, contents: [ 
+var MyNotificationBubble = Container.template(function($) { return {top: 2, right:5, height: 20, skin: STYLE.redNotificationSkin, name: $.name, contents: [ 
   	new Label({width: 20, height: 20, string:$.text, style: STYLE.notificationNumberStyle})] 
 }});
 
@@ -100,9 +100,9 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button", width: STYLE.smallButtonWidth});
-var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button", width: STYLE.button_width_sm});
-var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button_width_lg, bottom: 10});
+var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button", width: STYLE.button.width.sm});
+var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button", width: STYLE.button.width.sm});
+var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button.width.lg, bottom: 10});
 var MySearchField = Container.template(function($) { return { left:10, top: 10, bottom: 10,
   width: 315, height: 50, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
@@ -245,7 +245,7 @@ var ListPane = Body.template(function($) { return { contents: [
 
 	SCROLLER.VerticalScroller($, { clip: true, contents: [
 
-		Column($, { left: 0, right: 0, top: 0, anchor: 'LIST', behavior: Object.create((ListPane.behaviors[0]).prototype), }),
+		Column($, { left: 0, right: 0, width: 325, top: 0, anchor: 'LIST', behavior: Object.create((ListPane.behaviors[0]).prototype), }),
 
 		SCROLLER.VerticalScrollbar($, { }),
 
@@ -286,21 +286,7 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 var headerRow = new Line({left:0, right:0, top:0});
 
 
-var tabsRow = new Line({left:0, right:0, bottom:0, behavior: Object.create(Container.prototype,{
-	onCreate: { value: function(content,data){
-		trace('inside tabsRow onCreate \n');
-		this.data = data;
-		this.update = function(tabSection,numNotifications){
-			if(numNotifications != 0){
-				if(tabSection.notificationBubble != null && tabSection.notificationBubble != undefined)
-					tabSection.notificationBubble.first.string = numNotifications;
-				else
-					tabSection.add(new MyNotificationBubble({name:"notificationBubble",text:numNotifications}));
-			}
-		}
-		}
-	}
-}) });
+
 
 var footerRow = new Line({left:0, right:0, bottom:0});
 
@@ -322,7 +308,7 @@ var searchBarfield = new MySearchField({ name: "" });
 var main = new MainContainerTemplate();
 
 var headerColumn = new Column({left:0,top:0,bottom:0,top:0, clip: true});
-var titleScanRow = new Line({skin: STYLE.darkerRedSkin, left:0, right: 0, top:0,bottom:0,top:0, clip: true});
+var titleScanRow = new Line({skin: STYLE.redSkin, left:0, right: 0, top:0,bottom:0,top:0, clip: true});
 var historyItems = [
 								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg", quantity: 3, price: 30},
 								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg", quantity: 5, price: 35}
@@ -342,10 +328,11 @@ var inventoryPane = new ListPane({ items: inventoryItems, more: false});
 
 var soldPane = new ListPane({ items: null, more: false, action: "sold"});
 
-var contentRow = new Line({left:0, right:0, top: STYLE.contentTopOffset ,bottom: STYLE.contentBottomOffset, height: 450, behavior: {
+var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYLE.content.bottom,width: 325, height: 450, behavior: {
 		onCreate:  function(container, data){
 			this.data = data;
 			this.currentContent = historyPane;
+			//this.updateTabStyle(this.currentContent); //run once onCreate
 			this.switchLists = function(listType, direction){
 					var newContent = new ListPane({items: null, more:false, action: listType});
 					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100,});
@@ -368,10 +355,11 @@ var contentRow = new Line({left:0, right:0, top: STYLE.contentTopOffset ,bottom:
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 	left:$.left, right: $.right, height:50, skin: STYLE.tabButtonSkin,
 	contents: [
-		new MyLabel({text:$.text, style: STYLE.buttonStyle}),
+		new MyLabel({text:$.text, style: STYLE.darkerGrayButtonStyle}),
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
+			tabsRow.behavior.updateTabStyle(content);
 			if(content.notificationBubble != null || content.notificationBubble != undefined){
 				if(content.first.string == "History")
 					content.invoke(new Message(deviceURL + "resetDeliveryNotifications"));
@@ -379,46 +367,75 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 					content.invoke(new Message(deviceURL + "resetSoldNotifications"));
 				content.remove(content.notificationBubble);
 			}
-		var formerContent = contentRow.behavior.currentContent;
-		var newContent = inventoryPane;
-		var direction = "left";
-		var buttonString = content.first.string;
-		switch(buttonString){
-		case "History":
-			historyPane = new ListPane({items:null,more:false, action: buttonString});
-			newContent = historyPane;
-			direction = "right";
-		break;
-		case "Inventory":
-			inventoryPane =  new ListPane({items:null,more:false, action: buttonString});
-			newContent = inventoryPane;
-			if(formerContent == historyPane)
-				direction = "left";
-			else
+			var formerContent = contentRow.behavior.currentContent;
+			var newContent = inventoryPane;
+			var direction = "left";
+			var buttonString = content.first.string;
+			switch(buttonString){
+			case "History":
+				historyPane = new ListPane({items:null,more:false, action: buttonString});
+				newContent = historyPane;
 				direction = "right";
-		break;
-		case "Sold":
-			soldPane = new ListPane({items:null,more:false, action: buttonString});
-			newContent = soldPane;
-		break;
-		
-		}
-		if(formerContent == newContent)
-			return;
-		contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{duration:300,direction: direction});
-		contentRow.behavior.currentContent = newContent;
-		titleLabel.string = "Plateau Rouge " + buttonString;
-		}},
+			break;
+			case "Inventory":
+				inventoryPane =  new ListPane({items:null,more:false, action: buttonString});
+				newContent = inventoryPane;
+				if(formerContent == historyPane)
+					direction = "left";
+				else
+					direction = "right";
+			break;
+			case "Sold":
+				soldPane = new ListPane({items:null,more:false, action: buttonString});
+				newContent = soldPane;
+			break;
+			
+			}
+			if(formerContent == newContent)
+				return;
+			contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{duration:300,direction: direction});
+			contentRow.behavior.currentContent = newContent;
+			titleLabel.string = "Plateau Rouge " + buttonString;
+			}},
 		onComplete: { value: function(content, message, json){
 		}}
 	})
 }});
 
+var historyTabButton = new tabButtonTemplate ( { left:0, right:0, text: "History"} );
+var inventoryTabButton = new tabButtonTemplate ( { left:1, right: 1, text: "Inventory"} );
+var soldTabButton = new tabButtonTemplate ( { left:0, right:0, text: "Sold"} );
+
+var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior: Object.create(Container.prototype,{
+	onCreate: { value: function(content,data){
+		trace('inside tabsRow onCreate \n');
+		this.data = data;
+		this.currentTab = historyTabButton;
+		this.updateTabStyle = function(newTab){
+			//trace(this.behavior.currentTab);
+
+				tabsRow.behavior.currentTab.skin = STYLE.tabButtonSkin;
+				trace('here 2/n');
+				tabsRow.behavior.currentTab.first.style = STYLE.darkerGrayButtonStyle;
+				trace('here 3/n');
+				newTab.skin = STYLE.redBottomSkin;
+				newTab.first.style = STYLE.redButtonStyle;
+				tabsRow.behavior.currentTab = newTab;			
+			}
+		this.update = function(tabSection,numNotifications){
+			if(numNotifications != 0){
+				if(tabSection.notificationBubble != null && tabSection.notificationBubble != undefined)
+					tabSection.notificationBubble.first.string = numNotifications;
+				else
+					tabSection.add(new MyNotificationBubble({name:"notificationBubble",text:numNotifications}));
+			}
+		}
+		}
+	}
+}) });
 
 
-var historyLabel = new tabButtonTemplate ( { left:0, right:0, text: "History"} );
-var inventoryLabel = new tabButtonTemplate ( { left:1, right: 1, text: "Inventory"} );
-var soldLabel = new tabButtonTemplate ( { left:0, right:0, text: "Sold"} );
+
 
 //ADD COMPONENTS TO MAIN 		
 application.add(main);
@@ -429,9 +446,9 @@ headerColumn.add(tabsRow);
 headerColumn.add(searchBarfield);
 headerRow.add(headerColumn);
 contentRow.add(historyPane);
-tabsRow.add(historyLabel);
-tabsRow.add(inventoryLabel);
-tabsRow.add(soldLabel);
+tabsRow.add(historyTabButton);
+tabsRow.add(inventoryTabButton);
+tabsRow.add(soldTabButton);
 footerRow.add(upsellButton);
 main.add(contentRow);
 main.add(headerRow);

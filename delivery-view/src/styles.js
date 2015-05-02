@@ -9,7 +9,7 @@ exports.itemImageHeight = 100;
 
 
 //DELIVERY VIEW STYLES
-exports.notificationNumberStyle = new Style({ color: "black", font: '18px', horizontal: 'center', vertical:'middle' });
+exports.notificationNumberStyle = new Style({ color: "grey", font: '18px', horizontal: 'center', vertical:'middle' });
 exports.historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
 exports.itemPropertyStyle = new Style({font: '18px', lines: 1});						   
 exports.itemNameStyle = new Style({  font: 'bold', horizontal: 'null', vertical: 'null', lines: 1, });
@@ -25,7 +25,7 @@ exports.buttonStyle = new Style( { font: "bold 20px", color:"white", horizontal:
 exports.whiteS = new Skin( { fill:"white" } );
 exports.searchButtonSkin = new Skin({ fill:'#FF4136'});
 
-exports.tabButtonSkin = new Skin({width: 50, height: 50, borders:{left:0,right:0,top:0,bottom:0}, fill:mainColor});
+exports.tabButtonSkin = new Skin({width: 50, height: 50, borders:{left:0,right:0,top:0,bottom:0} });
 exports.tabSkin = new CONTROL.Skin(new Texture('assets/search-white.png'),THEME.tabDisabledEffect, THEME.tabEnabledEffect, THEME.tabSelectedEffect);
 exports.separatorSkin = new Skin({ fill: 'silver',});
 
@@ -63,7 +63,8 @@ exports.darkerRedSkin = new Skin( { fill:"#5C0B0B" } );
 exports.textStyle = new Style( { font:"17px", color:"gray" } );
 exports.titleStyle = new Style( { font:"25px", color:"black" } );
 
-exports.contentTopOffset = 120;
-exports.contentBottomOffset = 50;
-exports.button_width_sm = 50;
-exports.button_width_lg = 325;
+
+// Properties of Content such as Headers, Buttons, Image Thumbnails
+exports.content = { top: 120, bottom: 50, };
+exports.button = { width : { sm: 50, md: 100, lg: 325} }
+
