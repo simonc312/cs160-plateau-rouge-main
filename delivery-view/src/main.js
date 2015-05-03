@@ -100,15 +100,15 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button", width: STYLE.button.width.sm});
+//var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button", width: STYLE.button.width.sm});
 //var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button", width: STYLE.button.width.sm});
 var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button.width.lg, bottom: 10});
-var MySearchField = Container.template(function($) { return { left:10, top: 10, bottom: 0,
+var MySearchField = Container.template(function($) { return { left:10, top: 0, bottom: 0,
   width: 315, height: 50, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
-  		searchButton,
+  		new Picture({ left:0, height:45, url:"assets/search.png" }),
 	    Scroller($, { 
-	      left: 5, top: 4, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
+	      left: 5, top: 0, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
 	      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
 	        Label($, { 
 	          left: 0, top: 0, bottom: 0, skin: THEME.fieldLabelSkin, style: STYLE.fieldStyle, anchor: 'NAME',
@@ -122,7 +122,7 @@ var MySearchField = Container.template(function($) { return { left:10, top: 10, 
 	         	}),
 	         }),
 	         Label($, {
-	   			 	left:4, right:4, top:4, bottom:4, style:STYLE.fieldHintStyle, string:"Search By Name", name:"hint"
+	   			 	left:4, right:4, top:4, bottom:0, style:STYLE.fieldHintStyle, string:"Search By Name", name:"hint"
 	         })
 	      ]
 	    }),
