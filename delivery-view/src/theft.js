@@ -59,8 +59,8 @@ Handler.bind("/theftCheck", {
             theft = true;
             stolenItems = json.validTiles;
             mainContainer.empty();
-            mainContainer.add(templateColumn);
-            //mainContainer.add(theftAlertContainer);
+            //mainContainer.add(templateColumn);
+            mainContainer.add(theftAlertContainer);
             application.add(mainContainer);
         } else if(json && (numItems(stolenItems) != numItems(json.validTiles))) {
             stolenItems = json.validTiles;

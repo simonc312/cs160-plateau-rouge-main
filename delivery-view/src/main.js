@@ -78,7 +78,7 @@ var MyNotificationBubble = Container.template(function($) { return {top: 2, righ
 
 
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
-	 right: ($.right ? $.right : 0), left: $.left, width: $.width, height:50, skin: STYLE.searchButtonSkin,
+	 right: ($.right ? $.right : 0), left: $.left, width: $.width, height:50, skin: STYLE.redSkin,
 	contents: [
 		 Label($, {
 	   			 	left:4, right:4, top:4, bottom:4, width: 48, skin: $.skin, string:($.string ? $.string : ""), name:$.name
@@ -86,7 +86,7 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			if(content == scanButton || content == upsellButton){
+			if(/*content == scanButton || */content == upsellButton){
 				application.remove(main);
 				application.add(UPSELLING.mainContainer);
 			}
@@ -101,14 +101,14 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 }});
 
 var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button", width: STYLE.button.width.sm});
-var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button", width: STYLE.button.width.sm});
+//var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button", width: STYLE.button.width.sm});
 var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button.width.lg, bottom: 10});
-var MySearchField = Container.template(function($) { return { left:10, top: 10, bottom: 10,
+var MySearchField = Container.template(function($) { return { left:10, top: 10, bottom: 0,
   width: 315, height: 50, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
   		searchButton,
 	    Scroller($, { 
-	      left: 4, top: 4, bottom: 4, width: 240, skin: STYLE.nameInputSkin, active: true, 
+	      left: 5, top: 4, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
 	      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
 	        Label($, { 
 	          left: 0, top: 0, bottom: 0, skin: THEME.fieldLabelSkin, style: STYLE.fieldStyle, anchor: 'NAME',
@@ -307,7 +307,7 @@ var MainContainerTemplate = Container.template(function($) { return {
 var searchBarfield = new MySearchField({ name: "" });
 var main = new MainContainerTemplate();
 
-var headerColumn = new Column({left:0,top:0,bottom:0,top:0, clip: true});
+var headerColumn = new Column({left:0,top:0,bottom:0,top:0});
 var titleScanRow = new Line({skin: STYLE.redSkin, left:0, right: 0, top:0,bottom:0,top:0, clip: true});
 var historyItems = [
 								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg", quantity: 3, price: 30},
@@ -440,7 +440,7 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 //ADD COMPONENTS TO MAIN 		
 application.add(main);
 titleScanRow.add(titleLabel);
-titleScanRow.add(scanButton);
+//titleScanRow.add(scanButton);
 headerColumn.add(titleScanRow);
 headerColumn.add(tabsRow);
 headerColumn.add(searchBarfield);

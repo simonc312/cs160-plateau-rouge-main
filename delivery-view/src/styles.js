@@ -65,6 +65,6 @@ exports.titleStyle = new Style( { font:"25px", color:"black" } );
 
 
 // Properties of Content such as Headers, Buttons, Image Thumbnails
-exports.content = { top: 120, bottom: 50, };
+exports.content = { top: 110, bottom: 50, };
 exports.button = { width : { sm: 50, md: 100, lg: 325} }
 
