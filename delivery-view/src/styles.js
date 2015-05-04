@@ -26,14 +26,8 @@ exports.whiteS = new Skin( { fill:"white" } );
 exports.searchButtonSkin = new Skin({ fill:'#FF4136'});
 
 exports.tabButtonSkin = new Skin({width: 50, height: 50, borders:{left:0,right:0,top:0,bottom:0} });
-exports.tabSkin = new CONTROL.Skin(new Texture('assets/search-white.png'),THEME.tabDisabledEffect, THEME.tabEnabledEffect, THEME.tabSelectedEffect);
 exports.separatorSkin = new Skin({ fill: 'silver',});
 
-exports.notificationNumberSkin = new Skin({
-								width:20,
-								height:20,
-								texture: new Texture('assets/circle-mask.png')
-								});
 exports.searchSkin = new Skin({width: 48,
 						   height: 48,
 						   texture: new Texture('assets/search-white.png')
@@ -62,9 +56,10 @@ exports.whiteButtonStyle = new Style( { font:"bold 20px", color:"white", horizon
 exports.darkerRedSkin = new Skin( { fill:"#5C0B0B" } );
 exports.textStyle = new Style( { font:"17px", color:"gray" } );
 exports.titleStyle = new Style( { font:"25px", color:"black" } );
-
+exports.headerStyle = new Style({ font: "24px", color: "white", horizontal: "center", vertical: "middle" });
 
 // Properties of Content such as Headers, Buttons, Image Thumbnails
+exports.header = {height: 40};
 exports.content = { top: 100, bottom: 50, };
 exports.button = { width : { sm: 50, md: 100, lg: 325} }
 

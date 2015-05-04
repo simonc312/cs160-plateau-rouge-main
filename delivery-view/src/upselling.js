@@ -13,7 +13,7 @@ var redSkin = new Skin( { fill:"#FF4136" } );
  * Styles
  */
 var titleStyle = new Style( { font:"25px", color:"black" } );
-var scanTextStyle = new Style( { font:"25px", color:"black", lines: 2 } );
+var scanTextStyle = new Style( { font:"24px", color:"white", lines: 1 } );
 var altTextStyle = new Style( { font:"17px", color:"#FF4136" } );
 var textStyle = new Style( { font:"17px", color:"gray" } );
 var buttonStyle = new Style( { font:"25px", color:"white" } );
@@ -22,16 +22,17 @@ var whiteTextStyle = new Style( { font:"17px", color:"white" } );
 /**
  * Miscel Variables, Constants, and Functions
  */
-var backArrowPic = "assets/backarrow.png";
+var backArrowPic = "assets/back.png";
 var scanPic = "assets/scan.png";
 var scanHelperPic = "assets/scan-helper.png";
 var storePic = "assets/store.jpg";
-var arrowPic = "assets/redarrow.png";
+var arrowPic = "assets/location-red.png";
 var IMGS = ["assets/white-tee-large.jpg", "assets/hat-large.jpg", "assets/shorts-large.jpg", "assets/blazer-large.jpg"];
 //var THUMBNAILS = ["white-tee-thumbnail.jpg", "hat-thumbnail.jpg", "shorts-thumbnail.jpg", "blazer-thumbnail.jpg"];
 var PRICES = [15, 40, 45, 75];
 var NAMES = ["Zara Men's White Tee", "New Era Snapback", "Sperry Print Shorts", "J. Crew Blazer"];
 var scannedItems = [];
+exports.scannedItems = scannedItems; 
 //var pic = ""; //stores the url of the image of the item recently scanned
 //var price = ""; //stores the price of the item recently scanned
 //var name = ""; ////stores the name of the item recently scanned
@@ -251,7 +252,7 @@ exports.mainContainer = mainContainer;
  * Scan Screen
  */
 var scanColumn = new Column({
-    left:0, right:0, top:0, bottom:0, skin: whiteSkin,
+    left:0, right:0, top:0, bottom:0, skin: STYLE.whiteSkin,
     contents: [ //backButtonToInventoryView
     	/*new Picture({height: 300, width: 200, right: 0, left: 0, top: 10, name: "backToInventory", url: scanPic,
     	 behavior: Object.create(Container.prototype, {
@@ -259,17 +260,17 @@ var scanColumn = new Column({
     	 		application.remove(mainContainer);
 				//application.add(main);
 			}}},*/
-        new Line({left:0, right:0, top:0,
-            contents: [new Container({ left: 10, top: 10, active:true, skin: STYLE.searchButtonSkin,
-	contents: [
-		new Picture({height: 50, width: 50, right: 0, left: 0, top: 0, name: "backarrow", url: backArrowPic})],
-		behavior: Object.create(Container.prototype, {
-			onTouchEnded: { value: function(container) {
-				application.remove(mainContainer);
-				application.add(main);
-			}}}) }) , 
+        new Line({left:0, right:0, top:0, height: STYLE.header.height, skin: STYLE.redSkin,
+            contents: [new Container({ left: 10, top: 10, active:true,
+				contents: [
+					new Picture({height: 25, width: 25, right: 0, left: 0, top: 0, name: "backarrow", url: backArrowPic})],
+					behavior: Object.create(Container.prototype, {
+						onTouchEnded: { value: function(container) {
+							application.remove(mainContainer);
+							application.add(main);
+				}}}) }) , 
 			
-		new Text({left: 10,right:0, top:10, height:40, string:"Upselling Recomendations", style: scanTextStyle})]
+		new Text({left: 10,right:0, top:10, height:40, string:"Upselling Recomendations",style: STYLE.headerTitleStyle})]
         }),
         new Container({ left: 10, right: 10, top: 30, active:true,
 	contents: [
@@ -298,6 +299,8 @@ var scanColumn = new Column({
    ] 	
    
 });
+
+exports.scanColumn = scanColumn;
 
 /*
 scanColumn.behavior = Object.create(Behavior.prototype, {
@@ -340,6 +343,8 @@ var upsellingColumn = new Column({
 		}},
     })
 });
+
+exports.upsellingColumn = upsellingColumn;
 
 /**
  * Recommended Items View 

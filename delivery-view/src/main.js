@@ -106,7 +106,7 @@ var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", 
 var MySearchField = Container.template(function($) { return { left:10, top: 0, bottom: 0,
   width: 315, height: 50, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
-  		new Picture({ left:0, height:45, url:"assets/search.png" }),
+  		new Picture({ left:10, height:40, url:"assets/search.png" }),
 	    Scroller($, { 
 	      left: 5, top: 0, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
 	      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
@@ -215,7 +215,19 @@ ListItemLine.behaviors = new Array(1);
 ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
 	onTouchEnded: function(line, id, x, y, ticks) {
 				this.onTouchCancelled(line, id, x, y, ticks);
-			}
+				//if(deviceURL != "") line.invoke(new Message(deviceURL + "scanTiles"), Message.JSON);
+				trace("Inside onTouchEnded \n");
+			},
+	onComplete: function(content, message, json) {
+			trace("Inside onComplete \n");
+	        if(json && json.validTiles.indexOf(1) != -1) {
+                //UPSELLING.scannedItems = json.validTiles;
+                //application.remove(main);
+                //application.add(UPSELLING.mainContainer);
+                //UPSELLING.mainContainer.run(new TRANSITIONS.TimeTravel(), UPSELLING.scanColumn, UPSELLING.upsellingColumn, { direction : "forward", easeType : "sineEaseIn", duration: 100 });
+	        
+	        }
+	    }
 });
 
 
@@ -353,7 +365,7 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 		},}});
 
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
-	left:$.left, right: $.right, height:50, skin: STYLE.tabButtonSkin,
+	left:$.left, right: $.right, width:60, height:50, skin: STYLE.tabButtonSkin,
 	contents: [
 		new MyLabel({text:$.text, style: STYLE.darkerGrayButtonStyle}),
 	],
@@ -412,12 +424,8 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 		this.data = data;
 		this.currentTab = historyTabButton;
 		this.updateTabStyle = function(newTab){
-			//trace(this.behavior.currentTab);
-
 				tabsRow.behavior.currentTab.skin = STYLE.tabButtonSkin;
-				trace('here 2/n');
 				tabsRow.behavior.currentTab.first.style = STYLE.darkerGrayButtonStyle;
-				trace('here 3/n');
 				newTab.skin = STYLE.redBottomSkin;
 				newTab.first.style = STYLE.redButtonStyle;
 				tabsRow.behavior.currentTab = newTab;			
@@ -434,6 +442,7 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 	}
 }) });
 
+tabsRow.behavior.updateTabStyle(historyTabButton);
 
 
 
