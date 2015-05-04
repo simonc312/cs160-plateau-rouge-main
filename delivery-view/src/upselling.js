@@ -1,6 +1,19 @@
 // KPR Script file //PLATEAU ROUGE PHONE 
 //UPSELLING//
 //var STYLES = require('styles.js');
+
+//IMPORTED MODULES and JS FILES
+var THEME = require('themes/sample/theme');
+var BUTTONS = require("controls/buttons");
+var CONTROL = require('mobile/control');
+var DIALOG = require('mobile/dialog');
+var MODEL = require('mobile/model');
+var KEYBOARD = require('mobile/keyboard');
+var SCREEN = require('mobile/screen');
+var SCROLLER = require('mobile/scroller');
+var TRANSITIONS = require('transitions');
+var STYLE = require('styles.js');
+
 /**
  * Skins
  */
@@ -121,11 +134,12 @@ function hardcodedRecTwo(scannedItems) {
 /**
  * Buttons
  */
+
  
 var recommendedButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the Recommended Items view
 	left: 0, right: 10, height:40, 
 	contents: [
-		new Label({left:0, right:0, height:40, skin: graySkin, string:"Give Me Recommendations", style: whiteTextStyle})
+		new Label({left:0, right:0, width: STYLE.button.width.lg, height:40, skin: STYLE.redSkin, string:"Give Me Recommendations", style: whiteTextStyle})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
@@ -171,7 +185,8 @@ var location_to_upsellingButton1 = BUTTONS.Button.template(function($){ return{ 
 var upselling_to_rescanButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the main Scanning view
 	left: 0, right: 10, height:40,
 	contents: [
-		new Label({left:0, right:0, height:40, skin: graySkin, string:"Rescan", style: whiteTextStyle})
+		new Label({left:0, right:0, height:40, skin: STYLE.redSkin, string:"Rescan", style: STYLE.headerStyle}),
+		new Picture({height: 25, width: 25, right: 270, left: 0, top: 10, name: "backarrow", url: backArrowPic})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
@@ -214,7 +229,7 @@ var location_to_rescanButton = BUTTONS.Button.template(function($){ return{ //wh
 var recommended_to_locationButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the store layout view
 	left: 100, right: 70, height:10, width: 20, top: 80, 
 	contents: [
-		new Label({left:0, right:0, height:20, skin: graySkin, string:"Find item", style: buttonStyle})
+		new Label({left:0, right:0, height:20, skin: STYLE.redSkin, string:"Find item", style: STYLE.buttonStyle})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
@@ -270,12 +285,12 @@ var scanColumn = new Column({
 							application.add(main);
 				}}}) }) , 
 			
-		new Text({left: 10,right:0, top:10, height:40, string:"Upselling Recomendations",style: STYLE.headerTitleStyle})]
+		new Text({left: 10,right:0, top:10, height:40, string:"Back to Inventory",style: STYLE.headerTitleStyle})]
         }),
         new Container({ left: 10, right: 10, top: 30, active:true,
 	contents: [
-		new Picture({height: 300, width: 200, right: 0, left: 0, top: 10, name: "scanner", url: scanPic}),
-		
+		new Picture({height: 300, width: 150, right: 0, left: 0, top: 10, name: "scanner", url: scanHelperPic}),
+		new Text({left: 50,right:0, top:10, height:30, style: textStyle, string:"Place Phone Near SmartTag"})
     ], 
     behavior: Object.create(Container.prototype, {
 		onDisplaying: { value: function(content) {
@@ -294,8 +309,8 @@ var scanColumn = new Column({
 	})
 	
     }),
-    new Text({left: 10,right:0, top:10, height:30, string:"Place Phone Near SmartTag", style: scanTextStyle}),
-    new Picture({height: 64, width: 128, right: 0, left: 0, top: 0, name: "scan-helper", url: scanHelperPic}),
+    //new Text({left: 10,right:0, top:10, height:30, string:"Place Phone Near SmartTag", style: scanTextStyle}),
+    //new Picture({height: 64, width: 128, right: 0, left: 0, top: 0, name: "scan-helper", url: scanHelperPic}),
    ] 	
    
 });
@@ -320,26 +335,30 @@ scanColumn.behavior = Object.create(Behavior.prototype, {
  * Main Upselling View
  */ 
 var upsellingColumn = new Column({
-    left:13, right:0, top:0, bottom:20, skin: whiteSkin,
+    left:0, top:0, width: 350, bottom:0, skin: whiteSkin,
     contents: [
+    	new upselling_to_rescanButton,
         new Line({left:0, right:0, top:0,
-            contents: [new Label({left:70, top:20, height:25, string:"Item You Scanned", style:titleStyle})]
+            contents: [
+            new Label({left:35, top:10, height:40, width: 350, string:displayName(scannedItems), style:new Style({color: "gray", font: "30px"}) }),
+            new Label({left:35, top:20, height:40, width: 350, string:"Price: $15", style:new Style({color: "gray", font: "15px"}) })]
         }),
         new Container({ name:"displayItem", left: 0, right: 0, top: 0, bottom: 0, active:true, skin: whiteSkin,
 	        contents: [
-		        new Picture({height: 350, width: 360, right: 0, left: 0, top: 60, url: displayItem(scannedItems)})
+		        new Picture({height: 350, width: 360, right: 20, left: 0, top: 20, url: displayItem(scannedItems)})
             ]
         }),
-    	new Label({name:"price", top: 150, left:150, right:0, bottom: 250, height:40, string:"Price: " + displayPrice(scannedItems), style: textStyle}),
-    	new Label({name:"itemName", left:0, right:10, height:40, bottom: 340, string:displayName(scannedItems), style: titleStyle, skin: redSkin}),
-    	new recommendedButton({bottom: 40}),
-    	new upselling_to_rescanButton({bottom: 20})
+    	new Label({name:"price", top: 50, left:0, right:0, bottom: 250, height:40, string:"Price: " + displayPrice(scannedItems), style: textStyle}),
+    	new Label({name:"itemName", left:0, right:10, height:40, bottom: 340, string:"", style: titleStyle}),
+    	
+    	//new upsellButton(),
+    	new recommendedButton({bottom: 0, width: 500}),
+    	
     ],
     behavior: Object.create(Container.prototype, {
 		onDisplaying: { value: function(content) {
 		    content.displayItem.first.url = displayItem(scannedItems);
 		    content.price.string = "Price: " + displayPrice(scannedItems);
-		    content.itemName.string = displayName(scannedItems);
 		}},
     })
 });
@@ -347,14 +366,50 @@ var upsellingColumn = new Column({
 exports.upsellingColumn = upsellingColumn;
 
 /**
+* Recommended Items List
+*/
+
+var ListItemLine = Line.template(function($) { return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
+
+	Column($, { left: 0, right: 0, contents: [
+
+		Line($, { left: 0, right: 0, height: 1, skin: STYLE.separatorSkin, }),
+
+		Line($, { left: 2, right: 2, height: 82, contents: [
+
+			ItemThumbnail({width: STYLE.thumbnailWidth, height: STYLE.thumbnailHeight, url: $.image}),
+
+			Column($, { left: 20,right: 10, contents: [
+				Text($, { left: 4, right: 0, 
+				blocks: [
+					{ style: STYLE.itemNameStyle, string: $.name }	
+				], }),
+				Text($, { left: 4, right: 0, 
+				blocks: [
+					{ style: STYLE.itemPropertyStyle, string: "quantity: "+$.quantity }	
+				], }),
+				Text($, { left: 4, right: 0, 
+				blocks: [
+					{ style: STYLE.itemPropertyStyle, string: "price/unit: "+$.price }	
+				], }),
+			]})
+			
+		], }),
+		
+		
+			
+	], }),
+], }});
+
+/**
  * Recommended Items View 
  */ 
  
  var recommendedColumn = new Column({
-    left:13, right:0, top:10, bottom:20, skin: whiteSkin,
+    left:0, right:0, top:0, bottom:0, skin: whiteSkin,
     contents: [
         new Line({left:0, right:0, top:0,
-            contents: [new Label({left:50, top:20, height:25, string:"Recommended Items", style:titleStyle})]
+            contents: [new Label({left:0, top:0, height:40, width: 350, string:"Recommended Items", skin: STYLE.redSkin, style:STYLE.buttonStyle})]
         }),
         new Container({ name:"imgOne", left: 10, right: 10, top: 20, active:true, backgroundTouch:true, skin: whiteSkin,
 	contents: [ 
@@ -362,7 +417,7 @@ exports.upsellingColumn = upsellingColumn;
 		new Label({name: "price", top: 0, left:100, height:40, string:"Price: " + PRICES[1], style: textStyle}),
 		new Label({name: "itemName", top: 30, left: 100, height:40, string:NAMES[1], style: textStyle}),
 		new Label({top: 60, left:100, height:40, string:"Bestselling item!", style: altTextStyle}),
-		new recommended_to_locationButton(),
+		new recommended_to_locationButton({top: 20}),
     ],
         behavior: Object.create(Behavior.prototype, {
             onTouchBegan: { value: function(content) {
@@ -370,6 +425,7 @@ exports.upsellingColumn = upsellingColumn;
             }},
         })
     }),
+    	new Line({ top: 10, left: 0, right: 0, height: 1, skin: STYLE.separatorSkin, }),
     	new Container({ name:"imgTwo", left: 10, right: 10, top:10, active:true, backgroundTouch:true, skin: whiteSkin,
 	contents: [ 
 		new Picture({height: 150, width: 180, right: 200, left: 0, top: 0, name: "displayRecommendedItem2", url: IMGS[2]}), //need to create a function that will generate a list of items excluding the one that is scanned
