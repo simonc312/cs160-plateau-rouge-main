@@ -49,7 +49,7 @@ Handler.bind("/getNotifications", {
 			var numNewDelivered = json.delivered;
 			var newDeliveredItem = json.deliveredItem;
 			var newSoldItem = json.soldItem;
-			tabsRow.behavior.update(historyTabButton,numNewDelivered);
+			tabsRow.behavior.update(storageTabButton,numNewDelivered);
 			tabsRow.behavior.update(soldTabButton,numNewSold);
 			contentRow.behavior.addDeliveryItem(newDeliveredItem);
 			contentRow.behavior.addSoldItem(newSoldItem);
@@ -177,7 +177,7 @@ var ListItemLine = Line.template(function($) { return { left: 0, right: 0, activ
 	], }),
 ], }});
 
-var HistoryListItemLine = Line.template(function($) { return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
+var StorageListItemLine = Line.template(function($) { return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
 
 	Column($, { left: 0, right: 0, contents: [
 
@@ -194,7 +194,7 @@ var HistoryListItemLine = Line.template(function($) { return { left: 0, right: 0
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: STYLE.historyItemNameStyle, string: "added: "+$.timeDifference }	
+					{ style: STYLE.storageItemNameStyle, string: "added: "+$.timeDifference }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
@@ -273,13 +273,13 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 						if(item.timeDifference == undefined)
 							list.add(new ListItemLine(item));
 						else
-							list.add(new HistoryListItemLine(item));
+							list.add(new StorageListItemLine(item));
 					},
 	createMessage: function(list,data){
 		var tagPath = "";
 		if(data.action == "Sold")
 			tagPath = "getSoldTags";
-		else if(data.action == "History")
+		else if(data.action == "Storage")
 			tagPath = "getNewTags";
 		else if(data.action == "Inventory")
 			tagPath = "getActiveTags";
@@ -302,7 +302,7 @@ var headerRow = new Line({left:0, right:0, top:0});
 
 var footerRow = new Line({left:0, right:0, bottom:0});
 
-var titleLabel = new MyLabel ( { text: "Plateau Rouge History", style: STYLE.headerTitleStyle } );
+var titleLabel = new MyLabel ( { text: "Plateau Rouge Storage", style: STYLE.headerTitleStyle } );
 
 	
 
@@ -321,7 +321,7 @@ var main = new MainContainerTemplate();
 
 var headerColumn = new Column({left:0,top:0,bottom:0,top:0});
 var titleScanRow = new Line({skin: STYLE.redSkin, left:0, right: 0, top:0,bottom:0,top:0, clip: true});
-var historyItems = [
+var storageItems = [
 								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg", quantity: 3, price: 30},
 								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg", quantity: 5, price: 35}
 								
@@ -334,7 +334,7 @@ var inventoryItems = [
 								
 							];
 var soldItems = [];
-var historyPane = new ListPane({ items: historyItems,more: false});
+var storagePane = new ListPane({ items: storageItems,more: false});
 							
 var inventoryPane = new ListPane({ items: inventoryItems, more: false});
 
@@ -343,7 +343,7 @@ var soldPane = new ListPane({ items: null, more: false, action: "sold"});
 var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYLE.content.bottom,width: 325, height: 450, behavior: {
 		onCreate:  function(container, data){
 			this.data = data;
-			this.currentContent = historyPane;
+			this.currentContent = storagePane;
 			//this.updateTabStyle(this.currentContent); //run once onCreate
 			this.switchLists = function(listType, direction){
 					var newContent = new ListPane({items: null, more:false, action: listType});
@@ -351,9 +351,9 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 					contentRow.behavior.currentContent = newContent;
 			}
 			this.addDeliveryItem = function(newItem){
-				if(newItem && this.currentContent == historyPane){
-					this.switchLists("History","up");
-					historyPane = this.currentContent;
+				if(newItem && this.currentContent == storagePane){
+					this.switchLists("Storage","up");
+					storagePane = this.currentContent;
 				}
 			}
 			this.addSoldItem = function(newItem){
@@ -373,7 +373,7 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 		onTap: { value: function(content){
 			tabsRow.behavior.updateTabStyle(content);
 			if(content.notificationBubble != null || content.notificationBubble != undefined){
-				if(content.first.string == "History")
+				if(content.first.string == "Storage")
 					content.invoke(new Message(deviceURL + "resetDeliveryNotifications"));
 				else
 					content.invoke(new Message(deviceURL + "resetSoldNotifications"));
@@ -383,22 +383,23 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 			var newContent = inventoryPane;
 			var direction = "left";
 			var buttonString = content.first.string;
+			var tmpPane = new ListPane({items:null,more:false, action: buttonString});
 			switch(buttonString){
-			case "History":
-				historyPane = new ListPane({items:null,more:false, action: buttonString});
-				newContent = historyPane;
+			case "Storage": 
+				storagePane = tmpPane;
+				newContent = storagePane;
 				direction = "right";
 			break;
 			case "Inventory":
-				inventoryPane =  new ListPane({items:null,more:false, action: buttonString});
+				inventoryPane = tmpPane;
 				newContent = inventoryPane;
-				if(formerContent == historyPane)
+				if(formerContent == storagePane)
 					direction = "left";
 				else
 					direction = "right";
 			break;
 			case "Sold":
-				soldPane = new ListPane({items:null,more:false, action: buttonString});
+				soldPane = tmpPane;
 				newContent = soldPane;
 			break;
 			
@@ -414,7 +415,7 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-var historyTabButton = new tabButtonTemplate ( { left:0, right:0, text: "History"} );
+var storageTabButton = new tabButtonTemplate ( { left:0, right:0, text: "Storage"} );
 var inventoryTabButton = new tabButtonTemplate ( { left:1, right: 1, text: "Inventory"} );
 var soldTabButton = new tabButtonTemplate ( { left:0, right:0, text: "Sold"} );
 
@@ -422,7 +423,7 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 	onCreate: { value: function(content,data){
 		trace('inside tabsRow onCreate \n');
 		this.data = data;
-		this.currentTab = historyTabButton;
+		this.currentTab = storageTabButton;
 		this.updateTabStyle = function(newTab){
 				tabsRow.behavior.currentTab.skin = STYLE.tabButtonSkin;
 				tabsRow.behavior.currentTab.first.style = STYLE.darkerGrayButtonStyle;
@@ -442,7 +443,7 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 	}
 }) });
 
-tabsRow.behavior.updateTabStyle(historyTabButton);
+tabsRow.behavior.updateTabStyle(storageTabButton);
 
 
 
@@ -454,8 +455,8 @@ headerColumn.add(titleScanRow);
 headerColumn.add(tabsRow);
 headerColumn.add(searchBarfield);
 headerRow.add(headerColumn);
-contentRow.add(historyPane);
-tabsRow.add(historyTabButton);
+contentRow.add(storagePane);
+tabsRow.add(storageTabButton);
 tabsRow.add(inventoryTabButton);
 tabsRow.add(soldTabButton);
 footerRow.add(upsellButton);

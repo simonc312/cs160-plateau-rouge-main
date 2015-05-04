@@ -10,7 +10,7 @@ exports.itemImageHeight = 100;
 
 //DELIVERY VIEW STYLES
 exports.notificationNumberStyle = new Style({ color: "grey", font: '18px', horizontal: 'center', vertical:'middle' });
-exports.historyItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
+exports.storageItemNameStyle = new Style({  color: "green", font: '18px', horizontal: 'null', vertical: 'null', lines: 1, });
 exports.itemPropertyStyle = new Style({font: '18px', lines: 1});						   
 exports.itemNameStyle = new Style({  font: 'bold', horizontal: 'null', vertical: 'null', lines: 1, });
 exports.headerTitleStyle = new Style({  color: 'white', font: 'bold 24px', horizontal: 'center', vertical: 'middle', lines: 1, });
