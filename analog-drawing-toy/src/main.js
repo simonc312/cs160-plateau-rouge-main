@@ -115,10 +115,10 @@ containsSearchFilter = function(item){
 }
 
 filter = function(items){
-	if(searchFilter.test(""))
-		return items;
-	else
-		return items.filter(containsSearchFilter);	
+	if(searchFilter.test("")){
+		trace('inside no filter \n');return items;} 
+	else{trace('inside yes filter \n' + searchFilter);
+		return items.filter(containsSearchFilter);}	
 }
 
 //SERVER SIDE HANDLERS 
@@ -131,15 +131,15 @@ Handler.bind("/getSoldTags", Behavior({
 		message.status = 200;
 	}
 }));
-//for delivery history
-Handler.bind("/getNewTags", Behavior({
+//for stored items
+Handler.bind("/getStorageTags", Behavior({
 	onInvoke: function(handler, message){
 		message.responseText = JSON.stringify({items: filter(deliveredTiles)});
 		message.status = 200;
 	}
 }));
 //for current inventory must have XY beyond floorXY
-Handler.bind("/getActiveTags", Behavior({
+Handler.bind("/getInventoryTags", Behavior({
 	onInvoke: function(handler, message){
 		message.responseText = JSON.stringify({items: filter(floorTiles)});
 		message.status = 200;

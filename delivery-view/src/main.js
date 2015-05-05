@@ -48,9 +48,9 @@ Handler.bind("/getNotifications", {
 			tabsRow.behavior.update(storageTabButton,json.delivered);
 			tabsRow.behavior.update(soldTabButton,json.sold);
 			tabsRow.behavior.update(inventoryTabButton,json.inventoried);
-			contentRow.behavior.addInventoryItem(json.inventoryItem);
-			contentRow.behavior.addDeliveryItem(json.deliveredItem);
-			contentRow.behavior.addSoldItem(json.soldItem);
+			contentRow.behavior.addItem(inventoryPane,json.inventoryItem);
+			contentRow.behavior.addItem(storagePane,json.deliveredItem);
+			contentRow.behavior.addItem(soldPane,json.soldItem);
 			handler.invoke( new Message("/delay"));
          }
     }
@@ -84,7 +84,7 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			if(/*content == scanButton || */content == upsellButton){
+			if(content == upsellButton){
 				application.remove(main);
 				application.add(UPSELLING.mainContainer);
 			}
@@ -98,8 +98,7 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-//var searchButton = new buttonTemplate({skin: STYLE.searchSkin, name: "search-button", width: STYLE.button.width.sm});
-//var scanButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "scan-button", width: STYLE.button.width.sm});
+//var historyButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "history-button", width: STYLE.button.width.sm});
 var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button.width.lg, bottom: 10});
 var MySearchField = Container.template(function($) { return { left:10, top: 0, bottom: 0,
   width: 315, height: 50, contents: [
@@ -116,10 +115,12 @@ var MySearchField = Container.template(function($) { return { left:10, top: 0, b
 	         		  var data = this.data;
 		              data.name = label.string;
 		              label.container.hint.visible = ( data.name.length == 0 );
+		              var currentTabAction = tabsRow.behavior.currentTabString();
 		              var message = new Message(deviceURL+"searchFilter");
 		              message.requestText = JSON.stringify({filter: label.string});	
 		              label.invoke(message);
-		              contentRow.invoke(new Message(deviceURL+""));
+		              contentRow.behavior.switchLists(currentTabAction,"up");
+		          
 	         		}}
 	         	}),
 	         }),
@@ -257,11 +258,11 @@ var ItemView = Body.template(function($) { return { contents: [
 	Row($, { left: 0, right: 0, top: 0, contents: []})
 ]}});
 
-var ListPane = Body.template(function($) { return { contents: [
+var ListPane = Body.template(function($) { return { behavior: Object.create((ListPane.behaviors[0]).prototype),contents: [
 
 	SCROLLER.VerticalScroller($, { clip: true, contents: [
 
-		Column($, { left: 0, right: 0, width: 325, top: 0, anchor: 'LIST', behavior: Object.create((ListPane.behaviors[0]).prototype), }),
+		Column($, {left: 0, right: 0, width: 325, top: 0, anchor: 'LIST', behavior: Object.create((ListPane.behaviors[1]).prototype), }),
 
 		SCROLLER.VerticalScrollbar($, { }),
 
@@ -270,9 +271,13 @@ var ListPane = Body.template(function($) { return { contents: [
 		SCROLLER.BottomScrollerShadow($, { }),
 	], }),
 ], }});
-ListPane.behaviors = new Array(1);
-ListPane.behaviors[0] = SCREEN.ListBehavior.template({
-
+ListPane.behaviors = [];
+ListPane.behaviors[0] = Behavior.template({
+	addItem: function(list,newItem){
+		list.first.first.insert(newItem,list.first.first.first);
+	}
+});
+ListPane.behaviors[1] = SCREEN.ListBehavior.template({
 	addItemLine: function(list, item) {
 						if(item.timeDifference == undefined)
 							list.add(new ListItemLine(item));
@@ -280,14 +285,7 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 							list.add(new TimeListItemLine(item));
 					},
 	createMessage: function(list,data){
-		var tagPath = "";
-		if(data.action == "Sold")
-			tagPath = "getSoldTags";
-		else if(data.action == "Storage")
-			tagPath = "getNewTags";
-		else if(data.action == "Inventory")
-			tagPath = "getActiveTags";
-		return new Message(deviceURL + tagPath);
+		return new Message(deviceURL + "get"+data.action+"Tags");
 	},
 	getItems: function(list,message,result){
 		return ( result && ( "items" in result ) ) ? result.items : null;
@@ -325,50 +323,32 @@ var main = new MainContainerTemplate();
 
 var headerColumn = new Column({left:0,top:0,bottom:0,top:0});
 var titleScanRow = new Line({skin: STYLE.redSkin, left:0, right: 0, top:0,bottom:0,top:0, clip: true});
-var storageItems = [
-								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg", quantity: 3, price: 30},
-								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg", quantity: 5, price: 35}
-								
-							];
-var inventoryItems = [
-								{name: "New Era Snapback", image: "assets/hat-thumbnail.jpg",quantity: 3, price: 30},
-								{name: "Sperry Navy Shorts", image: "assets/shorts-thumbnail.jpg",quantity: 3, price: 30},
-								{name: "Zara Men's White Tee", image: "assets/white-tee-thumbnail.jpg",quantity: 20, price: 15},
-								{name: "J Crew Blazer", image: "assets/blazer-thumbnail.jpg",quantity: 1, price: 70}
-								
-							];
 var soldItems = [];
-var storagePane = new ListPane({ items: storageItems,more: false});
-							
-var inventoryPane = new ListPane({ items: inventoryItems, more: false});
-
-var soldPane = new ListPane({ items: null, more: false, action: "sold"});
+var storagePane = new ListPane({ items: null, more: false, action: "Storage"});
+var inventoryPane = new ListPane({ items: null, more: false, action: "Inventory"});
+var soldPane = new ListPane({ items: null, more: false, action: "Sold"});
 
 var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYLE.content.bottom,width: 325, height: 450, behavior: {
 		onCreate:  function(container, data){
 			this.data = data;
 			this.currentContent = storagePane;
 			this.switchLists = function(listType, direction){
-					var newContent = new ListPane({items: null, more:false, action: listType});
-					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100,});
+					var newContent = inventoryPane;
+					var tmpContent = new ListPane({items: null, more:false, action: listType});
+					switch(listType){
+						case 'Storage': storagePane = tmpContent; newContent = storagePane; break;
+						case 'Inventory': inventoryPane = tmpContent; newContent = inventoryPane; break;
+						case 'Sold': soldPane = tmpContent; newContent = soldPane; 
+					}
+					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100,direction: direction});
 					contentRow.behavior.currentContent = newContent;
 			}
-			this.addDeliveryItem = function(newItem){
-				if(newItem && this.currentContent == storagePane){
-					this.switchLists("Storage","up");
-					storagePane = this.currentContent;
-				}
-			}
-			this.addSoldItem = function(newItem){
-				if(newItem && this.currentContent == soldPane){
-					this.switchLists("Sold","up");
-					soldPane = this.currentContent;
-				}
-			}
-			this.addInventoryItem = function(newItem){
-				if(newItem && this.currentContent == inventoryPane){
-					this.switchLists("Inventory","up");
-					inventoryPane = this.currentContent;
+			this.addItem = function(list,newItem){
+				if(newItem && this.currentContent == list){
+					if(newItem.timeDifference != undefined)
+						list.behavior.addItem(list,new TimeListItemLine(newItem));
+					else 
+						list.behavior.addItem(list,new ListItemLine(newItem));
 				}
 			}
 		},}});
@@ -451,8 +431,6 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 }) });
 
 tabsRow.behavior.updateTabStyle(storageTabButton);
-
-
 
 //ADD COMPONENTS TO MAIN 		
 application.add(main);
