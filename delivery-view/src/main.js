@@ -115,9 +115,13 @@ var MySearchField = Container.template(function($) { return { left:10, top: 0, b
 	          editable: true, string: $.name,
 	         	behavior: Object.create( CONTROL.FieldLabelBehavior.prototype, {
 	         		onEdited: { value: function(label){
-	         			var data = this.data;
-	              data.name = label.string;
-	              label.container.hint.visible = ( data.name.length == 0 );	
+	         		  var data = this.data;
+		              data.name = label.string;
+		              label.container.hint.visible = ( data.name.length == 0 );
+		              var message = new Message(deviceURL+"searchFilter");
+		              message.requestText = JSON.stringify({filter: label.string});	
+		              label.invoke(message);
+		              contentRow.invoke(new Message(deviceURL+""));
 	         		}}
 	         	}),
 	         }),
@@ -424,6 +428,7 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 		trace('inside tabsRow onCreate \n');
 		this.data = data;
 		this.currentTab = storageTabButton;
+		this.currentTabString = function(){return tabsRow.behavior.currentTab.first.string;}
 		this.updateTabStyle = function(newTab){
 				tabsRow.behavior.currentTab.skin = STYLE.tabButtonSkin;
 				tabsRow.behavior.currentTab.first.style = STYLE.darkerGrayButtonStyle;

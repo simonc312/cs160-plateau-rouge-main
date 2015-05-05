@@ -23,6 +23,8 @@ var newSoldCount = 0;
 var newDeliveryItem;
 var newSoldItem;
 
+var searchFilter = new RegExp("");
+
 copyTileProperty = function(origTile){
 	newTile = {};
 	Object.keys(origTile).forEach(function(key) {
@@ -68,20 +70,35 @@ updateTime = function(itemProperty){
 	return itemProperty;
 }
 
+containsSearchFilter = function(item){
+				trace('after re \n');
+				if(item && ('name' in item) && item.name.match(searchFilter)) 
+					return item; 
+			}
+
+filter = function(items){
+	if(searchFilter.test(""))
+		return items;
+	else{
+		return items.filter(containsSearchFilter);
+			
+	}
+}
+
 //SERVER SIDE HANDLERS 
 
 //for sold items
 Handler.bind("/getSoldTags", Behavior({
 	onInvoke: function(handler, message){
 		trace("inside getSoldTags \n");
-		message.responseText = JSON.stringify({items: soldTiles});
+		message.responseText = JSON.stringify({items: filter(soldTiles)});
 		message.status = 200;
 	}
 }));
 //for delivery history
 Handler.bind("/getNewTags", Behavior({
 	onInvoke: function(handler, message){
-		message.responseText = JSON.stringify({items: deliveredTiles});
+		message.responseText = JSON.stringify({items: filter(deliveredTiles)});
 		message.status = 200;
 	}
 }));
@@ -93,7 +110,7 @@ Handler.bind("/getActiveTags", Behavior({
 			if(activeTiles[i] == 1)
 				activeTags.unshift(tileProperties[i]);
 		}
-		message.responseText = JSON.stringify({items: activeTags});
+		message.responseText = JSON.stringify({items: filter(activeTags)});
 		message.status = 200;
 	}
 }));
@@ -117,6 +134,14 @@ Handler.bind("/resetSoldNotifications", Behavior({
 		
 		newSoldCount = 0;
 	}
+}));
+
+Handler.bind("/searchFilter", Object.create(Behavior.prototype, {
+	onInvoke: { value: function( handler, message){
+		if(message && message.requestText){
+			searchFilter = new RegExp(JSON.parse(message.requestText).filter,'i');
+		}
+	}}
 }));
 
 Handler.bind("/tileone", Object.create(Behavior.prototype, {
