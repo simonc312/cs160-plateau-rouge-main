@@ -181,7 +181,9 @@ var ListItemLine = Line.template(function($) { return { left: 0, right: 0, activ
 	], }),
 ], }});
 
-var StorageListItemLine = Line.template(function($) { return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
+var TimeListItemLine = Line.template(function($) { 
+
+	return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
 
 	Column($, { left: 0, right: 0, contents: [
 
@@ -198,7 +200,7 @@ var StorageListItemLine = Line.template(function($) { return { left: 0, right: 0
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: STYLE.storageItemNameStyle, string: "added: "+$.timeDifference }	
+					{ style: STYLE.storageItemNameStyle, string: $.timeDifference }	
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
@@ -277,7 +279,7 @@ ListPane.behaviors[0] = SCREEN.ListBehavior.template({
 						if(item.timeDifference == undefined)
 							list.add(new ListItemLine(item));
 						else
-							list.add(new StorageListItemLine(item));
+							list.add(new TimeListItemLine(item));
 					},
 	createMessage: function(list,data){
 		var tagPath = "";

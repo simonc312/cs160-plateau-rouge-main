@@ -6,6 +6,8 @@ var tileOneXY = [0,0];
 var tileTwoXY = [0,0];
 var tileThreeXY = [0,0];
 var tileFourXY = [0,0];
+var tileCoords = [tileOneXY,tileTwoXY,tileThreeXY,tileFourXY];
+var floorXY = {x: {min: 0, max: 0.25}, y: {min: 0.25, max: 0.25} }; //any tile that lies between these coordinates are in storage
 
 //quantity will eventually need to be separated
 var tileProperties = [
@@ -34,55 +36,71 @@ copyTileProperty = function(origTile){
 }
 
 addDelivery = function(index){
-	
+	var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
 	if(activeTiles[index] == 0){
 		//need to update time of all items in deliveredTiles when adding new delivery
 		for(var i=0; i<deliveredTiles.length;i++){
-			deliveredTiles[i] = updateTime(deliveredTiles[i]);
+			deliveredTiles[i] = updateDeliveryTime(deliveredTiles[i]);
 		}
-		var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
-		deliveredTiles.unshift(updateTime(newItem)); //initialize time prop of new item
+		deliveredTiles.unshift(initializeDeliveryTime(newItem)); //initialize time prop of new item
 		newDeliveryCount++;
 		newDeliveryItem = deliveredTiles[0];
 		//trigger update view for history tab if that is current tab. 
 	}
 	else{
-		soldTiles.unshift(tileProperties[index]);
+	
+		//need to update time of all items in soldTiles when adding new sale
+		for(var i=0; i<soldTiles.length;i++){
+			soldTiles[i] = updateSoldTime(soldTiles[i]);
+		}
+		soldTiles.unshift(initializeSoldTime(newItem));
 		newSoldCount++;
 		newSoldItem = soldTiles[0];
 		}
 }
 
-updateTime = function(itemProperty){
+initializeTime = function(itemProperty,newMessage){
 	if(itemProperty.dateTime == undefined){
 		itemProperty.dateTime = new Date();
-		itemProperty.timeDifference = "New Delivery!";
-	}
-	else{
-		var curTime = new Date();
-		var origTime = itemProperty.dateTime;
-		var minuteDif = curTime.getMinutes() - origTime.getMinutes();
-		if(minuteDif == 1)
-			itemProperty.timeDifference = "1 minute ago.";
-		else
-			itemProperty.timeDifference = minuteDif + " minutes ago.";
+		itemProperty.timeDifference = newMessage;
 	}
 	return itemProperty;
 }
 
+updateTime = function(itemProperty,newMessage){
+	var curTime = new Date();
+	var origTime = itemProperty.dateTime;
+	var minuteDif = curTime.getMinutes() - origTime.getMinutes();
+	if(minuteDif == 1)
+		itemProperty.timeDifference = newMessage + " 1 minute ago.";
+	else
+		itemProperty.timeDifference = newMessage + " " + minuteDif + " minutes ago.";
+	return itemProperty;
+}
+
+initializeDeliveryTime = function(itemProperty){
+	return initializeTime(itemProperty,"New Delivery!");
+}
+updateDeliveryTime = function(itemProperty){
+	return updateTime(itemProperty,"added: ");
+}
+initializeSoldTime = function(itemProperty){
+	return initializeTime(itemProperty,"Just Sold!");
+}
+updateSoldTime = function(itemProperty){
+	return updateTime(itemProperty,"sold: ");
+}
+
 containsSearchFilter = function(item){
-				trace('after re \n');
-				if(item && ('name' in item) && item.name.match(searchFilter)) 
-					return item; 
-			}
+	if(item && ('name' in item) && item.name.match(searchFilter)) 
+		return item; 
+}
 
 filter = function(items){
 	if(searchFilter.test(""))
 		return items;
-	else{
-		return items.filter(containsSearchFilter);
-			
-	}
+	else
+		return items.filter(containsSearchFilter);	
 }
 
 //SERVER SIDE HANDLERS 
@@ -102,15 +120,15 @@ Handler.bind("/getNewTags", Behavior({
 		message.status = 200;
 	}
 }));
-//for current inventory
+//for current inventory must have XY beyond floorXY
 Handler.bind("/getActiveTags", Behavior({
 	onInvoke: function(handler, message){
-		var activeTags = [];
+		var floorTags = [];
 		for(var i=0; i<activeTiles.length;i++){
-			if(activeTiles[i] == 1)
-				activeTags.unshift(tileProperties[i]);
+			if(activeTiles[i] == 1 && ( tileCoords[i][0] > floorXY.x.max || tileCoords[i][1] > floorXY.y.max))
+				floorTags.unshift(tileProperties[i]);
 		}
-		message.responseText = JSON.stringify({items: filter(activeTags)});
+		message.responseText = JSON.stringify({items: filter(floorTags)});
 		message.status = 200;
 	}
 }));
