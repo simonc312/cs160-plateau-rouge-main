@@ -45,14 +45,12 @@ Handler.bind("/getNotifications", {
     },
     onComplete: function(handler, message, json){
     	if(json){
-			var numNewSold = json.sold;
-			var numNewDelivered = json.delivered;
-			var newDeliveredItem = json.deliveredItem;
-			var newSoldItem = json.soldItem;
-			tabsRow.behavior.update(storageTabButton,numNewDelivered);
-			tabsRow.behavior.update(soldTabButton,numNewSold);
-			contentRow.behavior.addDeliveryItem(newDeliveredItem);
-			contentRow.behavior.addSoldItem(newSoldItem);
+			tabsRow.behavior.update(storageTabButton,json.delivered);
+			tabsRow.behavior.update(soldTabButton,json.sold);
+			tabsRow.behavior.update(inventoryTabButton,json.inventoried);
+			contentRow.behavior.addInventoryItem(json.inventoryItem);
+			contentRow.behavior.addDeliveryItem(json.deliveredItem);
+			contentRow.behavior.addSoldItem(json.soldItem);
 			handler.invoke( new Message("/delay"));
          }
     }
@@ -350,7 +348,6 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 		onCreate:  function(container, data){
 			this.data = data;
 			this.currentContent = storagePane;
-			//this.updateTabStyle(this.currentContent); //run once onCreate
 			this.switchLists = function(listType, direction){
 					var newContent = new ListPane({items: null, more:false, action: listType});
 					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100,});
@@ -368,6 +365,12 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 					soldPane = this.currentContent;
 				}
 			}
+			this.addInventoryItem = function(newItem){
+				if(newItem && this.currentContent == inventoryPane){
+					this.switchLists("Inventory","up");
+					inventoryPane = this.currentContent;
+				}
+			}
 		},}});
 
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
@@ -378,17 +381,14 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
 			tabsRow.behavior.updateTabStyle(content);
-			if(content.notificationBubble != null || content.notificationBubble != undefined){
-				if(content.first.string == "Storage")
-					content.invoke(new Message(deviceURL + "resetDeliveryNotifications"));
-				else
-					content.invoke(new Message(deviceURL + "resetSoldNotifications"));
-				content.remove(content.notificationBubble);
-			}
 			var formerContent = contentRow.behavior.currentContent;
 			var newContent = inventoryPane;
 			var direction = "left";
 			var buttonString = content.first.string;
+			if(content.notificationBubble != null && content.notificationBubble != undefined){
+				content.invoke(new Message(deviceURL + "reset"+buttonString+"Notifications"));
+				content.remove(content.notificationBubble);
+			}
 			var tmpPane = new ListPane({items:null,more:false, action: buttonString});
 			switch(buttonString){
 			case "Storage": 
