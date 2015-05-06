@@ -18,6 +18,34 @@ var tileProperties = [
 	
 ]
 
+var TileCollection = {
+	notificationCount: 0,
+	notificationItem: null,
+	tileList: [],
+	addNotification: function(item){
+		this.notificationCount++;
+		this.notificationItem = item;
+	},
+	subtractNotification: function(){
+		this.notificationCount = Math.max(0,this.notificationCount - 1);
+		this.notificationItem = {refresh: true};
+	},
+	resetNotification: function(){
+		this.resetNotificationCount();
+		this.resetNotificationItem();
+	},
+	resetNotificationCount: function(){
+		this.notificationCount = 0;
+	},
+	resetNotificationItem: function(){
+		this.notificationItem = null;
+	}
+}
+
+var storageCollection = Object.create(TileCollection);
+var soldCollection = Object.create(TileCollection);
+var floorCollection = Object.create(TileCollection);
+
 var storageTiles = [];
 var soldTiles = [];
 var floorTiles = [];
@@ -38,11 +66,6 @@ onFloor = function(index){
 inStorage = function(tileIndex){
 	return !onFloor(tileIndex);
 }
-//used to subtract notifications when items get transfered between sections
-subtractNotification = function(nCount,nItem){
-	nCount = Math.max(0,nCount - 1);
-	nItem = null;
-};
 
 copyTileProperty = function(origTile){
 	newTile = {};
@@ -70,24 +93,21 @@ addStorage = function(newItem){
 	//need to update time of all items in storageTiles when adding new storage item
 	storageTiles = storageTiles.map(updateStorageTime);
 	storageTiles.unshift(initializeStorageTime(newItem)); //initialize time prop of new item; 
-	newStorageCount++;
-	newStorageItem = storageTiles[0];
+	storageCollection.addNotification(storageTiles[0]);
 	//trigger update view for history tab if that is current tab.
 }
 
 addInventory = function(newItem){
 	floorTiles = floorTiles.map(updateInventoryTime);
 	floorTiles.unshift(initializeInventoryTime(newItem));
-	newInventoryCount++;
-	newInventoryItem = floorTiles[0];
+	floorCollection.addNotification(floorTiles[0]);
 }
 
 addSold = function(newItem){
 	//need to update time of all items in soldTiles when adding new sale
 	soldTiles = soldTiles.map(updateSoldTime);
 	soldTiles.unshift(initializeSoldTime(newItem));
-	newSoldCount++;
-	newSoldItem = soldTiles[0];
+	soldCollection.addNotification(soldTiles[0]);
 }
 //currently only checking for matching names - we could make unique ids for items instead
 // but for this prototype there are only 4 tiles. 
@@ -97,7 +117,7 @@ transferToInventoryFilter = function(item,index){
 	else{
 		trace("added item to floor");
 		addInventory(item)
-		subtractNotification(newStorageCount,newStorageItem);
+		storageCollection.subtractNotification();
 		}
 }
 
@@ -107,7 +127,7 @@ transferToStorageFilter = function(item,index){
 	else{
 		trace("added item to storage");
 		addStorage(item)
-		subtractNotification(newInventoryCount,newInventoryItem);
+		floorCollection.subtractNotification();
 		}
 }
 
@@ -126,11 +146,11 @@ transferSold = function(item,index){
 		return;
 	else if(currentLocation){
 		floorTiles = floorTiles.filter(transferToSoldFilter);
-		subtractNotification(newInventoryCount,newInventoryItem);
+		floorCollection.subtractNotification();
 	}
 	else{
 		storageTiles = storageTiles.filter(transferToSoldFilter);
-		subtractNotification(newStorageCount,newStorageItem);	
+		storageCollection.subtractNotification();
 	}
 }
 
@@ -222,30 +242,33 @@ Handler.bind("/getInventoryTags", Behavior({
 Handler.bind("/getNotifications", Behavior({
 	onInvoke: function(handler, message){
 		message.responseText = JSON.stringify({
-			stored: newStorageCount, storageItem: newStorageItem,
-		 	sold: newSoldCount, soldItem: newSoldItem,
-		 	inventoried: newInventoryCount, inventoryItem: newInventoryItem
+			stored: storageCollection.notificationCount, 
+			storageItem: storageCollection.notificationItem,
+		 	sold: soldCollection.notificationCount, 
+		 	soldItem: soldCollection.notificationItem,
+		 	inventoried: floorCollection.notificationCount, 
+		 	inventoryItem: floorCollection.notificationItem
 		 	})
 		message.status= 200;
-		newStorageItem = null;
-		newSoldItem = null;
-		newInventoryItem = null;
+		soldCollection.resetNotificationItem();
+		floorCollection.resetNotificationItem();
+		storageCollection.resetNotificationItem();
 	}
 }));
 
 Handler.bind("/resetStorageNotifications", Behavior({
 	onInvoke: function(handler, message){
-		newStorageCount = 0;
+		storageCollection.resetNotificationCount();
 	}
 }));
 Handler.bind("/resetSoldNotifications", Behavior({
 	onInvoke: function(handler, message){	
-		newSoldCount = 0;
+		soldCollection.resetNotificationCount();
 	}
 }));
 Handler.bind("/resetInventoryNotifications", Behavior({
 	onInvoke: function(handler, message){
-		newInventoryCount = 0;
+		floorCollection.resetNotificationCount();
 	}
 }));
 
