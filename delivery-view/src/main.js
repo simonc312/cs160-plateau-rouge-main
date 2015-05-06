@@ -306,15 +306,13 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 					contentRow.behavior.currentContent = newContent;
 			}
 			this.addItem = function(list,newItem){
-				if(contentRow.behavior.loaded == false){
+				if(contentRow.behavior.loaded == false || (newItem && newItem.refresh == true)){
 					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
 					contentRow.behavior.loaded = true;	
 				}
 				else if(newItem && this.currentContent == list){
-					if(newItem.timeDifference != undefined)
-						list.behavior.addItem(list,new TimeListItemLine(newItem));
-					else 
-						list.behavior.addItem(list,new ListItemLine(newItem));
+					//contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
+					list.behavior.addItem(list,new TimeListItemLine(newItem));
 				}
 			}
 		},}});

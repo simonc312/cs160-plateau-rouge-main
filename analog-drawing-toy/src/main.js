@@ -111,32 +111,33 @@ addSold = function(newItem){
 }
 //currently only checking for matching names - we could make unique ids for items instead
 // but for this prototype there are only 4 tiles. 
-transferToInventoryFilter = function(item,index){
-	if(item.name != tileProperties[index].name) 
+transferToInventoryFilter = function(item){
+	if(item.name != this) 
 		return item;
 	else{
-		trace("added item to floor");
+		trace("added item to floor \n");
 		addInventory(item)
 		storageCollection.subtractNotification();
 		}
 }
 
-transferToStorageFilter = function(item,index){
-	if(item.name != tileProperties[index].name)
+transferToStorageFilter = function(item){
+	if(item.name != this)
 		return item;
 	else{
-		trace("added item to storage");
+		trace("added item to storage \n");
 		addStorage(item)
 		floorCollection.subtractNotification();
 		}
 }
 
-transferToSoldFilter = function(item,index){
-	if(item.name != tileProperties[index].name)
+transferToSoldFilter = function(item){
+	trace(this + '\n');
+	if(item.name != this) //this refers to item being transferred 
 		return item;
 	else{
-		trace("added item to sold");
-		addSold(item)		
+		trace("added item to sold \n");
+		addSold(item);		
 		}
 }
 
@@ -145,25 +146,28 @@ transferSold = function(item,index){
 	if(activeTiles[index]) //we are only transferring inactive tags
 		return;
 	else if(currentLocation){
-		floorTiles = floorTiles.filter(transferToSoldFilter);
+		trace("removed from floor \n");
+		floorTiles = floorTiles.filter(transferToSoldFilter,item.name);
 		floorCollection.subtractNotification();
 	}
 	else{
-		storageTiles = storageTiles.filter(transferToSoldFilter);
+		trace("removed from storage \n");
+		storageTiles = storageTiles.filter(transferToSoldFilter,item.name);
 		storageCollection.subtractNotification();
 	}
 }
 
 transferItem = function (index,oldLocation){
 	var currentLocation = onFloor(index);
+	var transferItemName = tileProperties[index].name;
 	if( !activeTiles[index] || currentLocation == oldLocation)
 		return; 
 	else if(currentLocation){
-		trace("removed from storage");
-		storageTiles = storageTiles.filter(transferToInventoryFilter);
+		trace("removed from storage \n");
+		storageTiles = storageTiles.filter(transferToInventoryFilter,transferItemName);
 	}else{
-		trace("removed from inventory");
-		floorTiles = floorTiles.filter(transferToStorageFilter);
+		trace("removed from inventory \n");
+		floorTiles = floorTiles.filter(transferToStorageFilter,transferItemName);
 	}
 }
 
@@ -408,8 +412,10 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			stolenTiles[1] = data.t;
 		}
 		if ( (tileTwoXY[0] != data.x) || (tileTwoXY[1] != data.y) ){
+			var oldLocation = onFloor(1);
 			tileTwoXY[0] = Math.round(100*data.x);
 			tileTwoXY[1] = Math.round(100*data.y);
+			transferItem(1,oldLocation);
 		}
 	}},
 	tilethreeReading: { value: function(params, data) {
@@ -424,8 +430,11 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			stolenTiles[2] = data.t;
 		}
 		if ( (tileThreeXY[0] != data.x) || (tileThreeXY[1] != data.y) ){
+			var oldLocation = onFloor(2);
 			tileThreeXY[0] = Math.round(100*data.x);
 			tileThreeXY[1] = Math.round(100*data.y);
+			transferItem(2,oldLocation);
+			
 		}
 	}},
 	tilefourReading: { value: function(params, data) {
@@ -440,8 +449,10 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			stolenTiles[3] = data.t;
 		}
 		if ( (tileFourXY[0] != data.x) || (tileFourXY[1] != data.y) ){
+			var oldLocation = onFloor(2);
 			tileFourXY[0] = Math.round(100*data.x);
 			tileFourXY[1] = Math.round(100*data.y);
+			transferItem(3,oldLocation);
 		}
 	}},
 });
