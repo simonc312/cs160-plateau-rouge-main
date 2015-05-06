@@ -60,6 +60,6 @@ exports.headerStyle = new Style({ font: "24px", color: "white", horizontal: "cen
 
 // Properties of Content such as Headers, Buttons, Image Thumbnails
 exports.header = {height: 40};
-exports.content = { top: 98, bottom: 50, };
+exports.content = { top: 88, bottom: 50, };
 exports.button = { width : { sm: 50, md: 100, lg: 325} }
 

@@ -99,9 +99,9 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 //var historyButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "history-button", width: STYLE.button.width.sm});
 var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button.width.lg, bottom: 10});
 var MySearchField = Container.template(function($) { return { left:10, top: 0, bottom: 0,
-  width: 315, height: 50, contents: [
+  width: 315, height: 40, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
-  		new Picture({ left:0, height:50, url:"assets/search.png" }),
+  		new Picture({ left:0, height:40, url:"assets/search.png" }),
 	    Scroller($, { 
 	      left: 0, top: 0, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
 	      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
@@ -269,7 +269,7 @@ ListPane.behaviors[1] = SCREEN.ListBehavior.template({
 
 var headerRow = new Line({left:0, right:0, top:0});
 var footerRow = new Line({left:0, right:0, bottom:0});
-var titleLabel = new MyLabel ( { text: "Plateau Rouge Storage", style: STYLE.headerTitleStyle } );
+var titleLabel = new MyLabel ( { text: "Plateau Rouge", style: STYLE.headerTitleStyle } );
 var MainContainerTemplate = Container.template(function($) { return {
   left: 0, right: 0, top: 0, bottom: 0, skin: STYLE.whiteS, active: true,
   behavior: Object.create(Container.prototype, {
@@ -330,6 +330,7 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 			tabsRow.behavior.updateTabStyle(content);
 			var tmpPane = false;
 			var buttonString = content.first.string;	
+			//if no server don't try to fetch server list just display old unsynced lists 
 			if(hasFoundDevice()){
 				tmpPane = new ListPane({items:null,more:false, action: buttonString});
 				if(content.hasOwnProperty('notificationBubble')){
@@ -367,8 +368,8 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 				return;
 			contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{duration:300,direction: direction});
 			contentRow.behavior.currentContent = newContent;
-			titleLabel.string = "Plateau Rouge " + buttonString;
-			//if no server don't try to fetch server list just display old unsynced lists 
+			//titleLabel.string = "Plateau Rouge " + buttonString;
+			
 			}},
 		onComplete: { value: function(content, message, json){
 			
