@@ -24,7 +24,6 @@ Handler.bind("/discover", Behavior({
 		if (hasFoundDevice()){
 			 //handler.invoke(new Message("/foundServerDialog"));
 			 handler.invoke(new Message("/getNotifications"));
-		 	 //resourceChart.invoke(new Message("/getResources"));
 	    }
 		//else
 			//handler.invoke(new Message("/noServerWarning"));
@@ -72,7 +71,7 @@ var MyNotificationBubble = Container.template(function($) { return {top: 2, righ
   	new Label({width: 20, height: 20, string:$.text, style: STYLE.notificationNumberStyle})] 
 }});
 
-
+// for switching view to upselling
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	 right: ($.right ? $.right : 0), left: $.left, width: $.width, height:50, skin: STYLE.redSkin,
 	contents: [
@@ -399,7 +398,8 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 					tabSection.notificationBubble.first.string = numNotifications;
 				else
 					tabSection.add(new MyNotificationBubble({name:"notificationBubble",text:numNotifications}));
-			}
+			} else if(tabSection.hasOwnProperty('notificationBubble'))
+				tabSection.remove(tabSection.notificationBubble);
 		}
 		}
 	}

@@ -49,19 +49,19 @@ copyTileProperty = function(origTile){
 //delegates which array to place item when tag is activated and inactivated
 // ex if active and on floor add to inventory
 handleItem = function(index){
+	var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
 	if(activeTiles[index] == 1){
 		if(onFloor(index))
-			addInventory(index);
+			addInventory(newItem);
 		else
-			addStorage(index);
+			addStorage(newItem);
 	}	
 	else{
-		addSold(index);
+		addSold(newItem);
 	}
 }
 
-addStorage = function(index){
-	var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
+addStorage = function(newItem){
 	//need to update time of all items in storageTiles when adding new storage item
 	storageTiles = storageTiles.map(updateStorageTime);
 	storageTiles.unshift(initializeStorageTime(newItem)); //initialize time prop of new item; 
@@ -70,13 +70,14 @@ addStorage = function(index){
 	//trigger update view for history tab if that is current tab.
 }
 
-addInventory = function(index){
-	floorTiles.unshift(copyTileProperty(tileProperties[index]));
+addInventory = function(newItem){
+	floorTiles = floorTiles.map(updateInventoryTime);
+	floorTiles.unshift(initializeInventoryTime(newItem));
 	newInventoryCount++;
 	newInventoryItem = floorTiles[0];
 }
 
-addSold = function(index){
+addSold = function(newItem){
 	//need to update time of all items in soldTiles when adding new sale
 	soldTiles = soldTiles.map(updateSoldTime);
 	soldTiles.unshift(initializeSoldTime(newItem));
@@ -90,7 +91,7 @@ transferToInventoryFilter = function(item,index){
 		return item;
 	else{
 		trace("added item to floor");
-		addInventory(index)
+		addInventory(item)
 		newStorageCount = Math.max(0, newStorageCount - 1);
 		newStorageItem = null;	
 		}
@@ -101,7 +102,7 @@ transferToStorageFilter = function(item,index){
 		return item;
 	else{
 		trace("added item to storage");
-		addStorage(index)
+		addStorage(item)
 		newInventoryCount = Math.max(0, newInventoryCount - 1);
 		newInventoryItem = null;	
 		
@@ -122,10 +123,8 @@ transferItem = function (index,oldLocation){
 }
 
 initializeTime = function(itemProperty,newMessage){
-	if(itemProperty.dateTime == undefined){
-		itemProperty.dateTime = new Date();
-		itemProperty.timeDifference = newMessage;
-	}
+	itemProperty.dateTime = new Date();
+	itemProperty.timeDifference = newMessage;
 	return itemProperty;
 }
 
@@ -141,9 +140,15 @@ updateTime = function(itemProperty,newMessage){
 }
 
 initializeStorageTime = function(itemProperty){
-	return initializeTime(itemProperty,"New Storage!");
+	return initializeTime(itemProperty,"Just Stored!");
 }
 updateStorageTime = function(itemProperty){
+	return updateTime(itemProperty,"stored: ");
+}
+initializeInventoryTime = function(itemProperty){
+	return initializeTime(itemProperty,"Just Added!");
+}
+updateInventoryTime = function(itemProperty){
 	return updateTime(itemProperty,"added: ");
 }
 initializeSoldTime = function(itemProperty){
