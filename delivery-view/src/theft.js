@@ -92,15 +92,19 @@ function placeDetectItemsButton() {
     if(!detected) {
 	    if(Math.abs(mapX(X) - mapContainer.tileone.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tileone.coordinates.bottom) <= 5) {
 	        detected = true;
+	        notifyPoliceButton.coordinates = { right:10, left:10, top: 5, bottom: 0 };
 	        theftMapColumn.add(detectItemsButton);
 	    } else if(Math.abs(mapX(X) - mapContainer.tiletwo.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tiletwo.coordinates.bottom) <= 5) {
 	        detected = true;
+	        notifyPoliceButton.coordinates = { right:10, left:10, top: 5, bottom: 0 };
 	        theftMapColumn.add(detectItemsButton);
 	    } else if(Math.abs(mapX(X) - mapContainer.tilethree.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tilethree.coordinates.bottom) <= 5) {
 	        detected = true;
+	        notifyPoliceButton.coordinates = { right:10, left:10, top: 5, bottom: 0 };
 	        theftMapColumn.add(detectItemsButton);
 	    } else if(Math.abs(mapX(X) - mapContainer.tilefour.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tilefour.coordinates.bottom) <= 5) {
 	        detected = true;
+	        notifyPoliceButton.coordinates = { right:10, left:10, top: 5, bottom: 0 };
 	        theftMapColumn.add(detectItemsButton);
 	    }
 	} else {
@@ -109,6 +113,7 @@ function placeDetectItemsButton() {
 	        (Math.abs(mapX(X) - mapContainer.tilethree.coordinates.left) > 5 || Math.abs(mapY(Y) - mapContainer.tilethree.coordinates.bottom) > 5) &&
 	        (Math.abs(mapX(X) - mapContainer.tilefour.coordinates.left) > 5 || Math.abs(mapY(Y) - mapContainer.tilefour.coordinates.bottom) > 5)) {
             detected = false;
+            notifyPoliceButton.coordinates = { right:10, left:10, top: 45, bottom: 10 };
             theftMapColumn.remove(detectItemsButton);
         }
 	}
@@ -183,7 +188,7 @@ policeButton.behavior = Object.create(Behavior.prototype, {
 	onTouchEnded: { value: function(content, id, x, y, ticks){
         content.label.style = STYLE.textStyle;
         content.pic.url = "assets/wifi-light.png";
-        //mainContainer.run(new TRANSITIONS.TimeTravel(), theftAlertContainer, theftMapColumn, { direction : "forward", easeType : "sineEaseIn", duration : 300 });
+        mainContainer.run(new TRANSITIONS.TimeTravel(), theftAlertContainer, policeNotifiedDialog, { direction : "forward", easeType : "sineEaseIn", duration : 300 });
 	}}
 });
 
@@ -266,6 +271,45 @@ var theftAlertContainer = new Container({
 	    alertButtons
 	]
 });
+
+/**
+ * Police Notified Screen
+ */
+var policeNotifiedDialog = new Column({
+    left: 10, right: 10, top: 200, bottom: 200, active:true, skin: STYLE.whiteSkin,
+    contents: [
+        new Line({left:0, right:0, top:0,
+            contents: [new Label({left:20, top:10, height:25, string:"Notification Complete", style:STYLE.titleStyle}),]
+        }),
+	    new Line({left:0, right:0, top:0, bottom:0, skin: STYLE.whiteGrayBottomSkin,
+	        contents: [
+	            new Text({left:20, right:20, top:10, bottom:0, height:40, string:"We have notified the police, and will update you if items are recovered.", style:STYLE.textStyle}),
+	        ]
+	    }),
+	    new Line({left:0, right:0, top:0, bottom:0,
+	        contents: [
+	            new Label({left:70, right:0, top:0, bottom:0, height:20, active:true,
+	               string:"Return to Plateau Rouge", style:STYLE.textStyle,
+	                behavior: Object.create(Behavior.prototype, { 
+				        onTouchBegan: { value: function(content, id, x, y, ticks){
+				            content.style = darkerTextStyle;
+				        }},
+				        onTouchEnded: { value: function(content, id, x, y, ticks){
+				            content.style = STYLE.textStyle;
+				            theft = false;
+			                policeNotifiedDialogContainer.empty();
+				            application.remove(mainContainer);
+						}}
+					})
+	            }),
+	        ]
+	    }),        
+    ],
+});
+
+var policeNotifiedDialogContainer = new Container({
+    left: 0, right: 0, top: 0, bottom: 0, skin: grayTransparentSkin,
+});
  
 /**
  * Map Screen
@@ -330,7 +374,24 @@ mapContainer.behavior = Object.create(Behavior.prototype, {
     }}
 });
 
-var detectItemsButton = new Line({left:10, right:10, top:45, bottom:10, skin: STYLE.redSkin, active:true,
+var notifyPoliceButton = new Line({left:10, right:10, top:45, bottom:10, skin: STYLE.redSkin, active:true,
+    contents: [
+        new Picture({left:10, height:30, width:40, url:"assets/wifi-white.png"}),
+        new Label({left:10, right:30, height:40, string:"NOTIFY POLICE", style:STYLE.whiteButtonStyle}),
+    ],
+    behavior: Object.create(Behavior.prototype, { 
+        onTouchBegan: { value: function(content, id, x, y, ticks){
+            content.skin = STYLE.darkerRedSkin;
+        }},
+        onTouchEnded: { value: function(content, id, x, y, ticks){
+	        content.skin = STYLE.redSkin;
+	        policeNotifiedDialogContainer.add(policeNotifiedDialog);
+	        mainContainer.add(policeNotifiedDialogContainer);
+		}},
+	})
+});
+
+var detectItemsButton = new Line({left:10, right:10, top:5, bottom:10, skin: STYLE.redSkin, active:true,
     contents: [
         new Label({left:0, right:0, height:40, string:"Detect Stolen Items on Thief", style:STYLE.whiteButtonStyle}),
     ],
@@ -369,6 +430,7 @@ var theftMapColumn = new Column({
 	            new Label({left:20, top:0, bottom:0, string:"Current Location", style:STYLE.textStyle}),
 	        ]
 	    }),
+	    notifyPoliceButton,
 	],
 });
  
@@ -386,7 +448,7 @@ var DetectionLine = Line.template(function($) { return {
                 Label($, {left:0, top:0, height:20, string:"Quantity: " + $.quantity, style:STYLE.textStyle}),
             ]
         }),
-        Picture($, {right:15, bottom:8, width:40, height:40, url:"assets/wifi.png"}),
+        //Picture($, {right:15, bottom:8, width:40, height:40, url:"assets/wifi.png"}),
     ],
 }});
 
@@ -696,7 +758,6 @@ var theftConfirmationDialog = new Column({
 	                    onTouchBegan: { value: function(content, id, x, y, ticks){
 				        }},
 				        onTouchEnded: { value: function(content, id, x, y, ticks){
-				            mainContainer.remove(theftConfirmationDialogContainer);
 				            theft = false;
 				            application.remove(mainContainer);
 						}}
