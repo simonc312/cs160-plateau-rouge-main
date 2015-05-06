@@ -38,6 +38,11 @@ onFloor = function(index){
 inStorage = function(tileIndex){
 	return !onFloor(tileIndex);
 }
+//used to subtract notifications when items get transfered between sections
+subtractNotification = function(nCount,nItem){
+	nCount = Math.max(0,nCount - 1);
+	nItem = null;
+};
 
 copyTileProperty = function(origTile){
 	newTile = {};
@@ -57,7 +62,7 @@ handleItem = function(index){
 			addStorage(newItem);
 	}	
 	else{
-		addSold(newItem);
+		transferSold(newItem,index);
 	}
 }
 
@@ -92,8 +97,7 @@ transferToInventoryFilter = function(item,index){
 	else{
 		trace("added item to floor");
 		addInventory(item)
-		newStorageCount = Math.max(0, newStorageCount - 1);
-		newStorageItem = null;	
+		subtractNotification(newStorageCount,newStorageItem);
 		}
 }
 
@@ -103,10 +107,31 @@ transferToStorageFilter = function(item,index){
 	else{
 		trace("added item to storage");
 		addStorage(item)
-		newInventoryCount = Math.max(0, newInventoryCount - 1);
-		newInventoryItem = null;	
-		
+		subtractNotification(newInventoryCount,newInventoryItem);
 		}
+}
+
+transferToSoldFilter = function(item,index){
+	if(item.name != tileProperties[index].name)
+		return item;
+	else{
+		trace("added item to sold");
+		addSold(item)		
+		}
+}
+
+transferSold = function(item,index){
+	var currentLocation = onFloor(index);
+	if(activeTiles[index]) //we are only transferring inactive tags
+		return;
+	else if(currentLocation){
+		floorTiles = floorTiles.filter(transferToSoldFilter);
+		subtractNotification(newInventoryCount,newInventoryItem);
+	}
+	else{
+		storageTiles = storageTiles.filter(transferToSoldFilter);
+		subtractNotification(newStorageCount,newStorageItem);	
+	}
 }
 
 transferItem = function (index,oldLocation){
