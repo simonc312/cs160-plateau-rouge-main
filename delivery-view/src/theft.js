@@ -168,10 +168,29 @@ var mainContainer = new Container({
 /**
  * Theft Alert Screen
  */
-var mapButton = new Line({left:0, right:0, top:10, skin:STYLE.whiteGrayTopSkin, active:true,
+var policeButton = new Line({left:0, right:0, top:0, active:true,
+    contents: [
+        new Picture({name:"pic", left:0, top:8, height:35, width:40, url:"assets/wifi-light.png"}),
+        new Label({name:"label", left:5, top:15, height:20, string:"NOTIFY POLICE", style:STYLE.textStyle}),
+    ]
+});
+
+policeButton.behavior = Object.create(Behavior.prototype, {
+    onTouchBegan: { value: function(content, id, x, y, ticks){
+		content.label.style = darkerTextStyle;
+		content.pic.url = "assets/wifi.png";
+	}},
+	onTouchEnded: { value: function(content, id, x, y, ticks){
+        content.label.style = STYLE.textStyle;
+        content.pic.url = "assets/wifi-light.png";
+        //mainContainer.run(new TRANSITIONS.TimeTravel(), theftAlertContainer, theftMapColumn, { direction : "forward", easeType : "sineEaseIn", duration : 300 });
+	}}
+});
+
+var mapButton = new Line({left:0, right:0, top:0, active:true,
     contents: [
         new Picture({name:"pic", left:0, top:10, height:30, width:40, url:"assets/map-light.png"}),
-        new Label({name:"label", left:0, top:15, height:20, string:"LOCATE THIEF", style:STYLE.textStyle}),
+        new Label({name:"label", left:0, top:15, height:20, string:"MAP", style:STYLE.textStyle}),
     ]
 });
 
@@ -185,10 +204,14 @@ mapButton.behavior = Object.create(Behavior.prototype, {
         content.pic.url = "assets/map-light.png";
         mainContainer.run(new TRANSITIONS.TimeTravel(), theftAlertContainer, theftMapColumn, { direction : "forward", easeType : "sineEaseIn", duration : 300 });
 	}}
+});
+
+var alertButtons = new Line({left:35, right:0, top:85, skin:STYLE.whiteGrayTopSkin, 
+    contents: [policeButton, mapButton]
 }); 
 
 var alertInfoColumn = new Column({
-    left:13, right:0, top:0, bottom:0,
+    left:20, right:0, top:0, bottom:0,
     contents: [
         new Line({left:0, right:0, top:0,
             contents: [new Label({left:0, top:0, height:25, string:"Theft Alert", style:STYLE.titleStyle}),]
@@ -199,7 +222,6 @@ var alertInfoColumn = new Column({
         new Line({left:0, right:0, top:0, name:"value",
             contents: [new Label({left:0, top:0, height:18, style:STYLE.textStyle}),]
         }),
-        mapButton
     ]
 });
 
@@ -241,6 +263,7 @@ var theftAlertContainer = new Container({
 	            alertInfoColumn
 	        ]
 	    }),
+	    alertButtons
 	]
 });
  

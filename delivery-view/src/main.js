@@ -101,9 +101,9 @@ var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", 
 var MySearchField = Container.template(function($) { return { left:10, top: 0, bottom: 0,
   width: 315, height: 50, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
-  		new Picture({ left:10, height:40, url:"assets/search.png" }),
+  		new Picture({ left:0, height:50, url:"assets/search.png" }),
 	    Scroller($, { 
-	      left: 5, top: 0, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
+	      left: 0, top: 0, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
 	      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
 	        Label($, { 
 	          left: 0, top: 0, bottom: 0, skin: THEME.fieldLabelSkin, style: STYLE.fieldStyle, anchor: 'NAME',
@@ -123,7 +123,7 @@ var MySearchField = Container.template(function($) { return { left:10, top: 0, b
 	         	}),
 	         }),
 	         Label($, {
-	   			 	left:4, right:4, top:4, bottom:0, style:STYLE.fieldHintStyle, string:"Search By Name", name:"hint"
+	   			 	left:0, right:4, top:0, bottom:0, style:STYLE.fieldHintStyle, string:"Search By Name", name:"hint"
 	         })
 	      ]
 	    }),
