@@ -7,7 +7,7 @@ var tileTwoXY = [0,0];
 var tileThreeXY = [0,0];
 var tileFourXY = [0,0];
 var tileCoords = [tileOneXY,tileTwoXY,tileThreeXY,tileFourXY];
-var floorXY = {x: {min: 0, max: 25}, y: {min: 0, max: 25} }; //any tile that lies between these coordinates are in storage
+var storageCoords = {x: {min: 0, max: 25}, y: {min: 0, max: 25} }; //any tile that lies between these coordinates are in storage
 
 //quantity will eventually need to be separated
 var tileProperties = [
@@ -18,13 +18,13 @@ var tileProperties = [
 	
 ]
 
-var deliveredTiles = [];
+var storageTiles = [];
 var soldTiles = [];
 var floorTiles = [];
-var newDeliveryCount = 0;
+var newStorageCount = 0;
 var newSoldCount = 0;
 var newInventoryCount = 0;
-var newDeliveryItem;
+var newStorageItem;
 var newSoldItem;
 var newInventoryItem;
 
@@ -32,7 +32,7 @@ var searchFilter = new RegExp("");
 
 
 onFloor = function(index){
-	return ( tileCoords[index][0] > floorXY.x.max || tileCoords[index][1] > floorXY.y.max);
+	return ( tileCoords[index][0] > storageCoords.x.max || tileCoords[index][1] > storageCoords.y.max);
 }
 
 inStorage = function(tileIndex){
@@ -46,35 +46,79 @@ copyTileProperty = function(origTile){
 }); 
 	return newTile;
 }
-
-addDelivery = function(index){
-	var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
+//delegates which array to place item when tag is activated and inactivated
+// ex if active and on floor add to inventory
+handleItem = function(index){
 	if(activeTiles[index] == 1){
-		if(inStorage(index)){
-			//need to update time of all items in deliveredTiles when adding new delivery
-			for(var i=0; i<deliveredTiles.length;i++){
-				deliveredTiles[i] = updateDeliveryTime(deliveredTiles[i]);
-			}
-			deliveredTiles.unshift(initializeDeliveryTime(newItem)); //initialize time prop of new item
-			newDeliveryCount++;
-			newDeliveryItem = deliveredTiles[0];
-			//trigger update view for history tab if that is current tab.
-		} else if(onFloor(index)){
-			floorTiles.unshift(newItem); 
-			newInventoryCount++;
-			newInventoryItem = floorTiles[0];
-		} 
-	}
+		if(onFloor(index))
+			addInventory(index);
+		else
+			addStorage(index);
+	}	
 	else{
-	
-		//need to update time of all items in soldTiles when adding new sale
-		for(var i=0; i<soldTiles.length;i++){
-			soldTiles[i] = updateSoldTime(soldTiles[i]);
+		addSold(index);
+	}
+}
+
+addStorage = function(index){
+	var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
+	//need to update time of all items in storageTiles when adding new storage item
+	storageTiles = storageTiles.map(updateStorageTime);
+	storageTiles.unshift(initializeStorageTime(newItem)); //initialize time prop of new item; 
+	newStorageCount++;
+	newStorageItem = storageTiles[0];
+	//trigger update view for history tab if that is current tab.
+}
+
+addInventory = function(index){
+	floorTiles.unshift(copyTileProperty(tileProperties[index]));
+	newInventoryCount++;
+	newInventoryItem = floorTiles[0];
+}
+
+addSold = function(index){
+	//need to update time of all items in soldTiles when adding new sale
+	soldTiles = soldTiles.map(updateSoldTime);
+	soldTiles.unshift(initializeSoldTime(newItem));
+	newSoldCount++;
+	newSoldItem = soldTiles[0];
+}
+//currently only checking for matching names - we could make unique ids for items instead
+// but for this prototype there are only 4 tiles. 
+transferToInventoryFilter = function(item,index){
+	if(item.name != tileProperties[index].name) 
+		return item;
+	else{
+		trace("added item to floor");
+		addInventory(index)
+		newStorageCount = Math.max(0, newStorageCount - 1);
+		newStorageItem = null;	
 		}
-		soldTiles.unshift(initializeSoldTime(newItem));
-		newSoldCount++;
-		newSoldItem = soldTiles[0];
+}
+
+transferToStorageFilter = function(item,index){
+	if(item.name != tileProperties[index].name)
+		return item;
+	else{
+		trace("added item to storage");
+		addStorage(index)
+		newInventoryCount = Math.max(0, newInventoryCount - 1);
+		newInventoryItem = null;	
+		
 		}
+}
+
+transferItem = function (index,oldLocation){
+	var currentLocation = onFloor(index);
+	if( !activeTiles[index] || currentLocation == oldLocation)
+		return; 
+	else if(currentLocation){
+		trace("removed from storage");
+		storageTiles = storageTiles.filter(transferToInventoryFilter);
+	}else{
+		trace("removed from inventory");
+		floorTiles = floorTiles.filter(transferToStorageFilter);
+	}
 }
 
 initializeTime = function(itemProperty,newMessage){
@@ -96,10 +140,10 @@ updateTime = function(itemProperty,newMessage){
 	return itemProperty;
 }
 
-initializeDeliveryTime = function(itemProperty){
-	return initializeTime(itemProperty,"New Delivery!");
+initializeStorageTime = function(itemProperty){
+	return initializeTime(itemProperty,"New Storage!");
 }
-updateDeliveryTime = function(itemProperty){
+updateStorageTime = function(itemProperty){
 	return updateTime(itemProperty,"added: ");
 }
 initializeSoldTime = function(itemProperty){
@@ -133,11 +177,11 @@ Handler.bind("/getSoldTags", Behavior({
 //for stored items
 Handler.bind("/getStorageTags", Behavior({
 	onInvoke: function(handler, message){
-		message.responseText = JSON.stringify({items: filter(deliveredTiles)});
+		message.responseText = JSON.stringify({items: filter(storageTiles)});
 		message.status = 200;
 	}
 }));
-//for current inventory must have XY beyond floorXY
+//for current inventory must have XY beyond storageCoords
 Handler.bind("/getInventoryTags", Behavior({
 	onInvoke: function(handler, message){
 		message.responseText = JSON.stringify({items: filter(floorTiles)});
@@ -148,12 +192,12 @@ Handler.bind("/getInventoryTags", Behavior({
 Handler.bind("/getNotifications", Behavior({
 	onInvoke: function(handler, message){
 		message.responseText = JSON.stringify({
-			delivered: newDeliveryCount, deliveredItem: newDeliveryItem,
+			stored: newStorageCount, storageItem: newStorageItem,
 		 	sold: newSoldCount, soldItem: newSoldItem,
 		 	inventoried: newInventoryCount, inventoryItem: newInventoryItem
 		 	})
 		message.status= 200;
-		newDeliveryItem = null;
+		newStorageItem = null;
 		newSoldItem = null;
 		newInventoryItem = null;
 	}
@@ -161,7 +205,7 @@ Handler.bind("/getNotifications", Behavior({
 
 Handler.bind("/resetStorageNotifications", Behavior({
 	onInvoke: function(handler, message){
-		newDeliveryCount = 0;
+		newStorageCount = 0;
 	}
 }));
 Handler.bind("/resetSoldNotifications", Behavior({
@@ -284,7 +328,7 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 	tileoneReading: { value: function(params, data) {
 	    if (activeTiles[0]!= data.a){
 			activeTiles[0] = data.a;
-			addDelivery(0);
+			handleItem(0);
 		}
 		if (scanTiles[0]!=data.s){
 			scanTiles[0] = data.s;
@@ -293,14 +337,16 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			stolenTiles[0] = data.t;
 		}
 		if ( (tileOneXY[0] != data.x) || (tileOneXY[1] != data.y) ){
+			var oldLocation = onFloor(0);
 			tileOneXY[0] = Math.round(100*data.x);
 			tileOneXY[1] = Math.round(100*data.y);
+			transferItem(0,oldLocation);
 		}
 	}},
 	tiletwoReading: { value: function(params, data) {
 	    if (activeTiles[1]!= data.a){
 			activeTiles[1] = data.a;
-			addDelivery(1);
+			handleItem(1);
 		}
 		if (scanTiles[1]!=data.s){
 			scanTiles[1] = data.s;
@@ -316,7 +362,7 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 	tilethreeReading: { value: function(params, data) {
 	    if (activeTiles[2]!= data.a){
 			activeTiles[2] = data.a;
-			addDelivery(2);
+			handleItem(2);
 		}
 		if (scanTiles[2]!=data.s){
 			scanTiles[2] = data.s;
@@ -332,7 +378,7 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 	tilefourReading: { value: function(params, data) {
 	    if (activeTiles[3]!= data.a){
 			activeTiles[3] = data.a;
-			addDelivery(3);
+			handleItem(3);
 		}
 		if (scanTiles[3]!=data.s){
 			scanTiles[3] = data.s;

@@ -43,11 +43,11 @@ Handler.bind("/getNotifications", {
     },
     onComplete: function(handler, message, json){
     	if(json){
-			tabsRow.behavior.update(storageTabButton,json.delivered);
+			tabsRow.behavior.update(storageTabButton,json.stored);
 			tabsRow.behavior.update(soldTabButton,json.sold);
 			tabsRow.behavior.update(inventoryTabButton,json.inventoried);
 			contentRow.behavior.addItem(inventoryPane,json.inventoryItem);
-			contentRow.behavior.addItem(storagePane,json.deliveredItem);
+			contentRow.behavior.addItem(storagePane,json.storageItem);
 			contentRow.behavior.addItem(soldPane,json.soldItem);
 			handler.invoke( new Message("/delay"));
          }
