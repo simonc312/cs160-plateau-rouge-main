@@ -51,6 +51,22 @@ exports.configure = function(configuration) {
 						speed : 0.05
 					}
 				),
+				new PinsSimulators.DigitalInputAxisDescription(
+					{
+						valueLabel : "Police Lost Stolen Item",
+						valueID : "policelost",
+						dataType: "boolean",
+						defaultControl : PinsSimulators.BUTTON,
+					}
+				),
+				new PinsSimulators.DigitalInputAxisDescription(
+					{
+						valueLabel : "Police Recovered Stolen Item",
+						valueID : "policefound",
+						dataType: "boolean",
+						defaultControl : PinsSimulators.BUTTON,
+					}
+				),
 			]
 		});
 }
@@ -69,4 +85,6 @@ exports.pins = {
     a: { type: "Digital" },
     s: { type: "Digital" },
     t: { type: "Digital" },
+    policelost: { type: "Digital" },
+    policefound: { type: "Digital" },
 };

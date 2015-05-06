@@ -9,6 +9,7 @@ var grayTransparentSkin = new Skin( { fill:"#7f2B2B2B" } );
  * Styles
  */
 var altTextStyle = new Style( { font:"17px", color:"#FF4136" } );
+var greenTextStyle = new Style( { font:"17px", color:"#33C457" } );
 var darkerTextStyle = new Style( { font:"17px", color:"#595959" } );
 var hintStyle = new Style( { font:"17px", color:"#D6D6D6" } );
 var redTitleStyle = new Style( { font:"25px", color:"#881212" } );
@@ -22,7 +23,8 @@ var PRICES = [15, 40, 45, 75];
 var NAMES = ["Zara Men's White Tee", "New Era Snapback", "Sperry Print Shorts", "J. Crew Blazer"];
 var theft = false;
 var stolenItems = [];
-var detectedItems = [];
+var detectedItems = [0,0,0,0];
+var policeSearchingItems = [0,0,0,0];
 function numItems(items) {
     var count = 0;
     for(var i = 0; i < items.length; i++) {
@@ -52,18 +54,62 @@ Handler.bind("/theftCheck", {
         else handler.invoke(new Message("/delay2"));
     },
     onComplete: function(handler, message, json) {
-        if(json && json.validTiles.indexOf(1) != -1 && !theft) {
-            //polling should continue and data should update properly, but there shouldn't be multiple theft alerts at once
-            //the above is only implemented so far for the alert screen, for others we act as if data is static once screen
-            //is displayed <-- this should be changed later 
-            theft = true;
-            stolenItems = json.validTiles;
-            mainContainer.empty();
-            //mainContainer.add(templateColumn);
-            mainContainer.add(theftAlertContainer);
-            application.add(mainContainer);
-        } else if(json && (numItems(stolenItems) != numItems(json.validTiles))) {
-            stolenItems = json.validTiles;
+        if(json) { 
+            // And use this list check for theft
+            var newStolenItems = [];
+            for(var i = 0; i < json.validTiles.length; i++) {
+                if(json.validTiles[i] && !policeSearchingItems[i]) {
+                    newStolenItems.push(1);
+                } else {
+                    newStolenItems.push(0);
+                }
+            } 
+            if(newStolenItems.indexOf(1) != -1 && !theft) {
+		        theft = true;
+		        stolenItems = newStolenItems;
+		        mainContainer.empty();
+		        mainContainer.add(theftAlertContainer);
+		        application.add(mainContainer);
+		    } else if(numItems(stolenItems) != numItems(newStolenItems)) {
+		        stolenItems = newStolenItems;
+		    }
+		    
+		    // Check if the police have confirmed the status of any stolen items
+		    if(!theft && (json.lostTiles.indexOf(1) != -1 || json.recoveredTiles.indexOf(1) != -1)) {
+		        lostItems = false;
+		        recoveredItems = false;
+		        policeConfirmationColumn.recoveredContainer.recovered.empty();
+		        policeConfirmationColumn.lostContainer.lost.empty();
+		        for(var i = 0; i < json.lostTiles.length; i++) {
+		            if(json.lostTiles[i] && policeSearchingItems[i]) {
+		                lostItems = true;
+		                policeSearchingItems[i] = 0;
+		                policeConfirmationColumn.lostContainer.lost.add(new PoliceConfirmationLine({picURL:THUMBNAILS[i], name:NAMES[i], quantity:1}));
+		            } else if(json.recoveredTiles[i] && policeSearchingItems[i]) {
+		                recoveredItems = true;
+		                policeSearchingItems[i] = 0;
+		                policeConfirmationColumn.recoveredContainer.recovered.add(new PoliceConfirmationLine({picURL:THUMBNAILS[i], name:NAMES[i], quantity:1}));
+		            }
+		        }
+		        if(lostItems || recoveredItems) {
+		             if(lostItems) {
+		                 policeConfirmationColumn.lostContainer.nonelost.visible = false;
+		             } else {
+		                 policeConfirmationColumn.lostContainer.nonelost.visible = true;
+		             }
+		             
+		             if(recoveredItems) {
+		                 policeConfirmationColumn.recoveredContainer.nonerecovered.visible = false;
+		             } else {
+		                 policeConfirmationColumn.recoveredContainer.nonerecovered.visible = true;
+		             }
+		             
+		             theft = true;
+		             mainContainer.empty();
+		             mainContainer.add(policeConfirmationColumn);
+		             application.add(mainContainer);
+		        }
+		    }
         }
         handler.invoke(new Message("/delay2"));
     }
@@ -75,15 +121,6 @@ Handler.bind("/delay2", {
     },
     onComplete: function(handler, message, json) {
         handler.invoke(new Message("/theftCheck"));
-    }
-});
-
-Handler.bind("/scan", {
-    onInvoke: function(handler, message) {
-        if(deviceURL != "") handler.invoke(new Message(deviceURL + "scanTiles"), Message.JSON);
-    },
-    onComplete: function(handler, message, json) {
-        if(json) detectedItems = json.validTiles;
     }
 });
 
@@ -169,6 +206,75 @@ Handler.bind("/mapStolenFour", {
 var mainContainer = new Container({
 	left: 0, right: 0, top: 0, bottom: 0, skin: grayTransparentSkin
 });
+
+/**
+ * Police Confirmation Screen
+ */ 
+var PoliceConfirmationLine = Line.template(function($) { return {
+    left:20, right:20, top:5, skin: STYLE.whiteGrayTopSkin,
+    contents: [
+        Thumbnail($, {left:5, top:5, bottom:5, width:40, height:40, url:$.picURL}),
+        Column($, {
+            left:20, right:0, top:5, bottom:0,
+            contents: [
+                Label($, {left:0, top:0, height:20, string:$.name, style:darkerTextStyle}),
+                Label($, {left:0, top:0, height:20, string:"Quantity: " + $.quantity, style:STYLE.textStyle}),
+            ]
+        }),
+    ],
+}});
+
+var policeConfirmationColumn = new Column({
+    left: 10, right: 10, active:true, skin: STYLE.whiteSkin,
+    contents: [
+        new Line({left:0, right:0, top:0,
+            contents: [new Label({left:20, top:10, height:25, string:"Stolen Items Police Update", style:STYLE.titleStyle}),]
+        }),
+        new Line({left:0, right:0, top:0,
+            contents: [new Label({left:20, top:10, height:25, string:"Recovered Items", style:greenTextStyle}),]
+        }),
+	    new Container({name:"recoveredContainer", left:0, right:0, top: 0,
+	        contents: [
+			    new Column({name:"recovered", left:5, right:5, top:0, skin: STYLE.whiteSkin,}),
+			    new Line({name:"nonerecovered", left:5, right:5, top:0,
+			        contents: [
+			            new Label({left:20, top:0, height:30, string:"All items were lost.", style:STYLE.textStyle}),
+			        ]
+			    }),
+			]
+	    }),
+	    new Line({left:0, right:0, top:0,
+            contents: [new Label({left:20, top:10, height:25, string:"Lost Items", style:altTextStyle}),]
+        }),
+	    new Container({name:"lostContainer", left:0, right:0, top: 0, skin: STYLE.whiteGrayBottomSkin,
+	        contents: [
+			    new Column({name:"lost", left:5, right:5, top:0, bottom:5}),
+			    new Line({name:"nonelost", left:5, right:5, top:0,
+			        contents: [
+			            new Label({left:20, top:0, height:30, string:"All items were recovered.", style:STYLE.textStyle}),
+			        ]
+			    }),
+			]
+	    }),
+	    new Line({left:0, right:0, top:15, bottom:15,
+	        contents: [
+	            new Label({left:70, right:0, top:0, bottom:0, height:20, active:true,
+	               string:"Return to Plateau Rouge", style:STYLE.textStyle,
+	                behavior: Object.create(Behavior.prototype, { 
+				        onTouchBegan: { value: function(content, id, x, y, ticks){
+				            content.style = darkerTextStyle;
+				        }},
+				        onTouchEnded: { value: function(content, id, x, y, ticks){
+				            content.style = STYLE.textStyle;
+				            theft = false;
+				            application.remove(mainContainer);
+						}}
+					})
+	            }),
+	        ]
+	    }),        
+    ],
+}); 
 
 /**
  * Theft Alert Screen
@@ -295,6 +401,9 @@ var policeNotifiedDialog = new Column({
 				            content.style = darkerTextStyle;
 				        }},
 				        onTouchEnded: { value: function(content, id, x, y, ticks){
+				            for(var i = 0; i < stolenItems.length; i++) {
+				                if(stolenItems[i]) policeSearchingItems[i] = 1;
+				            }
 				            content.style = STYLE.textStyle;
 				            theft = false;
 			                policeNotifiedDialogContainer.empty();
@@ -324,6 +433,32 @@ function mapY(y) {
     return 10 + y*250/100;
 }
 
+function detectItems() {
+    if(Math.abs(mapX(X) - mapContainer.tileone.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tileone.coordinates.bottom) <= 5) {
+        detectedItems[0] = 1;
+    } else {
+        detectedItems[0] = 0;
+    }
+    
+    if(Math.abs(mapX(X) - mapContainer.tiletwo.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tiletwo.coordinates.bottom) <= 5) {
+        detectedItems[1] = 1;
+    } else {
+        detectedItems[1] = 0;
+    }
+     
+    if(Math.abs(mapX(X) - mapContainer.tilethree.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tilethree.coordinates.bottom) <= 5) {
+        detectedItems[2] = 1;
+    } else {
+        detectedItems[2] = 0;
+    }
+     
+    if(Math.abs(mapX(X) - mapContainer.tilefour.coordinates.left) <= 5 && Math.abs(mapY(Y) - mapContainer.tilefour.coordinates.bottom) <= 5) {
+        detectedItems[3] = 1;
+    } else {
+        detectedItems[3] = 0;
+    }
+}
+
 function displayLocationMarkers(content) {
     if(stolenItems[0]) {
         mapContainer.tileone.visible = true;
@@ -349,6 +484,7 @@ function displayLocationMarkers(content) {
     } else {
         mapContainer.tilefour.visible = false;
     }
+    detectItems();
     placeDetectItemsButton();
 }
  
@@ -397,7 +533,7 @@ var detectItemsButton = new Line({left:10, right:10, top:5, bottom:10, skin: STY
     ],
     behavior: Object.create(Behavior.prototype, { 
         onTouchBegan: { value: function(content, id, x, y, ticks){
-            if(deviceURL != "") content.invoke(new Message("/scan"));
+            //if(deviceURL != "") content.invoke(new Message("/scan"));
             content.skin = STYLE.darkerRedSkin;
         }},
         onTouchEnded: { value: function(content, id, x, y, ticks){
@@ -515,14 +651,6 @@ theftDetectionColumn.behavior = Object.create(Behavior.prototype, {
             }));
         }        
     }},
-    /*onTimeChanged: { value: function(content){
-        if(deviceURL != "") handler.invoke(new Message(deviceURL + "scanTiles"), Message.JSON);
-    }},
-    onComplete: { value: function(content, message, json){
-        if(json) {
-            detectedItems = json.validTiles;
-        }
-    }},*/
 }); 
 
 /**
