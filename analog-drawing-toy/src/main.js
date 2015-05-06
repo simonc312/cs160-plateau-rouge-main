@@ -2,6 +2,8 @@
 var activeTiles = [0,0,0,0];
 var scanTiles = [0,0,0,0];
 var stolenTiles = [0,0,0,0];
+var policeLostTiles = [0,0,0,0];
+var policeFoundTiles = [0,0,0,0];
 var tileOneXY = [0,0];
 var tileTwoXY = [0,0];
 var tileThreeXY = [0,0];
@@ -324,11 +326,10 @@ Handler.bind("/scanTiles", Object.create(Behavior.prototype, {
 Handler.bind("/stolenTiles", Object.create(Behavior.prototype, {
 
 	onInvoke: { value: function( handler, message ){
-				message.responseText = JSON.stringify( { validTiles: stolenTiles } );
+				message.responseText = JSON.stringify( { validTiles: stolenTiles, lostTiles: policeLostTiles, recoveredTiles: policeFoundTiles } );
 				message.status = 200;
 			}}
 }));
-
 
 Handler.bind("/tileOneCord", Object.create(Behavior.prototype, {
 
@@ -389,6 +390,12 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		if (stolenTiles[0]!=data.t){
 			stolenTiles[0] = data.t;
 		}
+		if (policeLostTiles[0] !=  data.policelost){
+			policeLostTiles[0] = data.policelost;
+		}
+		if (policeFoundTiles[0] != data.policefound){
+			policeFoundTiles[0] = data.policefound;
+		}
 		if ( (tileOneXY[0] != data.x) || (tileOneXY[1] != data.y) ){
 			var oldLocation = onFloor(0);
 			tileOneXY[0] = Math.round(100*data.x);
@@ -407,6 +414,12 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		if (stolenTiles[1]!=data.t){
 			stolenTiles[1] = data.t;
 		}
+		if (policeLostTiles[1] !=  data.policelost){
+			policeLostTiles[1] = data.policelost;
+		}
+		if (policeFoundTiles[1] != data.policefound){
+			policeFoundTiles[1] = data.policefound;
+		}
 		if ( (tileTwoXY[0] != data.x) || (tileTwoXY[1] != data.y) ){
 			tileTwoXY[0] = Math.round(100*data.x);
 			tileTwoXY[1] = Math.round(100*data.y);
@@ -423,6 +436,12 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		if (stolenTiles[2]!=data.t){
 			stolenTiles[2] = data.t;
 		}
+		if (policeLostTiles[2] !=  data.policelost){
+			policeLostTiles[2] = data.policelost;
+		}
+		if (policeFoundTiles[2] != data.policefound){
+			policeFoundTiles[2] = data.policefound;
+		}
 		if ( (tileThreeXY[0] != data.x) || (tileThreeXY[1] != data.y) ){
 			tileThreeXY[0] = Math.round(100*data.x);
 			tileThreeXY[1] = Math.round(100*data.y);
@@ -438,6 +457,12 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		}
 		if (stolenTiles[3]!=data.t){
 			stolenTiles[3] = data.t;
+		}
+		if (policeLostTiles[3] !=  data.policelost){
+			policeLostTiles[3] = data.policelost;
+		}
+		if (policeFoundTiles[3] != data.policefound){
+			policeFoundTiles[3] = data.policefound;
 		}
 		if ( (tileFourXY[0] != data.x) || (tileFourXY[1] != data.y) ){
 			tileFourXY[0] = Math.round(100*data.x);
