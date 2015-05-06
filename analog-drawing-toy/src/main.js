@@ -115,10 +115,10 @@ containsSearchFilter = function(item){
 }
 
 filter = function(items){
-	if(searchFilter.test("")){
-		trace('inside no filter \n');return items;} 
-	else{trace('inside yes filter \n' + searchFilter);
-		return items.filter(containsSearchFilter);}	
+	if(searchFilter.test(""))
+		return items;
+	else
+		return items.filter(containsSearchFilter);	
 }
 
 //SERVER SIDE HANDLERS 
@@ -126,7 +126,6 @@ filter = function(items){
 //for sold items
 Handler.bind("/getSoldTags", Behavior({
 	onInvoke: function(handler, message){
-		trace("inside getSoldTags \n");
 		message.responseText = JSON.stringify({items: filter(soldTiles)});
 		message.status = 200;
 	}
@@ -172,7 +171,6 @@ Handler.bind("/resetSoldNotifications", Behavior({
 }));
 Handler.bind("/resetInventoryNotifications", Behavior({
 	onInvoke: function(handler, message){
-		trace("inside reset Inventory Notific \n");
 		newInventoryCount = 0;
 	}
 }));

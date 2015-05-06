@@ -20,10 +20,8 @@ hasFoundDevice = function(){return deviceURL != "";}
 //HANDLERS
 Handler.bind("/discover", Behavior({
 	onInvoke: function(handler, message){
-		//trace('inside discover\n');
 		deviceURL = JSON.parse(message.requestText).url;
 		if (hasFoundDevice()){
-			 //trace('found device\n');
 			 //handler.invoke(new Message("/foundServerDialog"));
 			 handler.invoke(new Message("/getNotifications"));
 		 	 //resourceChart.invoke(new Message("/getResources"));
@@ -119,7 +117,7 @@ var MySearchField = Container.template(function($) { return { left:10, top: 0, b
 		              var message = new Message(deviceURL+"searchFilter");
 		              message.requestText = JSON.stringify({filter: label.string});	
 		              label.invoke(message);
-		              contentRow.behavior.switchLists(currentTabAction,"up");
+		              contentRow.behavior.switchLists(currentTabAction);
 		          
 	         		}}
 	         	}),
@@ -221,10 +219,8 @@ ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
 	onTouchEnded: function(line, id, x, y, ticks) {
 				this.onTouchCancelled(line, id, x, y, ticks);
 				//if(deviceURL != "") line.invoke(new Message(deviceURL + "scanTiles"), Message.JSON);
-				trace("Inside onTouchEnded \n");
 			},
 	onComplete: function(content, message, json) {
-			trace("Inside onComplete \n");
 	        if(json && json.validTiles.indexOf(1) != -1) {
                 //UPSELLING.scannedItems = json.validTiles;
                 //application.remove(main);
@@ -234,29 +230,6 @@ ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
 	        }
 	    }
 });
-
-
-var ItemView = Body.template(function($) { return { contents: [
-	Row($, { left: 0, right: 0, top: 0, contents: [
-		ItemThumbnail({width: STYLE.itemImageWidth, height: STYLE.itemImageHeight, url: $.image}),
-		Column($, { left: 20,right: 10, contents: [
-				Text($, { left: 4, right: 0, 
-				blocks: [
-					{ style: STYLE.itemNameStyle, string: $.name }	
-				], }),
-				Text($, { left: 4, right: 0, 
-				blocks: [
-					{ style: STYLE.itemPropertyStyle, string: "quantity: "+$.quantity }	
-				], }),
-				Text($, { left: 4, right: 0, 
-				blocks: [
-					{ style: STYLE.itemPropertyStyle, string: "price: "+$.price }	
-				], })
-		]})
-	]}),
-	
-	Row($, { left: 0, right: 0, top: 0, contents: []})
-]}});
 
 var ListPane = Body.template(function($) { return { behavior: Object.create((ListPane.behaviors[0]).prototype),contents: [
 
@@ -282,9 +255,10 @@ ListPane.behaviors[1] = SCREEN.ListBehavior.template({
 						if(item.timeDifference == undefined)
 							list.add(new ListItemLine(item));
 						else
-							list.add(new TimeListItemLine(item));
+						 	list.add(new TimeListItemLine(item));
 					},
 	createMessage: function(list,data){
+		trace(deviceURL + "get"+data.action+"Tags \n");
 		return new Message(deviceURL + "get"+data.action+"Tags");
 	},
 	getItems: function(list,message,result){
@@ -293,21 +267,9 @@ ListPane.behaviors[1] = SCREEN.ListBehavior.template({
 })
 
 
-
-
-
-
 var headerRow = new Line({left:0, right:0, top:0});
-
-
-
-
 var footerRow = new Line({left:0, right:0, bottom:0});
-
 var titleLabel = new MyLabel ( { text: "Plateau Rouge Storage", style: STYLE.headerTitleStyle } );
-
-	
-
 var MainContainerTemplate = Container.template(function($) { return {
   left: 0, right: 0, top: 0, bottom: 0, skin: STYLE.whiteS, active: true,
   behavior: Object.create(Container.prototype, {
@@ -331,8 +293,9 @@ var soldPane = new ListPane({ items: null, more: false, action: "Sold"});
 var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYLE.content.bottom,width: 325, height: 450, behavior: {
 		onCreate:  function(container, data){
 			this.data = data;
+			this.loaded = false;
 			this.currentContent = storagePane;
-			this.switchLists = function(listType, direction){
+			this.switchLists = function(listType){
 					var newContent = inventoryPane;
 					var tmpContent = new ListPane({items: null, more:false, action: listType});
 					switch(listType){
@@ -340,11 +303,15 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 						case 'Inventory': inventoryPane = tmpContent; newContent = inventoryPane; break;
 						case 'Sold': soldPane = tmpContent; newContent = soldPane; 
 					}
-					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100,direction: direction});
+					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100});
 					contentRow.behavior.currentContent = newContent;
 			}
 			this.addItem = function(list,newItem){
-				if(newItem && this.currentContent == list){
+				if(contentRow.behavior.loaded == false){
+					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
+					contentRow.behavior.loaded = true;	
+				}
+				else if(newItem && this.currentContent == list){
 					if(newItem.timeDifference != undefined)
 						list.behavior.addItem(list,new TimeListItemLine(newItem));
 					else 
@@ -361,23 +328,29 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
 			tabsRow.behavior.updateTabStyle(content);
+			var tmpPane = false;
+			var buttonString = content.first.string;	
+			if(hasFoundDevice()){
+				tmpPane = new ListPane({items:null,more:false, action: buttonString});
+				if(content.hasOwnProperty('notificationBubble')){
+					content.invoke(new Message(deviceURL + "reset"+buttonString+"Notifications"));
+					content.remove(content.notificationBubble);
+				}
+			}
+			
 			var formerContent = contentRow.behavior.currentContent;
 			var newContent = inventoryPane;
 			var direction = "left";
-			var buttonString = content.first.string;
-			if(content.notificationBubble != null && content.notificationBubble != undefined){
-				content.invoke(new Message(deviceURL + "reset"+buttonString+"Notifications"));
-				content.remove(content.notificationBubble);
-			}
-			var tmpPane = new ListPane({items:null,more:false, action: buttonString});
+			
+			
 			switch(buttonString){
 			case "Storage": 
-				storagePane = tmpPane;
+				storagePane = hasFoundDevice() ? tmpPane : storagePane;
 				newContent = storagePane;
 				direction = "right";
 			break;
 			case "Inventory":
-				inventoryPane = tmpPane;
+				inventoryPane = hasFoundDevice() ? tmpPane : inventoryPane;
 				newContent = inventoryPane;
 				if(formerContent == storagePane)
 					direction = "left";
@@ -385,7 +358,7 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 					direction = "right";
 			break;
 			case "Sold":
-				soldPane = tmpPane;
+				soldPane = hasFoundDevice() ? tmpPane : soldPane;
 				newContent = soldPane;
 			break;
 			
@@ -395,8 +368,10 @@ var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 			contentRow.run( new TRANSITIONS.Push(), formerContent , newContent,{duration:300,direction: direction});
 			contentRow.behavior.currentContent = newContent;
 			titleLabel.string = "Plateau Rouge " + buttonString;
+			//if no server don't try to fetch server list just display old unsynced lists 
 			}},
 		onComplete: { value: function(content, message, json){
+			
 		}}
 	})
 }});
@@ -407,7 +382,6 @@ var soldTabButton = new tabButtonTemplate ( { left:0, right:0, text: "Sold"} );
 
 var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior: Object.create(Container.prototype,{
 	onCreate: { value: function(content,data){
-		trace('inside tabsRow onCreate \n');
 		this.data = data;
 		this.currentTab = storageTabButton;
 		this.currentTabString = function(){return tabsRow.behavior.currentTab.first.string;}
@@ -420,7 +394,7 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 			}
 		this.update = function(tabSection,numNotifications){
 			if(numNotifications != 0){
-				if(tabSection.notificationBubble != null && tabSection.notificationBubble != undefined)
+				if(tabSection.hasOwnProperty('notificationBubble'))
 					tabSection.notificationBubble.first.string = numNotifications;
 				else
 					tabSection.add(new MyNotificationBubble({name:"notificationBubble",text:numNotifications}));
@@ -431,7 +405,6 @@ var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior
 }) });
 
 tabsRow.behavior.updateTabStyle(storageTabButton);
-
 //ADD COMPONENTS TO MAIN 		
 application.add(main);
 titleScanRow.add(titleLabel);
