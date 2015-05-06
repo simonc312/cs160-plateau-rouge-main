@@ -626,17 +626,35 @@ var theftConfirmationColumn = new Column({
 	            new Label({left:10, top:0, height:40, string:"Items Recovered", style:redTitleStyle}),
 	        ]
 	    }),
-	    new Line({left:5, right:5, top:0, skin: STYLE.whiteSkin,
-	        contents: [recoveredItemName, recoveredItemQuantity]
+	    new Container({name:"recoveredContainer", left:0, right:0, top: 0,
+	        contents: [
+			    new Line({name:"recovered", left:5, right:5, top:0, skin: STYLE.whiteSkin,
+			        contents: [recoveredItemName, recoveredItemQuantity]
+			    }),
+			    new Line({name:"nonerecovered", left:5, right:5, top:0,
+			        contents: [
+			            new Label({left:10, top:0, height:40, string:"No items were recovered.", style:STYLE.textStyle}),
+			        ]
+			    }),
+			]
 	    }),
 	    new Line({left:0, right:0, top:5,
 	        contents: [
 	            new Label({left:10, top:0, height:40, string:"Items Lost", style:redTitleStyle}),
 	        ]
 	    }),
-	    new Line({left:5, right:5, top:0, bottom:0, skin: STYLE.whiteSkin,
-	        contents: [lostItemName, lostItemQuantity]
-	    }),
+	    new Container({name:"lostContainer", left:0, right:0, top:0, bottom:0, 
+	        contents:[
+			    new Line({name:"nonelost", left:5, right:5, top:0,
+			        contents: [
+			            new Label({left:10, top:0, height:40, string:"All lost items have been recovered.", style:STYLE.textStyle}),
+			        ]
+			    }),
+			    new Line({name:"lost", left:5, right:5, top:0, skin: STYLE.whiteSkin,
+			        contents: [lostItemName, lostItemQuantity]
+			    }),
+			]
+		}),
 	    new Line({name:"details", left:10, right:10, bottom:5, skin:STYLE.redSkin, active:true,
 	        contents: [
 	            new Label({left:0, right:0, height:40, string:"Item Details", style:STYLE.whiteButtonStyle}),
@@ -702,18 +720,38 @@ function addNamesAndQuantities() {
         }
     }
     // Recovered item names and quantities
+    var i = 0;
     for(var recoveredItem in recoveredItems) {
+        i++;
         recoveredItemName.add(new Name({ name: recoveredItem }));
         recoveredItemQuantity.add(new Quantity({ 
            quantity: recoveredItems[recoveredItem].quantity, item: recoveredItem, recoverOrLost: "recovered"
         }));
     }
+    
+    if(i == 0) {
+        theftConfirmationColumn.recoveredContainer.recovered.visible = false;
+        theftConfirmationColumn.recoveredContainer.nonerecovered.visible = true;
+    } else {
+        theftConfirmationColumn.recoveredContainer.recovered.visible = true;
+        theftConfirmationColumn.recoveredContainer.nonerecovered.visible = false;
+    }
+    
     // Lost item names and quantities
+    i = 0;
     for(var lostItem in lostItems) {
+        i++;
         lostItemName.add(new Name({ name: lostItem }));
         lostItemQuantity.add(new Quantity({ 
             quantity: lostItems[lostItem].quantity, item: lostItem, recoverOrLost: "lost"
         }));
+    }
+    if(i == 0) {
+        theftConfirmationColumn.lostContainer.lost.visible = false;
+        theftConfirmationColumn.lostContainer.nonelost.visible = true;
+    } else {
+        theftConfirmationColumn.lostContainer.lost.visible = true;
+        theftConfirmationColumn.lostContainer.nonelost.visible = false;
     }
 }
 
