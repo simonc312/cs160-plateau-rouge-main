@@ -100,12 +100,12 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button.width.lg, bottom: 10});
+var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: application.width, bottom: 10});
 var MySearchField = Container.template(function($) { return { left:10, right:0, top: 0, bottom: 0, height: 40, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
   		new Picture({ left:0, height:40, url:"assets/search.png" }),
 	    Scroller($, { 
-	      left: 0, top: 0, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
+	      left: 0, right:20, top: 0, bottom: 0, width: 240, skin: STYLE.whiteGrayBottomSkin, active: true, 
 	      behavior: Object.create(CONTROL.FieldScrollerBehavior.prototype), clip: true, contents: [
 	        Label($, { 
 	          left: 0, top: 0, bottom: 0, skin: THEME.fieldLabelSkin, style: STYLE.fieldStyle, anchor: 'NAME',

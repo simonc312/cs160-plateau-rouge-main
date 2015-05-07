@@ -273,6 +273,8 @@ transferSold = function(item,index){
 }
 
 transferStolenItem = function(index){
+	if(!activeTiles[index])// we only care about active unsold tiles 
+		return;
 	var currentLocation = onInventory(index);
 	var transferItemName = tileProperties[index].name;
 	if(stolenTiles[index] && !policeLostTiles[index] && !policeFoundTiles[index]){ //handle updating active stolen items
