@@ -38,7 +38,7 @@ var whiteTextStyle = new Style( { font:"17px", color:"white" } );
  */
 var backArrowPic = "assets/back.png";
 var scanPic = "assets/scan.png";
-var scanHelperPic = "assets/scan-helper.png";
+var scanHelperPic = "assets/scan.png";
 var question = "assets/question.png";
 var storePic = "assets/store.jpg";
 var arrowPic = "assets/location-red.png";
@@ -141,13 +141,11 @@ function hardcodedRecTwo(scannedItems) {
 var recommendedButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the Recommended Items view
 	left: 0, right: 10, height:40, 
 	contents: [
-		new Label({left:0, right:0, width: STYLE.button.width.lg, height:40, skin: STYLE.redSkin, string:"Give Me Recommendations", style: whiteTextStyle})
+		new Label({left:0, right:0, width: STYLE.button.width.lg, height:40, skin: STYLE.redSkin, string:"Give Me Recommendations", style: STYLE.headerStyle})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
 			mainContainer.run( new TRANSITIONS.Push(), upsellingColumn, recommendedColumn, { direction : "left", duration : 400 } );
-			//mainContainer.remove(upsellingColumn);
-			//mainContainer.add(recommendedColumn);
 		}}
 	})
 	
@@ -158,7 +156,7 @@ var recommendedButton = BUTTONS.Button.template(function($){ return{ //when pres
 var upsellingButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the main Upselling view
 	left: 0, right: 0, height:40, top: 0, width: 350,
 	contents: [
-		new Label({left:0, right:0, height:40, skin: STYLE.redSkin, string:"Back to My Item", style: STYLE.buttonStyle}),
+		new Label({left:0, right:0, height:40, skin: STYLE.redSkin, string:"Back to My Item", style: STYLE.headerStyle}),
 		new Picture({height: 25, width: 25, right: 250, left: 0, top: 10, name: "backarrow", url: backArrowPic})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
@@ -208,37 +206,33 @@ var recommended_to_rescanButton = BUTTONS.Button.template(function($){ return{ /
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
 			mainContainer.run( new TRANSITIONS.TimeTravel(), recommendedColumn, scanColumn, { direction : "forward", duration : 400 } );
-			//mainContainer.remove(recommendedColumn);
-			//mainContainer.add(scanColumn);
+
 		}}
 	})
 }});
 
 var location_to_rescanButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the main Scanning view
-	top: 402, left: 0, right: 0, height:40, width: 400, skin: graySkin,
+	top: 50, left: 10, right: 10, height:40, width: 400, skin: graySkin,
 	contents: [
-		new Label({left:0, right:0, width: STYLE.button.width.lg, height:40, skin: STYLE.redSkin, string:"Rescan", style: whiteTextStyle})
+		new Label({left:0, right:0, width: STYLE.button.width.lg, height:40, skin: STYLE.redSkin, string:"Rescan", style: STYLE.headerStyle})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
 		    mainContainer.run( new TRANSITIONS.TimeTravel(), locationColumn, scanColumn, { direction : "forward", duration : 400 } );
-			
-			//mainContainer.remove(locationColumn);
-			//mainContainer.add(scanColumn);
+	
 		}}
 	})
 }});
 
 var recommended_to_locationButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the store layout view
-	left: 130, right: 70, height:10, width: 20, top: 100, 
+	left: 130, right: 15, height:60, width: 200, top: 100, 
 	contents: [
-		new Label({left:0, right:0, height:20, skin: STYLE.redSkin, string:"Find item", style: STYLE.buttonStyle})
+		new Label({left:0, right:0, height:40, width: 100, skin: STYLE.redSkin, string:"Find item", style: STYLE.buttonStyle})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
 		    mainContainer.run( new TRANSITIONS.Push(), recommendedColumn, locationColumn, { direction : "left", duration : 400 } );
-			//mainContainer.remove(recommendedColumn);
-			//mainContainer.add(locationColumn);
+
 		}}
 	})
 }});
@@ -272,6 +266,35 @@ var location_to_recommended = BUTTONS.Button.template(function($){ return{ //whe
 	})
 }});  
    
+var location_to_inventory = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the main Upselling view
+	top: 100, left: 10, right: 10, height:40, width: 350, skin: graySkin,
+	contents: [
+		new Label({left:0, right:0, height:40, skin: STYLE.redSkin, string:"DONE UPSELLING", style: STYLE.headerStyle})
+		
+	],
+	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
+		onTap: { value: function(content){
+			application.remove(mainContainer);
+			application.add(main);
+		}}
+	})
+}}); 
+
+var scan_to_inventory = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the main Upselling view
+	top: 0, left: 0, right: 0, height:40, width: 350, skin: graySkin,
+	contents: [
+		new Label({left:0, right:0, height:40, skin: STYLE.redSkin, string:"Back to Inventory", style: STYLE.headerStyle}),
+		new Picture({height: 25, width: 25, right: 270, left: 0, top: 10, name: "backarrow", url: backArrowPic})
+		
+	],
+	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
+		onTap: { value: function(content){
+			application.remove(mainContainer);
+			application.add(main);
+		}}
+	})
+}});
+
 
 /**
  * Main container
@@ -325,21 +348,22 @@ var scanColumn = new Column({
     	 		application.remove(mainContainer);
 				//application.add(main);
 			}}},*/
-        new Line({left:0, right:0, top:0, height: STYLE.header.height, skin: STYLE.redSkin,
-            contents: [new Container({ left: 10, top: 10, active:true,
-				contents: [
-					new Picture({height: 25, width: 25, right: 0, left: 0, top: 0, name: "backarrow", url: backArrowPic})],
-					behavior: Object.create(Container.prototype, {
-						onTouchEnded: { value: function(container) {
-							application.remove(mainContainer);
-							application.add(main);
-				}}}) }) , 
+       // new Line({left:0, right:0, top:0, height: STYLE.header.height, skin: STYLE.redSkin,
+           // contents: [new Container({ left: 10, top: 10, active:true,
+			//	contents: [
+				//	new Picture({height: 25, width: 25, right: 0, left: 0, top: 0, name: "backarrow", url: backArrowPic})],
+					//behavior: Object.create(Container.prototype, {
+						//onTouchEnded: { value: function(container) {
+							//application.remove(mainContainer);
+							//application.add(main);
+				//}}}) }) , 
 			
-		new Text({left: 10,right:0, top:10, height:40, string:"Back to Inventory",style: STYLE.headerTitleStyle})]
-        }),
-        new Container({ left: 10, right: 10, top: 30, active:true,
+		//new Text({left: 10,right:0, top:10, height:40, string:"Back to Inventory",style: STYLE.headerTitleStyle})]
+        //}),
+        new scan_to_inventory(),
+        new Container({ left: 15, right: 10, top: 30, active:true,
 	contents: [
-		new Picture({height: 300, width: 150, right: 0, left: 0, top: 10, name: "scanner", url: scanHelperPic}),
+		new Picture({height: 300, width: 130, right: 0, left: 0, top: 10, name: "scanner", url: scanHelperPic}),
 		new Text({left: 33,right:0, top:10, height:30, style: new Style({font: "22px", color: "gray"}), string:"Place Phone Near SmartTag"}),
 		
     ], 
@@ -589,10 +613,19 @@ var locationColumn = new Column({
         }),
         new Container({ name:"imgs", left: 0, right: 0, top: 10, active:true,
 	contents: [
-		new Picture({height: 400, width: 200, right: 0, left: 0, top: 0, name: "store", url: storePic}),
-		new Picture({height: 50, width: 50, left: 200, top: 250, name: "arrow", url: arrowPic})
+		new Picture({height: 280, width: 400, right: 0, left: 0, top: 0, name: "store", url: storePic}),
+		new Picture({height: 30, width: 30, right: 200, top: 250, name: "arrow", url: arrowPic})
     ]
-    })
+    }),
+    	new Container({ name: "legend", left: 0, right: 0, top: 10, active:true,
+    contents: [
+    	new Picture({height: 30, width: 30, right: 250, left: 0, top: 0, name: "location", url: arrowPic}),
+    	new Text({left: 70, right:0, top:10, height:30, style: new Style({font: "18px", color: "gray"}), string:"Item you are looking for"}),
+    	new Line({ top: 35, left: 0, right: 0, height: 1, skin: STYLE.separatorSkin, }),
+    	new location_to_rescanButton(),
+    	new location_to_inventory()
+    	]
+  	})
     ],
 });
 
