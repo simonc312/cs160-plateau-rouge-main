@@ -515,7 +515,7 @@ mapContainer.behavior = Object.create(Behavior.prototype, {
 var notifyPoliceButton = new Line({left:10, right:10, top:45, bottom:10, skin: STYLE.redSkin, active:true,
     contents: [
         new Picture({left:10, height:30, width:40, url:"assets/wifi-white.png"}),
-        new Label({left:10, right:30, height:40, string:"NOTIFY POLICE", style:STYLE.whiteButtonStyle}),
+        new Label({left:10, right:30, height:40, string:"Notify Police", style:STYLE.whiteButtonStyle}),
     ],
     behavior: Object.create(Behavior.prototype, { 
         onTouchBegan: { value: function(content, id, x, y, ticks){

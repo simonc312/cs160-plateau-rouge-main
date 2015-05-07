@@ -300,7 +300,7 @@ var location_to_recommended = BUTTONS.Button.template(function($){ return{ //whe
 var location_to_inventory = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the main Upselling view
 	top: 75, left: 10, right: 10, height:40, width: 350, skin: graySkin,
 	contents: [
-		new Label({left:0, right:0, height:40, skin: STYLE.redSkin, string:"DONE UPSELLING", style: STYLE.whiteButtonStyle})
+		new Label({left:0, right:0, height:40, skin: STYLE.redSkin, string:"Done Upselling", style: STYLE.whiteButtonStyle})
 		
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
