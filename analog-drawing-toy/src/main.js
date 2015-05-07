@@ -36,7 +36,24 @@ updateTime = function(itemProperty,newMessage){
 		itemProperty.timeDifference = newMessage + " " + minuteDif + " minutes ago.";
 	return itemProperty;
 }
-
+initializeLostTime = function(itemProperty){
+	return initializeTime(itemProperty,"Lost Item.");
+}
+updateStolenTime = function(itemProperty){
+	return updateTime(itemProperty,"lost: ");
+}
+initializeRecoverTime = function(itemProperty){
+	return initializeTime(itemProperty,"Just Recovered!");
+}
+initializeStolenTime = function(itemProperty){
+	return initializeTime(itemProperty,"Just Stolen!");
+}
+updateStolenTime = function(itemProperty){
+	return updateTime(itemProperty,"stolen: ");
+}
+initializeRecoveredTime = function(itemProperty){
+	return initializeTime(itemProperty,"Just Recovered!");
+}
 initializeStorageTime = function(itemProperty){
 	return initializeTime(itemProperty,"Just Stored!");
 }
@@ -56,22 +73,44 @@ updateSoldTime = function(itemProperty){
 	return updateTime(itemProperty,"sold: ");
 }
 
+
 var TileCollection = {
 	notificationCount: 0,
 	notificationItem: null,
 	tileList: [],
 	construct: function(name,func1,func2){
 		this.name = name;
-		this.initializeTile = func1;
-		this.updateFunc = func2;
+		this.initializeTileNormal = func1;
+		this.updateFuncNormal = func2;
+	},
+	initializeTile : function(itemProperty){
+		if(itemProperty.timeDifference && (itemProperty.timeDifference.match(/[S|s]tolen/) || itemProperty.timeDifference.match(/[L|l]ost/))) //special case once stolen and not recovered yet needs
+			return itemProperty;
+		else
+			return this.initializeTileNormal(itemProperty);
+	},
+	updateFunc : function(itemProperty){
+		if(itemProperty.timeDifference.match(/[S|s]tolen/)) //special case once stolen and not recovered yet needs
+			return updateStolenTime(itemProperty); //to stay this way and not be overwritten
+		else if(itemProperty.timeDifference.match(/[L|l]ost/)) //special case once stolen and not recovered yet needs
+			return updateLostTime(itemProperty);
+		else
+			return this.updateFuncNormal(itemProperty); //crucial needs to be declared by construct
+	},
+	refresh : function(){
+		this.notificationItem = {refresh: true};
 	},
 	addNotification: function(){
 		this.notificationCount++;
 		this.notificationItem = this.tileList[0];
 	},
+	addRefreshNotification: function(){
+		this.notificationCount++;
+		this.refresh();
+	},
 	subtractNotification: function(){
 		this.notificationCount = Math.max(0,this.notificationCount - 1);
-		this.notificationItem = {refresh: true};
+		this.refresh();
 	},
 	resetNotification: function(){
 		this.resetNotificationCount();
@@ -87,7 +126,8 @@ var TileCollection = {
 		this.tileList = this.tileList.map(this.updateFunc);
 	},
 	addTile: function(newItem){
-		this.tileList.unshift(this.initializeTile(newItem));
+		if(newItem)
+			this.tileList.unshift(this.initializeTile(newItem));
 	},
 	transfer: function(filterFunc,itemName){
 		this.tileList = this.tileList.filter(filterFunc,itemName);
@@ -98,6 +138,7 @@ var storageCollection = Object.create(TileCollection);
 storageCollection.construct("Storage Collection",initializeStorageTime,updateStorageTime);
 var soldCollection = Object.create(TileCollection);
 soldCollection.construct("Sold Collection",initializeSoldTime,updateSoldTime);
+
 var inventoryCollection = Object.create(TileCollection);
 inventoryCollection.construct("Inventory Collection",initializeInventoryTime,updateInventoryTime);
 
@@ -177,7 +218,6 @@ transferToStorageFilter = function(item){
 }
 
 transferToSoldFilter = function(item){
-	trace(this + '\n');
 	if(item.name != this) //this refers to item being transferred 
 		return item;
 	else{
@@ -185,6 +225,36 @@ transferToSoldFilter = function(item){
 		addSold(item);		
 		}
 }
+
+transferLostToSoldFilter = function(item){
+	if(item.name != this) //this refers to item being transferred 
+		return item;
+	else{
+		trace("added item to sold \n");
+		addSold(initializeLostTime(item));		
+		}
+}
+
+transferSameStolenFilter = function(item){
+	if(item.name != this)
+		return item;
+	else{
+		if(item.timeDifference.match("stolen"))
+			return updateStolenTime(item);
+		else
+			return initializeStolenTime(item);
+	}
+}
+
+transferRecoverFilter = function(item){
+	if(item.name != this)
+		return item;
+	else{
+		trace('found recovered item match \n');
+		return initializeRecoverTime(item);
+	}
+}
+
 
 transferSold = function(item,index){
 	var currentLocation = onInventory(index);
@@ -202,10 +272,53 @@ transferSold = function(item,index){
 	}
 }
 
+transferStolenItem = function(index){
+	var currentLocation = onInventory(index);
+	var transferItemName = tileProperties[index].name;
+	if(stolenTiles[index] && !policeLostTiles[index] && !policeFoundTiles[index]){ //handle updating active stolen items
+		trace("active stolen item detected \n");
+		if(currentLocation){
+			trace("updated stolen item from inventory \n");
+			inventoryCollection.transfer(transferSameStolenFilter,transferItemName);
+			inventoryCollection.addRefreshNotification();
+		}
+		else{
+			trace("updated stolen item from storage \n");
+			storageCollection.transfer(transferSameStolenFilter,transferItemName);
+			storageCollection.addRefreshNotification();
+		}
+	} else if((policeFoundTiles[index] && !policeLostTiles[index] && stolenTiles[index]) || (!stolenTiles[index] && (!policeFoundTiles[index] && !policeLostTiles[index]))){
+		trace('active item reclaimed \n');
+		if(currentLocation){
+			trace("updated reclaimed item from inventory \n");
+			inventoryCollection.transfer(transferRecoverFilter,transferItemName);
+			inventoryCollection.addRefreshNotification();
+		}
+		else{
+			trace("updated reclaimed item from storage \n");
+			storageCollection.transfer(transferRecoverFilter,transferItemName);
+			storageCollection.addRefreshNotification();
+		}
+	}
+	else if((policeLostTiles[index] && !policeFoundTiles[index] && stolenTiles[index])){
+		trace('active item lost \n');
+		if(currentLocation){
+			trace("updated lost item from inventory to sold \n");
+			inventoryCollection.transfer(transferLostToSoldFilter,transferItemName);
+			inventoryCollection.subtractNotification();
+		}
+		else{
+			trace("updated lost item from storage to sold \n");
+			storageCollection.transfer(transferLostToSoldFilter,transferItemName);
+			storageCollection.subtractNotification();
+		}
+	}	
+}
+
 transferItem = function (index,oldLocation){
 	var currentLocation = onInventory(index);
 	var transferItemName = tileProperties[index].name;
-	if( !activeTiles[index] || currentLocation == oldLocation)
+	if(!activeTiles[index] || currentLocation == oldLocation)
 		return; 
 	else if(currentLocation){
 		trace("removed from storage \n");
@@ -402,12 +515,15 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		}
 		if (stolenTiles[0]!=data.t){
 			stolenTiles[0] = data.t;
+			transferStolenItem(0);
 		}
 		if (policeLostTiles[0] !=  data.policelost){
 			policeLostTiles[0] = data.policelost;
+			transferStolenItem(0);
 		}
 		if (policeFoundTiles[0] != data.policefound){
 			policeFoundTiles[0] = data.policefound;
+			transferStolenItem(0);
 		}
 		if ( (tileOneXY[0] != data.x) || (tileOneXY[1] != data.y) ){
 			var oldLocation = onInventory(0);
@@ -426,12 +542,15 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		}
 		if (stolenTiles[1]!=data.t){
 			stolenTiles[1] = data.t;
+			transferStolenItem(1);
 		}
 		if (policeLostTiles[1] !=  data.policelost){
 			policeLostTiles[1] = data.policelost;
+			transferStolenItem(1);
 		}
 		if (policeFoundTiles[1] != data.policefound){
 			policeFoundTiles[1] = data.policefound;
+			transferStolenItem(1);
 		}
 		if ( (tileTwoXY[0] != data.x) || (tileTwoXY[1] != data.y) ){
 			var oldLocation = onInventory(1);
@@ -450,12 +569,15 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		}
 		if (stolenTiles[2]!=data.t){
 			stolenTiles[2] = data.t;
+			transferStolenItem(2);
 		}
 		if (policeLostTiles[2] !=  data.policelost){
 			policeLostTiles[2] = data.policelost;
+			transferStolenItem(2);
 		}
 		if (policeFoundTiles[2] != data.policefound){
 			policeFoundTiles[2] = data.policefound;
+			transferStolenItem(2);
 		}
 		if ( (tileThreeXY[0] != data.x) || (tileThreeXY[1] != data.y) ){
 			var oldLocation = onInventory(2);
@@ -475,12 +597,15 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 		}
 		if (stolenTiles[3]!=data.t){
 			stolenTiles[3] = data.t;
+			transferStolenItem(3);
 		}
 		if (policeLostTiles[3] !=  data.policelost){
 			policeLostTiles[3] = data.policelost;
+			transferStolenItem(3);
 		}
 		if (policeFoundTiles[3] != data.policefound){
 			policeFoundTiles[3] = data.policefound;
+			transferStolenItem(3);
 		}
 		if ( (tileFourXY[0] != data.x) || (tileFourXY[1] != data.y) ){
 			var oldLocation = onInventory(3);

@@ -295,6 +295,7 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 					contentRow.behavior.currentContent = newContent;
 			}
 			this.addItem = function(list,newItem){
+				if(newItem) trace(newItem.timeDifference);
 				if(contentRow.behavior.loaded == false || (this.currentContent == list && newItem && newItem.refresh == true)){
 					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
 					contentRow.behavior.loaded = true;	
