@@ -77,10 +77,10 @@ var MyNotificationBubble = Container.template(function($) { return {top: 2, righ
 
 // for switching view to upselling
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
-	 right: ($.right ? $.right : 0), left: $.left, width: $.width, height:50, skin: STYLE.redSkin,
+	 right: ($.right ? $.right : 0), left: ($.left ? $.left : 0),  height:50, skin: STYLE.redSkin,
 	contents: [
 		 Label($, {
-	   			 	left:4, right:4, top:4, bottom:4, width: 48, skin: $.skin, string:($.string ? $.string : ""), name:$.name
+	   			 	left:4, right:4, top:4, bottom:4, skin: $.skin, string:($.string ? $.string : ""), name:$.name
 	         })
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
@@ -100,10 +100,8 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	})
 }});
 
-//var historyButton = new buttonTemplate({ skin: STYLE.scanSkin, name: "history-button", width: STYLE.button.width.sm});
 var upsellButton = new buttonTemplate({name: "scan-button",string: "Upselling", width: STYLE.button.width.lg, bottom: 10});
-var MySearchField = Container.template(function($) { return { left:10, top: 0, bottom: 0,
-  width: 315, height: 40, contents: [
+var MySearchField = Container.template(function($) { return { left:10, right:0, top: 0, bottom: 0, height: 40, contents: [
   	new Line({left: 0, right: 0, top: 0, bottom: 0, contents: [
   		new Picture({ left:0, height:40, url:"assets/search.png" }),
 	    Scroller($, { 
@@ -150,41 +148,9 @@ var Header = SCREEN.EmptyHeader.template(function($) { return { contents: [
 
 var Body = SCREEN.EmptyBody.template(function($) { return { skin: STYLE.whiteS, }});
 
-var ListItemLine = Line.template(function($) { return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
-
-	Column($, { left: 0, right: 0, contents: [
-
-		Line($, { left: 0, right: 0, height: 1, skin: STYLE.separatorSkin, }),
-
-		Line($, { left: 2, right: 2, height: 82, contents: [
-
-			ItemThumbnail({width: STYLE.thumbnailWidth, height: STYLE.thumbnailHeight, url: $.image}),
-
-			Column($, { left: 20,right: 10, contents: [
-				Text($, { left: 4, right: 0, 
-				blocks: [
-					{ style: STYLE.itemNameStyle, string: $.name }	
-				], }),
-				Text($, { left: 4, right: 0, 
-				blocks: [
-					{ style: STYLE.itemPropertyStyle, string: "quantity: "+$.quantity }	
-				], }),
-				Text($, { left: 4, right: 0, 
-				blocks: [
-					{ style: STYLE.itemPropertyStyle, string: "price/unit: "+$.price }	
-				], }),
-			]})
-			
-		], }),
-		
-		
-			
-	], }),
-], }});
-
 var TimeListItemLine = Line.template(function($) { 
 
-	return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLine.behaviors[0]).prototype), contents: [
+	return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLineBehaviors[0]).prototype), contents: [
 
 	Column($, { left: 0, right: 0, contents: [
 
@@ -207,6 +173,10 @@ var TimeListItemLine = Line.template(function($) {
 				blocks: [
 					{ style: STYLE.itemPropertyStyle, string: "quantity: "+$.quantity }	
 				], }),
+				Text($, { left: 4, right: 0, 
+				blocks: [
+					{ style: STYLE.itemPropertyStyle, string: "price/unit: "+$.price }	
+				], }),
 				
 			]})
 			
@@ -218,8 +188,8 @@ var TimeListItemLine = Line.template(function($) {
 ], }});
 
 
-ListItemLine.behaviors = new Array(1);
-ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
+ListItemLineBehaviors = new Array(1);
+ListItemLineBehaviors[0] = SCREEN.ListItemBehavior.template({
 	onTouchEnded: function(line, id, x, y, ticks) {     
 	    this.onTouchCancelled(line, id); 
 	},
@@ -229,7 +199,7 @@ var ListPane = Body.template(function($) { return { behavior: Object.create((Lis
 
 	SCROLLER.VerticalScroller($, { clip: true, contents: [
 
-		Column($, {left: 0, right: 0, width: 325, top: 0, anchor: 'LIST', behavior: Object.create((ListPane.behaviors[1]).prototype), }),
+		Column($, {left: 0, right: 0, top: 0, anchor: 'LIST', behavior: Object.create((ListPane.behaviors[1]).prototype), }),
 
 		SCROLLER.VerticalScrollbar($, { }),
 
@@ -246,9 +216,6 @@ ListPane.behaviors[0] = Behavior.template({
 });
 ListPane.behaviors[1] = SCREEN.ListBehavior.template({
 	addItemLine: function(list, item) {
-						if(item.timeDifference == undefined)
-							list.add(new ListItemLine(item));
-						else
 						 	list.add(new TimeListItemLine(item));
 					},
 	createMessage: function(list,data){
@@ -276,8 +243,8 @@ var MainContainerTemplate = Container.template(function($) { return {
 var searchBarfield = new MySearchField({ name: "" });
 var main = new MainContainerTemplate();
 
-var headerColumn = new Column({left:0,top:0,bottom:0,top:0});
-var titleScanRow = new Line({skin: STYLE.redSkin, left:0, right: 0, top:0,bottom:0,top:0, clip: true});
+var headerColumn = new Column({left:0,right:0,top:0,bottom:0,width: application.width});
+var titleScanRow = new Line({skin: STYLE.redSkin, left:0, right:0, top:0, bottom:0, clip: true});
 var soldItems = [];
 var storagePane = new ListPane({ items: null, more: false, action: "Storage"});
 var inventoryPane = new ListPane({ items: null, more: false, action: "Inventory"});
@@ -287,7 +254,7 @@ var prevCt;
 var next;
 var search = false;
 
-var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYLE.content.bottom,width: 325, height: 450, behavior: {
+var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYLE.content.bottom, width: application.width, height: 450, behavior: {
 		onCreate:  function(container, data){
 			this.data = data;
 			this.loaded = false;
@@ -326,7 +293,7 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 		}});
 
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
-	left:$.left, right: $.right, width:60, height:50, skin: STYLE.tabButtonSkin,
+	left:$.left, right: $.right, height:50, skin: STYLE.tabButtonSkin,
 	contents: [
 		new MyLabel({text:$.text, style: STYLE.darkerGrayButtonStyle}),
 	],
@@ -386,7 +353,7 @@ var storageTabButton = new tabButtonTemplate ( { left:0, right:0, text: "Storage
 var inventoryTabButton = new tabButtonTemplate ( { left:1, right: 1, text: "Inventory"} );
 var soldTabButton = new tabButtonTemplate ( { left:0, right:0, text: "Sold"} );
 
-var tabsRow = new Line({left:0, right:0, bottom:0, skin:STYLE.graySkin, behavior: Object.create(Container.prototype,{
+var tabsRow = new Line({left:0, right:0, bottom:0, width: application.width, skin:STYLE.graySkin, behavior: Object.create(Container.prototype,{
 	onCreate: { value: function(content,data){
 		this.data = data;
 		this.currentTab = storageTabButton;
@@ -415,7 +382,6 @@ tabsRow.behavior.updateTabStyle(storageTabButton);
 //ADD COMPONENTS TO MAIN 		
 application.add(main);
 titleScanRow.add(titleLabel);
-//titleScanRow.add(scanButton);
 headerColumn.add(titleScanRow);
 headerColumn.add(tabsRow);
 headerColumn.add(searchBarfield);

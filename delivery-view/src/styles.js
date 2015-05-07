@@ -55,11 +55,11 @@ exports.redButtonStyle = new Style( { font:"bold 20px", color:"#881212", horizon
 exports.whiteButtonStyle = new Style( { font:"bold 20px", color:"white", horizontal:"center" } );
 exports.darkerRedSkin = new Skin( { fill:"#5C0B0B" } );
 exports.textStyle = new Style( { font:"17px", color:"gray" } );
-exports.titleStyle = new Style( { font:"25px", color:"black" } );
-exports.headerStyle = new Style({ font: "24px", color: "white", horizontal: "center", vertical: "middle" });
+exports.titleStyle = new Style( { font:"25px Tahoma", color:"black" } );
+exports.headerStyle = new Style({ font: "24px Tahoma", color: "white", horizontal: "center", vertical: "middle" });
 
 // Properties of Content such as Headers, Buttons, Image Thumbnails
 exports.header = {height: 40};
 exports.content = { top: 88, bottom: 50, };
-exports.button = { width : { sm: 50, md: 100, lg: 325} }
+exports.button = { width : { sm: 50, md: 100, lg: application.width} }
 
