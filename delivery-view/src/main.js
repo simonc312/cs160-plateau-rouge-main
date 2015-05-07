@@ -47,6 +47,11 @@ Handler.bind("/getNotifications", {
 			contentRow.behavior.addItem(inventoryPane,json.inventoryItem);
 			contentRow.behavior.addItem(storagePane,json.storageItem);
 			contentRow.behavior.addItem(soldPane,json.soldItem);
+			if(search && prevCt != next.first.first.length) {
+			    contentRow.run( new TRANSITIONS.Push(), contentRow.behavior.currentContent , next,{duration:100});
+			    contentRow.behavior.currentContent = next;
+			    search = false;
+			}
 			handler.invoke( new Message("/delay"));
          }
     }
@@ -116,7 +121,7 @@ var MySearchField = Container.template(function($) { return { left:10, top: 0, b
 		              var message = new Message(deviceURL+"searchFilter");
 		              message.requestText = JSON.stringify({filter: label.string});	
 		              label.invoke(message);
-		              contentRow.behavior.switchLists(currentTabAction);
+		              contentRow.behavior.switchLists(currentTabAction, false);
 		          
 	         		}}
 	         	}),
@@ -278,12 +283,16 @@ var storagePane = new ListPane({ items: null, more: false, action: "Storage"});
 var inventoryPane = new ListPane({ items: null, more: false, action: "Inventory"});
 var soldPane = new ListPane({ items: null, more: false, action: "Sold"});
 
+var prevCt;
+var next;
+var search = false;
+
 var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYLE.content.bottom,width: 325, height: 450, behavior: {
 		onCreate:  function(container, data){
 			this.data = data;
 			this.loaded = false;
 			this.currentContent = storagePane;
-			this.switchLists = function(listType){
+			this.switchLists = function(listType, notSearch){
 					var newContent = inventoryPane;
 					var tmpContent = new ListPane({items: null, more:false, action: listType});
 					switch(listType){
@@ -291,22 +300,30 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 						case 'Inventory': inventoryPane = tmpContent; newContent = inventoryPane; break;
 						case 'Sold': soldPane = tmpContent; newContent = soldPane; 
 					}
-					contentRow.run( new TRANSITIONS.CrossFade(), contentRow.behavior.currentContent , newContent,{duration:100});
-					contentRow.behavior.currentContent = newContent;
+					if(notSearch) { // || (contentRow.behavior.currentContent.first.first.length != newContent.first.first.length)) {
+					    contentRow.run( new TRANSITIONS.Push(), contentRow.behavior.currentContent , newContent,{duration:100});
+					    contentRow.behavior.currentContent = newContent;
+					    search = false;
+					} else {
+					    prevCt = contentRow.behavior.currentContent.first.first.length;
+					    next = newContent;
+					    search = true;
+					}
 			}
 			this.addItem = function(list,newItem){
 				if(newItem) trace(newItem.timeDifference);
 				if(contentRow.behavior.loaded == false || (this.currentContent == list && newItem && newItem.refresh == true)){
-					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
+					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString(), true);
 					contentRow.behavior.loaded = true;	
 				}
 				else if(newItem && this.currentContent == list && list.first.first.length == 1) {
-					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
+					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString(), true);
 				} else if(newItem && this.currentContent == list) { 
 					list.behavior.addItem(list,new TimeListItemLine(newItem));
 				}
 			}
-		},}});
+		},
+		}});
 
 var tabButtonTemplate = BUTTONS.Button.template(function($){ return{
 	left:$.left, right: $.right, width:60, height:50, skin: STYLE.tabButtonSkin,
