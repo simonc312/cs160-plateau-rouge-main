@@ -86,8 +86,8 @@ var TileCollection = {
 	initializeTile : function(itemProperty){
 		if(itemProperty.timeDifference && (itemProperty.timeDifference.match(/[S|s]tolen/) || itemProperty.timeDifference.match(/[L|l]ost/))) //special case once stolen and not recovered yet needs
 			return itemProperty;
-		else
-			return this.initializeTileNormal(itemProperty);
+		else{trace(' found initializeTileNormal');
+			return this.initializeTileNormal(itemProperty);}
 	},
 	updateFunc : function(itemProperty){
 		if(itemProperty.timeDifference.match(/[S|s]tolen/)) //special case once stolen and not recovered yet needs
@@ -123,7 +123,7 @@ var TileCollection = {
 		this.notificationItem = null;
 	},
 	updateTiles : function(){
-		this.tileList = this.tileList.map(this.updateFunc);
+		this.tileList = this.tileList.map(this.updateFunc,this);
 	},
 	addTile: function(newItem){
 		if(newItem)
@@ -177,21 +177,21 @@ handleItem = function(index){
 
 addStorage = function(newItem){
 	//need to update time of all items in storageTiles when adding new storage item
-	storageCollection.updateTiles(updateStorageTime);
+	storageCollection.updateTiles();
 	storageCollection.addTile(newItem); //initialize time prop of new item; 
 	storageCollection.addNotification();
 	//trigger update view for history tab if that is current tab.
 }
 
 addInventory = function(newItem){
-	inventoryCollection.updateTiles(updateInventoryTime);
+	inventoryCollection.updateTiles();
 	inventoryCollection.addTile(newItem);
 	inventoryCollection.addNotification();
 }
 
 addSold = function(newItem){
 	//need to update time of all items in soldTiles when adding new sale
-	soldCollection.updateTiles(updateSoldTime);
+	soldCollection.updateTiles();
 	soldCollection.addTile(newItem);
 	soldCollection.addNotification();
 }
