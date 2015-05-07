@@ -16,7 +16,6 @@ var THEFT = require('theft.js');
 var deviceURL = "";
 hasFoundDevice = function(){return deviceURL != "";}
 
-
 //HANDLERS
 Handler.bind("/discover", Behavior({
 	onInvoke: function(handler, message){
@@ -71,6 +70,40 @@ var MyNotificationBubble = Container.template(function($) { return {top: 2, righ
   	new Label({width: 20, height: 20, string:$.text, style: STYLE.notificationNumberStyle})] 
 }});
 
+
+/**
+ * Editable Item Details View
+ */
+var templateColumnTwo = new Column({
+	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
+	contents: [
+	    new Line({
+	        left:0, right:0, top:0, skin:STYLE.redSkin,
+	        contents: [
+	            new Picture({left:-5, height:20, url:"assets/back.png", active:true,
+	                behavior: Object.create(Behavior.prototype, { 
+				        onTouchBegan: { value: function(content){
+				           content.url = "assets/back-dark.png";
+				        }},
+				        onTouchEnded: { value: function(content){
+				            content.url = "assets/back.png";
+				            //mainContainer.run( new TRANSITIONS.Push(), templateColumnTwo, templateColumn, { direction : "right", duration : 400 } );
+						}}
+					})
+	            }),
+	            new Label({left:-5, top:5, height:40, string:"Test Header Two", style:STYLE.whiteButtonStyle}),
+	        ]
+	    }),
+	],
+});
+
+templateColumnTwo.behavior = Object.create(Behavior.prototype, {
+    onTouchEnded: { value: function(content) {
+        KEYBOARD.hide();
+        content.focus();
+    }}
+});
+
 // for switching view to upselling
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	 right: ($.right ? $.right : 0), left: $.left, width: $.width, height:50, skin: STYLE.redSkin,
@@ -82,10 +115,9 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
 			if(content == upsellButton){
-				application.remove(main);
 				UPSELLING.mainContainer.empty();
 				UPSELLING.mainContainer.add(UPSELLING.scanColumn);
-				application.add(UPSELLING.mainContainer);
+				application.run(new TRANSITIONS.TimeTravel(), main, UPSELLING.mainContainer, { direction : "forward", duration : 400 });
 			}
 		}},
 		onComplete: { value: function(content, message, json){
@@ -217,19 +249,9 @@ var TimeListItemLine = Line.template(function($) {
 
 ListItemLine.behaviors = new Array(1);
 ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
-	onTouchEnded: function(line, id, x, y, ticks) {
-				this.onTouchCancelled(line, id, x, y, ticks);
-				//if(deviceURL != "") line.invoke(new Message(deviceURL + "scanTiles"), Message.JSON);
-			},
-	onComplete: function(content, message, json) {
-	        if(json && json.validTiles.indexOf(1) != -1) {
-                //UPSELLING.scannedItems = json.validTiles;
-                //application.remove(main);
-                //application.add(UPSELLING.mainContainer);
-                //UPSELLING.mainContainer.run(new TRANSITIONS.TimeTravel(), UPSELLING.scanColumn, UPSELLING.upsellingColumn, { direction : "forward", easeType : "sineEaseIn", duration: 100 });
-	        
-	        }
-	    }
+	onTouchEnded: function(line, id, x, y, ticks) {      
+	   application.run( new TRANSITIONS.TimeTravel(), main, templateColumnTwo, { direction : "forward", duration : 400 } );      
+	},
 });
 
 var ListPane = Body.template(function($) { return { behavior: Object.create((ListPane.behaviors[0]).prototype),contents: [

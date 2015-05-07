@@ -305,8 +305,7 @@ var location_to_inventory = BUTTONS.Button.template(function($){ return{ //when 
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTap: { value: function(content){
-			application.remove(mainContainer);
-			application.add(main);
+			application.run(new TRANSITIONS.TimeTravel(), mainContainer, main, { direction : "forward", duration : 400 });
 		}}
 	})
 }}); 
