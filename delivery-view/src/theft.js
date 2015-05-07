@@ -4,13 +4,15 @@
 var whiteGrayRightSkin = new Skin( { fill:"white", borders:{right:1}, stroke:"#D6D6D6" } );
 var whiteGrayBoxSkin = new Skin( { fill:"white", borders:{left:1, right:1, top:1, bottom:1}, stroke:"#D6D6D6" } );
 var grayTransparentSkin = new Skin( { fill:"#7f2B2B2B" } );
+var lightGraySkin = new Skin( {fill:"#DEDEDE" } );
  
 /**
  * Styles
  */
-var altTextStyle = new Style( { font:"17px", color:"#FF4136" } );
-var greenTextStyle = new Style( { font:"17px", color:"#33C457" } );
+var altTextStyle = new Style( { font:"bold 17px", color:"#FF4136" } );
+var greenTextStyle = new Style( { font:"bold 17px", color:"#33C457" } );
 var darkerTextStyle = new Style( { font:"17px", color:"#595959" } );
+var buttonTextStyle = new Style( { font:"bold 20px", color:"gray" } );
 var hintStyle = new Style( { font:"17px", color:"#D6D6D6" } );
 var redTitleStyle = new Style( { font:"25px", color:"#881212" } );
  
@@ -256,16 +258,16 @@ var policeConfirmationColumn = new Column({
 			    }),
 			]
 	    }),
-	    new Line({left:0, right:0, top:15, bottom:15,
+	    new Line({left:0, right:0, top:0, bottom:0,
 	        contents: [
-	            new Label({left:70, right:0, top:0, bottom:0, height:20, active:true,
-	               string:"Return to Plateau Rouge", style:STYLE.textStyle,
+	            new Label({left:55, right:0, top:15, bottom:15, height:20, active:true,
+	               string:"Return to Plateau Rouge", style:buttonTextStyle,
 	                behavior: Object.create(Behavior.prototype, { 
 				        onTouchBegan: { value: function(content, id, x, y, ticks){
-				            content.style = darkerTextStyle;
+				            content.container.skin = lightGraySkin;
 				        }},
 				        onTouchEnded: { value: function(content, id, x, y, ticks){
-				            content.style = STYLE.textStyle;
+				            content.container.skin = STYLE.whiteSkin;
 				            theft = false;
 				            application.remove(mainContainer);
 						}}
@@ -394,17 +396,17 @@ var policeNotifiedDialog = new Column({
 	    }),
 	    new Line({left:0, right:0, top:0, bottom:0,
 	        contents: [
-	            new Label({left:70, right:0, top:0, bottom:0, height:20, active:true,
-	               string:"Return to Plateau Rouge", style:STYLE.textStyle,
+	            new Label({left:55, right:0, top:10, bottom:10, height:20, active:true,
+	               string:"Return to Plateau Rouge", style:buttonTextStyle,
 	                behavior: Object.create(Behavior.prototype, { 
 				        onTouchBegan: { value: function(content, id, x, y, ticks){
-				            content.style = darkerTextStyle;
+				            content.container.skin = lightGraySkin;
 				        }},
 				        onTouchEnded: { value: function(content, id, x, y, ticks){
 				            for(var i = 0; i < stolenItems.length; i++) {
 				                if(stolenItems[i]) policeSearchingItems[i] = 1;
 				            }
-				            content.style = STYLE.textStyle;
+				            content.container.skin = STYLE.whiteSkin;
 				            theft = false;
 			                policeNotifiedDialogContainer.empty();
 				            application.remove(mainContainer);
