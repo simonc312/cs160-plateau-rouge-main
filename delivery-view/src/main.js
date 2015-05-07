@@ -70,40 +70,6 @@ var MyNotificationBubble = Container.template(function($) { return {top: 2, righ
   	new Label({width: 20, height: 20, string:$.text, style: STYLE.notificationNumberStyle})] 
 }});
 
-
-/**
- * Editable Item Details View
- */
-var templateColumnTwo = new Column({
-	left: 0, right: 0, top: 0, bottom: 0, active:true, skin: STYLE.whiteSkin,
-	contents: [
-	    new Line({
-	        left:0, right:0, top:0, skin:STYLE.redSkin,
-	        contents: [
-	            new Picture({left:-5, height:20, url:"assets/back.png", active:true,
-	                behavior: Object.create(Behavior.prototype, { 
-				        onTouchBegan: { value: function(content){
-				           content.url = "assets/back-dark.png";
-				        }},
-				        onTouchEnded: { value: function(content){
-				            content.url = "assets/back.png";
-				            //mainContainer.run( new TRANSITIONS.Push(), templateColumnTwo, templateColumn, { direction : "right", duration : 400 } );
-						}}
-					})
-	            }),
-	            new Label({left:-5, top:5, height:40, string:"Test Header Two", style:STYLE.whiteButtonStyle}),
-	        ]
-	    }),
-	],
-});
-
-templateColumnTwo.behavior = Object.create(Behavior.prototype, {
-    onTouchEnded: { value: function(content) {
-        KEYBOARD.hide();
-        content.focus();
-    }}
-});
-
 // for switching view to upselling
 var buttonTemplate = BUTTONS.Button.template(function($){ return{
 	 right: ($.right ? $.right : 0), left: $.left, width: $.width, height:50, skin: STYLE.redSkin,
@@ -249,8 +215,8 @@ var TimeListItemLine = Line.template(function($) {
 
 ListItemLine.behaviors = new Array(1);
 ListItemLine.behaviors[0] = SCREEN.ListItemBehavior.template({
-	onTouchEnded: function(line, id, x, y, ticks) {      
-	   application.run( new TRANSITIONS.TimeTravel(), main, templateColumnTwo, { direction : "forward", duration : 400 } );      
+	onTouchEnded: function(line, id, x, y, ticks) {     
+	    this.onTouchCancelled(line, id); 
 	},
 });
 
@@ -281,7 +247,6 @@ ListPane.behaviors[1] = SCREEN.ListBehavior.template({
 						 	list.add(new TimeListItemLine(item));
 					},
 	createMessage: function(list,data){
-		trace(deviceURL + "get"+data.action+"Tags \n");
 		return new Message(deviceURL + "get"+data.action+"Tags");
 	},
 	getItems: function(list,message,result){
@@ -334,8 +299,9 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
 					contentRow.behavior.loaded = true;	
 				}
-				else if(newItem && this.currentContent == list){
-					//contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
+				else if(newItem && this.currentContent == list && list.first.first.length == 1) {
+					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString());
+				} else if(newItem && this.currentContent == list) { 
 					list.behavior.addItem(list,new TimeListItemLine(newItem));
 				}
 			}
