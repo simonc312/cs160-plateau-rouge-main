@@ -13,165 +13,12 @@ var storageCoords = {x: {min: 0, max: 25}, y: {min: 0, max: 25} }; //any tile th
 
 //quantity will eventually need to be separated
 var tileProperties = [
-	{name: "New Era Snapback", quantity: 5, price: 40, image: "assets/hat-thumbnail.jpg"},
-	{name: "Sperry Navy Shorts", quantity: 15, price: 35, image: "assets/shorts-thumbnail.jpg"},
-	{name: "Zara Men's White Tee", quantity: 25, price: 15, image: "assets/white-tee-thumbnail.jpg"},
-	{name: "J Crew Blazer", quantity: 3, price: 75, image: "assets/blazer-thumbnail.jpg"}
+	{name: "New Era Snapback", quantity: 1, price: 40, image: "assets/hat-thumbnail.jpg"},
+	{name: "Sperry Navy Shorts", quantity: 1, price: 35, image: "assets/shorts-thumbnail.jpg"},
+	{name: "Zara Men's White Tee", quantity: 1, price: 15, image: "assets/white-tee-thumbnail.jpg"},
+	{name: "J Crew Blazer", quantity: 1, price: 75, image: "assets/blazer-thumbnail.jpg"}
 	
 ]
-
-var TileCollection = {
-	notificationCount: 0,
-	notificationItem: null,
-	tileList: [],
-	addNotification: function(item){
-		this.notificationCount++;
-		this.notificationItem = item;
-	},
-	subtractNotification: function(){
-		this.notificationCount = Math.max(0,this.notificationCount - 1);
-		this.notificationItem = {refresh: true};
-	},
-	resetNotification: function(){
-		this.resetNotificationCount();
-		this.resetNotificationItem();
-	},
-	resetNotificationCount: function(){
-		this.notificationCount = 0;
-	},
-	resetNotificationItem: function(){
-		this.notificationItem = null;
-	}
-}
-
-var storageCollection = Object.create(TileCollection);
-var soldCollection = Object.create(TileCollection);
-var floorCollection = Object.create(TileCollection);
-
-var storageTiles = [];
-var soldTiles = [];
-var floorTiles = [];
-var newStorageCount = 0;
-var newSoldCount = 0;
-var newInventoryCount = 0;
-var newStorageItem;
-var newSoldItem;
-var newInventoryItem;
-
-var searchFilter = new RegExp("");
-
-
-onFloor = function(index){
-	return ( tileCoords[index][0] > storageCoords.x.max || tileCoords[index][1] > storageCoords.y.max);
-}
-
-inStorage = function(tileIndex){
-	return !onFloor(tileIndex);
-}
-
-copyTileProperty = function(origTile){
-	newTile = {};
-	Object.keys(origTile).forEach(function(key) {
-     newTile[ key ] = origTile[ key ];
-}); 
-	return newTile;
-}
-//delegates which array to place item when tag is activated and inactivated
-// ex if active and on floor add to inventory
-handleItem = function(index){
-	var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
-	if(activeTiles[index] == 1){
-		if(onFloor(index))
-			addInventory(newItem);
-		else
-			addStorage(newItem);
-	}	
-	else{
-		transferSold(newItem,index);
-	}
-}
-
-addStorage = function(newItem){
-	//need to update time of all items in storageTiles when adding new storage item
-	storageTiles = storageTiles.map(updateStorageTime);
-	storageTiles.unshift(initializeStorageTime(newItem)); //initialize time prop of new item; 
-	storageCollection.addNotification(storageTiles[0]);
-	//trigger update view for history tab if that is current tab.
-}
-
-addInventory = function(newItem){
-	floorTiles = floorTiles.map(updateInventoryTime);
-	floorTiles.unshift(initializeInventoryTime(newItem));
-	floorCollection.addNotification(floorTiles[0]);
-}
-
-addSold = function(newItem){
-	//need to update time of all items in soldTiles when adding new sale
-	soldTiles = soldTiles.map(updateSoldTime);
-	soldTiles.unshift(initializeSoldTime(newItem));
-	soldCollection.addNotification(soldTiles[0]);
-}
-//currently only checking for matching names - we could make unique ids for items instead
-// but for this prototype there are only 4 tiles. 
-transferToInventoryFilter = function(item){
-	if(item.name != this) 
-		return item;
-	else{
-		trace("added item to floor \n");
-		addInventory(item)
-		storageCollection.subtractNotification();
-		}
-}
-
-transferToStorageFilter = function(item){
-	if(item.name != this)
-		return item;
-	else{
-		trace("added item to storage \n");
-		addStorage(item)
-		floorCollection.subtractNotification();
-		}
-}
-
-transferToSoldFilter = function(item){
-	trace(this + '\n');
-	if(item.name != this) //this refers to item being transferred 
-		return item;
-	else{
-		trace("added item to sold \n");
-		addSold(item);		
-		}
-}
-
-transferSold = function(item,index){
-	var currentLocation = onFloor(index);
-	if(activeTiles[index]) //we are only transferring inactive tags
-		return;
-	else if(currentLocation){
-		trace("removed from floor \n");
-		floorTiles = floorTiles.filter(transferToSoldFilter,item.name);
-		floorCollection.subtractNotification();
-	}
-	else{
-		trace("removed from storage \n");
-		storageTiles = storageTiles.filter(transferToSoldFilter,item.name);
-		storageCollection.subtractNotification();
-	}
-}
-
-transferItem = function (index,oldLocation){
-	var currentLocation = onFloor(index);
-	var transferItemName = tileProperties[index].name;
-	if( !activeTiles[index] || currentLocation == oldLocation)
-		return; 
-	else if(currentLocation){
-		trace("removed from storage \n");
-		storageTiles = storageTiles.filter(transferToInventoryFilter,transferItemName);
-	}else{
-		trace("removed from inventory \n");
-		floorTiles = floorTiles.filter(transferToStorageFilter,transferItemName);
-	}
-}
 
 initializeTime = function(itemProperty,newMessage){
 	itemProperty.dateTime = new Date();
@@ -209,6 +56,168 @@ updateSoldTime = function(itemProperty){
 	return updateTime(itemProperty,"sold: ");
 }
 
+var TileCollection = {
+	notificationCount: 0,
+	notificationItem: null,
+	tileList: [],
+	construct: function(name,func1,func2){
+		this.name = name;
+		this.initializeTile = func1;
+		this.updateFunc = func2;
+	},
+	addNotification: function(){
+		this.notificationCount++;
+		this.notificationItem = this.tileList[0];
+	},
+	subtractNotification: function(){
+		this.notificationCount = Math.max(0,this.notificationCount - 1);
+		this.notificationItem = {refresh: true};
+	},
+	resetNotification: function(){
+		this.resetNotificationCount();
+		this.resetNotificationItem();
+	},
+	resetNotificationCount: function(){
+		this.notificationCount = 0;
+	},
+	resetNotificationItem: function(){
+		this.notificationItem = null;
+	},
+	updateTiles : function(){
+		this.tileList = this.tileList.map(this.updateFunc);
+	},
+	addTile: function(newItem){
+		this.tileList.unshift(this.initializeTile(newItem));
+	},
+	transfer: function(filterFunc,itemName){
+		this.tileList = this.tileList.filter(filterFunc,itemName);
+	}
+}
+
+var storageCollection = Object.create(TileCollection);
+storageCollection.construct("Storage Collection",initializeStorageTime,updateStorageTime);
+var soldCollection = Object.create(TileCollection);
+soldCollection.construct("Sold Collection",initializeSoldTime,updateSoldTime);
+var inventoryCollection = Object.create(TileCollection);
+inventoryCollection.construct("Inventory Collection",initializeInventoryTime,updateInventoryTime);
+
+var searchFilter = new RegExp("");
+
+
+onInventory = function(index){
+	return ( tileCoords[index][0] > storageCoords.x.max || tileCoords[index][1] > storageCoords.y.max);
+}
+
+inStorage = function(tileIndex){
+	return !onInventory(tileIndex);
+}
+
+copyTileProperty = function(origTile){
+	newTile = {};
+	Object.keys(origTile).forEach(function(key) {
+     newTile[ key ] = origTile[ key ];
+}); 
+	return newTile;
+}
+//delegates which array to place item when tag is activated and inactivated
+// ex if active and on inventory add to inventory
+handleItem = function(index){
+	var newItem = copyTileProperty(tileProperties[index]); //don't update tileProperty from array only separate copy
+	if(activeTiles[index] == 1){
+		if(onInventory(index))
+			addInventory(newItem);
+		else
+			addStorage(newItem);
+	}	
+	else{
+		transferSold(newItem,index);
+	}
+}
+
+addStorage = function(newItem){
+	//need to update time of all items in storageTiles when adding new storage item
+	storageCollection.updateTiles(updateStorageTime);
+	storageCollection.addTile(newItem); //initialize time prop of new item; 
+	storageCollection.addNotification();
+	//trigger update view for history tab if that is current tab.
+}
+
+addInventory = function(newItem){
+	inventoryCollection.updateTiles(updateInventoryTime);
+	inventoryCollection.addTile(newItem);
+	inventoryCollection.addNotification();
+}
+
+addSold = function(newItem){
+	//need to update time of all items in soldTiles when adding new sale
+	soldCollection.updateTiles(updateSoldTime);
+	soldCollection.addTile(newItem);
+	soldCollection.addNotification();
+}
+//currently only checking for matching names - we could make unique ids for items instead
+// but for this prototype there are only 4 tiles. 
+transferToInventoryFilter = function(item){
+	if(item.name != this) 
+		return item;
+	else{
+		trace("added item to inventory \n");
+		addInventory(item)
+		storageCollection.subtractNotification();
+		}
+}
+
+transferToStorageFilter = function(item){
+	if(item.name != this)
+		return item;
+	else{
+		trace("added item to storage \n");
+		addStorage(item)
+		inventoryCollection.subtractNotification();
+		}
+}
+
+transferToSoldFilter = function(item){
+	trace(this + '\n');
+	if(item.name != this) //this refers to item being transferred 
+		return item;
+	else{
+		trace("added item to sold \n");
+		addSold(item);		
+		}
+}
+
+transferSold = function(item,index){
+	var currentLocation = onInventory(index);
+	if(activeTiles[index]) //we are only transferring inactive tags
+		return;
+	else if(currentLocation){
+		trace("removed from inventory \n");
+		inventoryCollection.transfer(transferToSoldFilter,item.name);
+		inventoryCollection.subtractNotification();
+	}
+	else{
+		trace("removed from storage \n");
+		storageCollection.transfer(transferToSoldFilter,item.name);
+		storageCollection.subtractNotification();
+	}
+}
+
+transferItem = function (index,oldLocation){
+	var currentLocation = onInventory(index);
+	var transferItemName = tileProperties[index].name;
+	if( !activeTiles[index] || currentLocation == oldLocation)
+		return; 
+	else if(currentLocation){
+		trace("removed from storage \n");
+		storageCollection.transfer(transferToInventoryFilter,transferItemName);
+	}else{
+		trace("removed from inventory \n");
+		inventoryCollection.transfer(transferToStorageFilter,transferItemName);
+	}
+}
+
+
+
 containsSearchFilter = function(item){
 	if(item && ('name' in item) && item.name.match(searchFilter)) 
 		return item; 
@@ -226,21 +235,21 @@ filter = function(items){
 //for sold items
 Handler.bind("/getSoldTags", Behavior({
 	onInvoke: function(handler, message){
-		message.responseText = JSON.stringify({items: filter(soldTiles)});
+		message.responseText = JSON.stringify({items: filter(soldCollection.tileList)});
 		message.status = 200;
 	}
 }));
 //for stored items
 Handler.bind("/getStorageTags", Behavior({
 	onInvoke: function(handler, message){
-		message.responseText = JSON.stringify({items: filter(storageTiles)});
+		message.responseText = JSON.stringify({items: filter(storageCollection.tileList)});
 		message.status = 200;
 	}
 }));
 //for current inventory must have XY beyond storageCoords
 Handler.bind("/getInventoryTags", Behavior({
 	onInvoke: function(handler, message){
-		message.responseText = JSON.stringify({items: filter(floorTiles)});
+		message.responseText = JSON.stringify({items: filter(inventoryCollection.tileList)});
 		message.status = 200;
 	}
 }));
@@ -252,12 +261,12 @@ Handler.bind("/getNotifications", Behavior({
 			storageItem: storageCollection.notificationItem,
 		 	sold: soldCollection.notificationCount, 
 		 	soldItem: soldCollection.notificationItem,
-		 	inventoried: floorCollection.notificationCount, 
-		 	inventoryItem: floorCollection.notificationItem
+		 	inventoried: inventoryCollection.notificationCount, 
+		 	inventoryItem: inventoryCollection.notificationItem
 		 	})
 		message.status= 200;
 		soldCollection.resetNotificationItem();
-		floorCollection.resetNotificationItem();
+		inventoryCollection.resetNotificationItem();
 		storageCollection.resetNotificationItem();
 	}
 }));
@@ -274,7 +283,7 @@ Handler.bind("/resetSoldNotifications", Behavior({
 }));
 Handler.bind("/resetInventoryNotifications", Behavior({
 	onInvoke: function(handler, message){
-		floorCollection.resetNotificationCount();
+		inventoryCollection.resetNotificationCount();
 	}
 }));
 
@@ -401,7 +410,7 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			policeFoundTiles[0] = data.policefound;
 		}
 		if ( (tileOneXY[0] != data.x) || (tileOneXY[1] != data.y) ){
-			var oldLocation = onFloor(0);
+			var oldLocation = onInventory(0);
 			tileOneXY[0] = Math.round(100*data.x);
 			tileOneXY[1] = Math.round(100*data.y);
 			transferItem(0,oldLocation);
@@ -425,7 +434,7 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			policeFoundTiles[1] = data.policefound;
 		}
 		if ( (tileTwoXY[0] != data.x) || (tileTwoXY[1] != data.y) ){
-			var oldLocation = onFloor(1);
+			var oldLocation = onInventory(1);
 			tileTwoXY[0] = Math.round(100*data.x);
 			tileTwoXY[1] = Math.round(100*data.y);
 			transferItem(1,oldLocation);
@@ -449,7 +458,7 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			policeFoundTiles[2] = data.policefound;
 		}
 		if ( (tileThreeXY[0] != data.x) || (tileThreeXY[1] != data.y) ){
-			var oldLocation = onFloor(2);
+			var oldLocation = onInventory(2);
 			tileThreeXY[0] = Math.round(100*data.x);
 			tileThreeXY[1] = Math.round(100*data.y);
 			transferItem(2,oldLocation);
@@ -474,7 +483,7 @@ MainCanvas.behaviors[0].prototype = Object.create(Behavior.prototype, {
 			policeFoundTiles[3] = data.policefound;
 		}
 		if ( (tileFourXY[0] != data.x) || (tileFourXY[1] != data.y) ){
-			var oldLocation = onFloor(2);
+			var oldLocation = onInventory(3);
 			tileFourXY[0] = Math.round(100*data.x);
 			tileFourXY[1] = Math.round(100*data.y);
 			transferItem(3,oldLocation);
