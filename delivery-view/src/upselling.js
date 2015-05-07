@@ -245,9 +245,9 @@ var location_to_rescanButton = BUTTONS.Button.template(function($){ return{ //wh
 }});
 
 var recommended_to_locationButton = BUTTONS.Button.template(function($){ return{ //when pressed, it directs you to the store layout view
-	left: 130, right: 60, height:35, top: 100, 
+	left: 130, right: 60, height:30, top: 100, 
 	contents: [
-		new Label({left:0, right:0, height:35, skin: STYLE.redSkin, string:"Find item", style: STYLE.buttonStyle})
+		new Label({left:0, right:0, height:30, skin: STYLE.redSkin, string:"Find item", style: STYLE.buttonStyle})
 	],
 	behavior: Object.create(BUTTONS.ButtonBehavior.prototype, {
 		onTouchBegan: { value: function(content){
@@ -479,7 +479,7 @@ exports.upsellingColumn = upsellingColumn;
         new Container({ name:"imgOne", left: 10, right: 10, top: 20, active:true, backgroundTouch:true, skin: whiteSkin,
 	contents: [ 
 		new Picture({height: 150, width: 180, right: 200, left: 0, top: 0, name: "displayRecommendedItem1", url: IMGS[1]}), //need to create a function that will generate a list of items excluding the one that is scanned
-		new Label({name: "price", top: 0, left:130, height:40, string:"Price: " + PRICES[1], style: textStyle}),
+		new Label({name: "price", top: 0, left:130, height:40, string:"Price: $" + PRICES[1], style: textStyle}),
 		new Label({name: "itemName", top: 30, left: 130, height:40, string:NAMES[1], style: textStyle}),
 		new Label({top: 60, left:130, height:40, string:"Bestselling item!", style: STYLE.storageItemNameStyle}),
 		new recommended_to_locationButton({top: 20, left: 130}),
@@ -494,7 +494,7 @@ exports.upsellingColumn = upsellingColumn;
     	new Container({ name:"imgTwo", left: 10, right: 10, top:10, active:true, backgroundTouch:true, skin: whiteSkin,
 	contents: [ 
 		new Picture({height: 150, width: 180, right: 200, left: 0, top: 0, name: "displayRecommendedItem2", url: IMGS[2]}), //need to create a function that will generate a list of items excluding the one that is scanned
-		new Label({name: "price", top: 0, left:130, height:40, string:"Price: " + PRICES[2], style: textStyle}),
+		new Label({name: "price", top: 0, left:130, height:40, string:"Price: $" + PRICES[2], style: textStyle}),
 		new Label({name: "itemName", top: 30, left:130, height:40, string:NAMES[2], style: textStyle}),
 		new recommended_to_locationButton({left: 130}),
 		
@@ -514,10 +514,10 @@ exports.upsellingColumn = upsellingColumn;
 		    var recOne = hardcodedRecOne(scannedItems);
 		    var recTwo = hardcodedRecTwo(scannedItems);
 		    content.imgOne.displayRecommendedItem1.url = recOne.img;
-		    content.imgOne.price.string = "Price: " + recOne.price;
+		    content.imgOne.price.string = "Price: $" + recOne.price;
 		    content.imgOne.itemName.string = recOne.name;
 		    content.imgTwo.displayRecommendedItem2.url = recTwo.img;
-		    content.imgTwo.price.string = "Price: " + recTwo.price;
+		    content.imgTwo.price.string = "Price: $" + recTwo.price;
 		    content.imgTwo.itemName.string = recTwo.name;     
 		}},
     })
