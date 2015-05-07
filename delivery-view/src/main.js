@@ -83,6 +83,8 @@ var buttonTemplate = BUTTONS.Button.template(function($){ return{
 		onTap: { value: function(content){
 			if(content == upsellButton){
 				application.remove(main);
+				UPSELLING.mainContainer.empty();
+				UPSELLING.mainContainer.add(UPSELLING.scanColumn);
 				application.add(UPSELLING.mainContainer);
 			}
 		}},
