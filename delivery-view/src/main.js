@@ -148,6 +148,27 @@ var Header = SCREEN.EmptyHeader.template(function($) { return { contents: [
 
 var Body = SCREEN.EmptyBody.template(function($) { return { skin: STYLE.whiteS, }});
 
+var EmptyLine = Line.template(function($) { 
+
+	return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLineBehaviors[0]).prototype), contents: [
+
+	Column($, { left: 0, right: 0, contents: [
+
+		Line($, { left: 0, right: 0, height: 1, skin: STYLE.separatorSkin, }),
+
+		Line($, { left: 2, right: 2, height: 300, contents: [
+			Picture($, {left: 2, right: 2, top: 2, bottom: 2, url: $.image})
+			]}),
+			Line($, { left: 0,right: 0, contents: [
+				,
+			
+		], }),
+		
+		
+			
+	], }),
+], }});
+
 var TimeListItemLine = Line.template(function($) { 
 
 	return { left: 0, right: 0, active: true, skin: THEME.lineSkin, behavior: Object.create((ListItemLineBehaviors[0]).prototype), contents: [
@@ -215,6 +236,9 @@ ListPane.behaviors[0] = Behavior.template({
 	}
 });
 ListPane.behaviors[1] = SCREEN.ListBehavior.template({
+	addEmptyLine: function(list){
+		list.add(new EmptyLine({name:"No Tags Found",image:"assets/empty2.png"}));
+	},
 	addItemLine: function(list, item) {
 						 	list.add(new TimeListItemLine(item));
 					},
@@ -267,7 +291,7 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 						case 'Inventory': inventoryPane = tmpContent; newContent = inventoryPane; break;
 						case 'Sold': soldPane = tmpContent; newContent = soldPane; 
 					}
-					if(notSearch) { // || (contentRow.behavior.currentContent.first.first.length != newContent.first.first.length)) {
+					if(notSearch) {
 					    contentRow.run( new TRANSITIONS.Push(), contentRow.behavior.currentContent , newContent,{duration:100});
 					    contentRow.behavior.currentContent = newContent;
 					    search = false;
@@ -278,7 +302,6 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 					}
 			}
 			this.addItem = function(list,newItem){
-				if(newItem) trace(newItem.timeDifference);
 				if(contentRow.behavior.loaded == false || (this.currentContent == list && newItem && newItem.refresh == true)){
 					contentRow.behavior.switchLists(tabsRow.behavior.currentTabString(), true);
 					contentRow.behavior.loaded = true;	
@@ -288,6 +311,7 @@ var contentRow = new Line({left:0, right:0, top: STYLE.content.top ,bottom: STYL
 				} else if(newItem && this.currentContent == list) { 
 					list.behavior.addItem(list,new TimeListItemLine(newItem));
 				}
+					
 			}
 		},
 		}});

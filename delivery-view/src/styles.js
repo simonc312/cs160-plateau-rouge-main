@@ -36,8 +36,7 @@ exports.searchSkin = new Skin({width: 48,
 exports.scanSkin = new Skin({width: 48,
 						   height: 48,
 						   texture: new Texture('assets/scan-icon.png')
-						   });
-						
+						   });					
 // TEMPLATE STYLES
 exports.graySkin = new Skin({ fill:"#F0E7CE" });
 exports.grayButtonStyle = new Style( { font:"bold 15px", color:"#F0E7CE", horizontal:"center" } );
