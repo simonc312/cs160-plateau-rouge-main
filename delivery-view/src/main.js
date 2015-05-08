@@ -196,7 +196,7 @@ var TimeListItemLine = Line.template(function($) {
 				], }),
 				Text($, { left: 4, right: 0, 
 				blocks: [
-					{ style: STYLE.itemPropertyStyle, string: "price/unit: "+$.price }	
+					{ style: STYLE.itemPropertyStyle, string: "price/unit: $"+$.price }	
 				], }),
 				
 			]})
